@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Physics Ch-3 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (PHYSICS - PURPLE) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 100%);
+            --header-gradient: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+            --card-bg: #ffffff;
+            --text-main: #2e1a47;
+            --text-sub: #6a4f8a;
+            --option-bg: #F3F0FF;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(74, 0, 224, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #6200ea;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #4A00E0; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="physics_chapters.html" class="close-btn">✕</a>
+        <span>Ch-3: Electricity</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #4A00E0; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You've powered through Electricity.</p>
+        <a href="physics_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#6200ea; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Electricity) ---
+        const questions = [
+            { q: "What is the SI unit of electric current?", o: ["Volt", "Ampere", "Ohm", "Joule"], a: 1 },
+            { q: "Which instrument is used to measure electric current in a circuit?", o: ["Voltmeter", "Ammeter", "Galvanometer", "Rheostat"], a: 1 },
+            { q: "How is an ammeter connected in a circuit?", o: ["In series", "In parallel", "Either series or parallel", "None of the above"], a: 0 },
+            { q: "The electric potential difference is measured in:", o: ["Ampere", "Volt", "Ohm", "Coulomb"], a: 1 },
+            { q: "Which instrument is used to measure potential difference?", o: ["Ammeter", "Voltmeter", "Galvanometer", "Resistor"], a: 1 },
+            { q: "How is a voltmeter connected in a circuit?", o: ["In series", "In parallel", "Usually series, sometimes parallel", "None of the above"], a: 1 },
+            { q: "The rate of flow of electric charge is called:", o: ["Electric potential", "Electric current", "Electrical resistance", "None of these"], a: 1 },
+            { q: "The SI unit of electric charge is:", o: ["Volt", "Ampere", "Coulomb", "Ohm"], a: 2 },
+            { q: "One ampere equals:", o: ["1 Coulomb/second", "1 Volt/ohm", "1 Joule/second", "1 Coulomb x second"], a: 0 },
+            { q: "Work done in moving a unit positive charge across two points is called:", o: ["Electric current", "Potential difference", "Resistance", "Power"], a: 1 },
+            { q: "1 Volt equals:", o: ["1 Joule/Coulomb", "1 Coulomb/Joule", "1 Joule x Coulomb", "1 Joule/second"], a: 0 },
+            { q: "According to Ohm's law, at constant temperature:", o: ["V ∝ I", "V ∝ 1/I", "V = IR^2", "I = VR"], a: 0 },
+            { q: "What is the SI unit of resistance?", o: ["Ampere", "Volt", "Ohm", "Watt"], a: 2 },
+            { q: "The resistance of a conductor is directly proportional to its:", o: ["Area of cross-section", "Length", "Temperature", "Density"], a: 1 },
+            { q: "The resistance of a conductor is inversely proportional to its:", o: ["Length", "Area of cross-section", "Temperature", "Resistivity"], a: 1 },
+            { q: "The SI unit of electrical resistivity is:", o: ["Ohm", "Ohm-meter", "Ohm/meter", "Meter/Ohm"], a: 1 },
+            { q: "Resistivity of a material depends on:", o: ["Length", "Area of cross-section", "Material and temperature", "Shape of conductor"], a: 2 },
+            { q: "Materials with very low resistivity are called:", o: ["Insulators", "Conductors", "Semiconductors", "Alloys"], a: 1 },
+            { q: "Materials with very high resistivity are called:", o: ["Insulators", "Conductors", "Semiconductors", "Alloys"], a: 0 },
+            { q: "Which of the following has the highest resistivity?", o: ["Silver", "Copper", "Glass", "Nichrome"], a: 2 },
+            { q: "If the length of a wire is doubled, its resistance becomes:", o: ["Half", "Double", "Four times", "One-fourth"], a: 1 },
+            { q: "If the radius of a wire is doubled, its resistance becomes:", o: ["Half", "Double", "Four times", "One-fourth"], a: 3 },
+            { q: "In a series combination of resistors, the current through each resistor is:", o: ["Same", "Different", "Depends on resistance", "Zero"], a: 0 },
+            { q: "In a parallel combination of resistors, the potential difference across each resistor is:", o: ["Same", "Different", "Depends on resistance", "Zero"], a: 0 },
+            { q: "Three resistors of 2Ω, 3Ω and 5Ω are connected in series. The total resistance is:", o: ["10 Ω", "30 Ω", "1 Ω", "0.97 Ω"], a: 0 },
+            { q: "Two resistors of 6Ω and 3Ω are connected in parallel. The equivalent resistance is:", o: ["9 Ω", "2 Ω", "3 Ω", "4.5 Ω"], a: 1 },
+            { q: "When resistors are connected in parallel, the total resistance is:", o: ["Greater than the largest resistance", "Less than the smallest resistance", "Equal to the sum of resistances", "None of these"], a: 1 },
+            { q: "Why is parallel arrangement used in domestic circuits?", o: ["Current is same in all devices", "Voltage is same across all devices", "Total resistance increases", "It is cheaper"], a: 1 },
+            { q: "Tungsten is used for filaments of electric bulbs because it has:", o: ["Low melting point", "High melting point", "Low resistivity", "High density"], a: 1 },
+            { q: "Which effect of electric current is utilized in an electric heater?", o: ["Magnetic effect", "Chemical effect", "Heating effect", "Optical effect"], a: 2 },
+            { q: "The formula for heat produced (H) in a resistor according to Joule's law is:", o: ["H = VIt", "H = I²Rt", "H = V²t/R", "All of the above"], a: 3 },
+            { q: "A fuse wire is always connected in the:", o: ["Live wire", "Neutral wire", "Earth wire", "Any wire"], a: 0 },
+            { q: "A fuse wire should have:", o: ["High melting point, high resistance", "Low melting point, high resistance", "High melting point, low resistance", "Low melting point, low resistance"], a: 1 },
+            { q: "The rate at which electrical energy is consumed is called:", o: ["Electric current", "Electric potential", "Electric power", "Resistance"], a: 2 },
+            { q: "What is the SI unit of electric power?", o: ["Joule", "Watt", "Volt", "Ampere"], a: 1 },
+            { q: "1 Watt equals:", o: ["1 Volt x 1 Ampere", "1 Joule/second", "Both A and B", "None of these"], a: 2 },
+            { q: "The relation between Power (P), Voltage (V) and Resistance (R) is:", o: ["P = V/R", "P = V²R", "P = V²/R", "P = VR"], a: 2 },
+            { q: "The relation between Power (P), Current (I) and Resistance (R) is:", o: ["P = IR²", "P = I²R", "P = I/R", "P = R/I²"], a: 1 },
+            { q: "The commercial unit of electrical energy is:", o: ["Watt", "Joule", "Kilowatt-hour (kWh)", "Ampere-hour"], a: 2 },
+            { q: "1 Kilowatt-hour (1 unit) is equal to how many Joules?", o: ["3.6 x 10^5 J", "3.6 x 10^6 J", "36 x 10^5 J", "1000 J"], a: 1 },
+            { q: "An electric bulb is rated 220V and 100W. When it is operated on 110V, the power consumed will be:", o: ["100 W", "75 W", "50 W", "25 W"], a: 3 },
+            { q: "Why is the filament of a bulb filled with inactive nitrogen or argon gas?", o: ["To support combustion", "To prolong the life of filament", "To make it glow brighter", "To reduce resistance"], a: 1 },
+            { q: "The heating element of electric toasters and irons is made of an alloy (like Nichrome) rather than pure metal because:", o: ["Alloys have lower resistivity", "Alloys do not oxidize readily at high temperatures", "Alloys have lower melting points", "Alloys are cheaper"], a: 1 },
+            { q: "In a circuit, the conventional current flows from:", o: ["Positive to negative terminal", "Negative to positive terminal", "Does not flow", "Random direction"], a: 0 },
+            { q: "A voltmeter has a very _____ resistance.", o: ["Low", "High", "Zero", "Infinite"], a: 1 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

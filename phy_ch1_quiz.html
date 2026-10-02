@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Physics Ch-1 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (PHYSICS - PURPLE) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 100%);
+            --header-gradient: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+            --card-bg: #ffffff;
+            --text-main: #2e1a47;
+            --text-sub: #6a4f8a;
+            --option-bg: #F3F0FF;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(74, 0, 224, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #6200ea;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #4A00E0; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="physics_chapters.html" class="close-btn">✕</a>
+        <span>Ch-1: Light</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #4A00E0; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">Light chapter mastered successfully.</p>
+        <a href="physics_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#6200ea; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Light: Reflection & Refraction) ---
+        const questions = [
+            { q: "Light travels in a:", o: ["Straight line", "Curved line", "Zig-zag line", "None of these"], a: 0 },
+            { q: "The laws of reflection hold good for:", o: ["Plane mirrors only", "Concave mirrors only", "Convex mirrors only", "All mirrors irrespective of their shape"], a: 3 },
+            { q: "The image formed by a plane mirror is always:", o: ["Real and erect", "Real and inverted", "Virtual and erect", "Virtual and inverted"], a: 2 },
+            { q: "The focal length of a spherical mirror is related to its radius of curvature as:", o: ["f = R", "f = 2R", "f = R/2", "f = R/4"], a: 2 },
+            { q: "Which mirror is used as a rear-view mirror in vehicles?", o: ["Concave mirror", "Convex mirror", "Plane mirror", "Cylindrical mirror"], a: 1 },
+            { q: "The image formed by a convex mirror is always:", o: ["Real and magnified", "Virtual and diminished", "Real and diminished", "Virtual and magnified"], a: 1 },
+            { q: "A concave mirror gives a real, inverted and same-sized image if the object is placed at:", o: ["Focus (F)", "Centre of Curvature (C)", "Between F and C", "Beyond C"], a: 1 },
+            { q: "Dentists use which type of mirror to see large images of teeth?", o: ["Convex mirror", "Concave mirror", "Plane mirror", "None of these"], a: 1 },
+            { q: "The mirror formula is:", o: ["1/v + 1/u = 1/f", "1/v - 1/u = 1/f", "1/v + 1/u = 1/2f", "v + u = f"], a: 0 },
+            { q: "Magnification (m) produced by a spherical mirror is given by:", o: ["m = v/u", "m = -v/u", "m = u/v", "m = -u/v"], a: 1 },
+            { q: "If the magnification is negative, the image is:", o: ["Real and inverted", "Virtual and erect", "Virtual and inverted", "Real and erect"], a: 0 },
+            { q: "The speed of light in vacuum is:", o: ["3 × 10^8 m/s", "3 × 10^5 m/s", "3 × 10^10 m/s", "3 × 10^6 m/s"], a: 0 },
+            { q: "When light travels from a rarer to a denser medium, it bends:", o: ["Away from the normal", "Towards the normal", "Straight without bending", "Reflects back"], a: 1 },
+            { q: "The refractive index of glass is roughly:", o: ["1.0", "1.33", "1.5", "2.42"], a: 2 },
+            { q: "Which of the following has the highest refractive index?", o: ["Water", "Glass", "Diamond", "Air"], a: 2 },
+            { q: "A lens which is thicker at the centre and thinner at the edges is called:", o: ["Concave lens", "Convex lens", "Plane lens", "Cylindrical lens"], a: 1 },
+            { q: "A lens which diverges rays of light is:", o: ["Convex lens", "Concave lens", "Plane glass slab", "Prism"], a: 1 },
+            { q: "The lens formula is:", o: ["1/v + 1/u = 1/f", "1/v - 1/u = 1/f", "1/v + 1/u = -1/f", "v - u = f"], a: 1 },
+            { q: "Power of a lens is defined as the reciprocal of its:", o: ["Radius of curvature", "Object distance", "Focal length (in meters)", "Image distance"], a: 2 },
+            { q: "The SI unit of power of a lens is:", o: ["Meter", "Centimeter", "Dioptre", "Watt"], a: 2 },
+            { q: "If the power of a lens is +2.0 D, then the lens is:", o: ["Convex", "Concave", "Plane", "Bifocal"], a: 0 },
+            { q: "The focal length of a lens of power -2.0 D is:", o: ["-50 cm", "+50 cm", "-20 cm", "+20 cm"], a: 0 },
+            { q: "A convex lens forms a virtual, erect and magnified image when the object is placed:", o: ["At F", "Between F and 2F", "Beyond 2F", "Between F and Optical Centre"], a: 3 },
+            { q: "The phenomenon of bouncing back of light in the same medium is called:", o: ["Refraction", "Reflection", "Dispersion", "Scattering"], a: 1 },
+            { q: "Snell's Law is related to:", o: ["Reflection", "Refraction", "Absorption", "Transmission"], a: 1 },
+            { q: "According to Snell's Law, the ratio sin(i)/sin(r) is:", o: ["Variable", "Constant", "Zero", "Infinity"], a: 1 },
+            { q: "An object is placed at 2F of a convex lens. The image formed is:", o: ["At F", "At 2F", "Beyond 2F", "Between F and 2F"], a: 1 },
+            { q: "Which material cannot be used to make a lens?", o: ["Water", "Glass", "Plastic", "Clay"], a: 3 },
+            { q: "The radius of curvature of a plane mirror is:", o: ["Zero", "Infinity", "25 cm", "-25 cm"], a: 1 },
+            { q: "An object is placed at a distance of 10 cm from a convex mirror of focal length 15 cm. The position of image is:", o: ["Behind mirror", "In front of mirror", "At infinity", "At focus"], a: 0 },
+            { q: "Light enters from air to glass having refractive index 1.50. The speed of light in glass is:", o: ["2 × 10^8 m/s", "3 × 10^8 m/s", "1.5 × 10^8 m/s", "2.25 × 10^8 m/s"], a: 0 },
+            { q: "Magnification produced by a plane mirror is:", o: ["-1", "+1", "Zero", "Infinity"], a: 1 },
+            { q: "Twinkling of stars is due to:", o: ["Reflection", "Atmospheric Refraction", "Dispersion", "Tyndall Effect"], a: 1 },
+            { q: "Which mirror is used in solar furnaces?", o: ["Convex mirror", "Concave mirror", "Plane mirror", "None"], a: 1 },
+            { q: "Which lens is called a converging lens?", o: ["Concave", "Convex", "Bifocal", "Cylindrical"], a: 1 },
+            { q: "A concave lens always forms an image which is:", o: ["Real and erect", "Real and inverted", "Virtual and erect", "Virtual and inverted"], a: 2 },
+            { q: "If the angle of incidence is 45 degrees, the angle of reflection is:", o: ["90", "45", "30", "60"], a: 1 },
+            { q: "The centre of the reflecting surface of a spherical mirror is called:", o: ["Focus", "Centre of curvature", "Pole", "Aperture"], a: 2 },
+            { q: "A ray of light parallel to the principal axis, after reflection from a concave mirror, passes through:", o: ["Centre of curvature", "Pole", "Principal Focus", "Any point"], a: 2 },
+            { q: "The refractive index of water is:", o: ["1.0", "1.33", "1.52", "2.42"], a: 1 },
+            { q: "A full length image of a tall building can be seen using a:", o: ["Concave mirror", "Plane mirror", "Convex mirror", "Concave lens"], a: 2 },
+            { q: "If the magnification of a lens has a positive sign, the image is:", o: ["Real", "Inverted", "Virtual and erect", "Real and inverted"], a: 2 },
+            { q: "Which of the following does not change when light enters from one medium to another?", o: ["Speed", "Wavelength", "Frequency", "Direction"], a: 2 },
+            { q: "The absolute refractive index of a medium is always:", o: ["Less than 1", "Greater than 1", "Equal to 1", "Zero"], a: 1 },
+            { q: "Headlights of a car use:", o: ["Concave mirror", "Convex mirror", "Plane mirror", "Convex lens"], a: 0 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

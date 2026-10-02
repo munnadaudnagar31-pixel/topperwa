@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 3 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Teal/Green) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        .timer-box { background: #e0f2f1; color: #00695c; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #11998e; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #e2e6ea; }
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #11998e; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #0e7a72; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #11998e; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #11998e; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 3 QUESTIONS (हिन्द-चीन में राष्ट्रवादी आंदोलन) ▼▼▼
+    const questions = [
+        { question: "1. अंकुरवाट का मंदिर कहाँ स्थित है?", answers: [ { text: "वियतनाम", correct: false }, { text: "थाईलैंड", correct: false }, { text: "लाओस", correct: false }, { text: "कम्बोडिया", correct: true } ] },
+        { question: "2. हिंद-चीन पहुँचने वाले प्रथम व्यापारी कौन थे?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "फ्रांसीसी", correct: false }, { text: "पुर्तगाली", correct: true }, { text: "डच", correct: false } ] },
+        { question: "3. हिंद-चीन में बसने वाले फ्रांसीसी कहे जाते थे?", answers: [ { text: "फ्रांसीसी", correct: false }, { text: "शासक वर्ग", correct: false }, { text: "कोलोन", correct: true }, { text: "जनरल", correct: false } ] },
+        { question: "4. नरोत्तम सिंहानुक कहाँ के शासक थे?", answers: [ { text: "वियतनाम", correct: false }, { text: "लाओस", correct: false }, { text: "थाईलैंड", correct: false }, { text: "कम्बोडिया", correct: true } ] },
+        { question: "5. 'द हिस्ट्री ऑफ द लॉस ऑफ वियतनाम' किसने लिखा?", answers: [ { text: "हो ची मिन्ह", correct: false }, { text: "फान बोई चाऊ", correct: true }, { text: "कुआंग", correct: false }, { text: "त्रिथु", correct: false } ] },
+        { question: "6. मार्च 1946 ई० में फ्रांस एवं वियतनाम के बीच होने वाला समझौता किस नाम से जाना जाता है?", answers: [ { text: "जेनेवा समझौता", correct: false }, { text: "हनोई समझौता", correct: true }, { text: "पेरिस समझौता", correct: false }, { text: "धर्मनिरपेक्ष समझौता", correct: false } ] },
+        { question: "7. किस प्रसिद्ध दार्शनिक ने एक अदालत लगाकर अमेरिका को वियतनाम युद्ध के लिए दोषी करार दिया?", answers: [ { text: "रसेल", correct: true }, { text: "हो ची मिन्ह", correct: false }, { text: "नरोत्तम सिंहानुक", correct: false }, { text: "रूसो", correct: false } ] },
+        { question: "8. हिंद-चीन क्षेत्र में अंतिम युद्ध समाप्ति के समय अमेरिकी राष्ट्रपति कौन थे?", answers: [ { text: "वाशिंगटन", correct: false }, { text: "निक्सन", correct: true }, { text: "जार्ज बुश", correct: false }, { text: "रूजवेल्ट", correct: false } ] },
+        { question: "9. हुआ-हुआ आंदोलन किस प्रकृति का था?", answers: [ { text: "क्रांतिकारी", correct: false }, { text: "धार्मिक", correct: false }, { text: "साम्राज्यवादी समर्थक", correct: false }, { text: "क्रांतिकारी धार्मिक", correct: true } ] },
+        { question: "10. जेनेवा समझौता कब हुआ?", answers: [ { text: "1954", correct: true }, { text: "1960", correct: false }, { text: "1950", correct: false }, { text: "1946", correct: false } ] },
+        { question: "11. अनामी दल का संस्थापक कौन था?", answers: [ { text: "जोंगुएन आई", correct: true }, { text: "हो ची मिन्ह", correct: false }, { text: "बाओदायी", correct: false }, { text: "फान-चू-त्रिंह", correct: false } ] },
+        { question: "12. हो ची मिन्ह का शाब्दिक अर्थ क्या है?", answers: [ { text: "क्रांतिकारी", correct: false }, { text: "समाज सुधारक", correct: false }, { text: "पथ प्रदर्शक", correct: true }, { text: "दार्शनिक", correct: false } ] },
+        { question: "13. वियतनामी कम्युनिस्ट पार्टी के संस्थापक कौन थे?", answers: [ { text: "हो ची मिन्ह", correct: true }, { text: "न्यूगन", correct: false }, { text: "राजा त्से", correct: false }, { text: "हुइन्ह फू सो", correct: false } ] },
+        { question: "14. एकीकृत वियतनाम की स्थापना किस वर्ष हुई?", answers: [ { text: "1954", correct: false }, { text: "1960", correct: false }, { text: "1969", correct: false }, { text: "1975", correct: true } ] },
+        { question: "15. हिंद-चीन के दक्षिण में कौन सा सागर है?", answers: [ { text: "लाल सागर", correct: false }, { text: "चीन सागर", correct: true }, { text: "काला सागर", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "16. ल्यांग किचाओ कौन थे?", answers: [ { text: "चीनी सुधारक", correct: true }, { text: "जापानी दार्शनिक", correct: false }, { text: "वियतनामी क्रांतिकारी", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "17. वियतनाम में 'टोकन फ्री स्कूल' की स्थापना कब हुई थी?", answers: [ { text: "1907 में", correct: true }, { text: "1908 में", correct: false }, { text: "1910 में", correct: false }, { text: "1911 में", correct: false } ] },
+        { question: "18. जापान ने हिंद-चीन पर कब अधिकार जमा लिया?", answers: [ { text: "1939 ई०", correct: false }, { text: "1940 ई०", correct: true }, { text: "1941 ई०", correct: false }, { text: "1942 ई०", correct: false } ] },
+        { question: "19. कन्फ्यूशियस कौन था?", answers: [ { text: "एक लेखक", correct: false }, { text: "एक चीनी विचारक", correct: true }, { text: "क्रांतिकारी नेता", correct: false }, { text: "वियतनाम का शासक", correct: false } ] },
+        { question: "20. वियतनाम लोकतांत्रिक गणराज्य की स्थापना किस वर्ष हुई?", answers: [ { text: "1943", correct: false }, { text: "1944", correct: false }, { text: "1945", correct: true }, { text: "1946", correct: false } ] },
+        { question: "21. अंकोरवाट के मंदिर का निर्माण किसने करवाया था?", answers: [ { text: "सूर्यवर्मा द्वितीय", correct: true }, { text: "नरोत्तम सिंहानुक", correct: false }, { text: "कुआंग", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "22. अमेरिका ने रबर के बागान पर किस रसायन का छिड़काव किया?", answers: [ { text: "जरीला", correct: true }, { text: "नापाम", correct: false }, { text: "एजेंट ऑरेंज", correct: false }, { text: "अमोनिया", correct: false } ] },
+        { question: "23. हो ची मिन्ह का दूसरा नाम क्या था?", answers: [ { text: "न्यूगन आई क्वोक", correct: true }, { text: "फान बोई चाऊ", correct: false }, { text: "रासपुटीन", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "24. लाल खमेर सेना किसकी थी?", answers: [ { text: "कैप्टन कांगली की", correct: false }, { text: "सिहानुक की", correct: true }, { text: "पोलपोट की", correct: false }, { text: "हेंग सामरिन की", correct: false } ] },
+        { question: "25. वियतनाम युद्ध की समाप्ति किस अमेरिकी राष्ट्रपति के समय हुई?", answers: [ { text: "जार्ज वाशिंगटन", correct: false }, { text: "निक्सन", correct: true }, { text: "जॉन एफ कैनेडी", correct: false }, { text: "रूजवेल्ट", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बेहतरीन! आप टॉपर बन सकते हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 अच्छा प्रयास! थोड़ी और प्रैक्टिस करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 अभी और मेहनत की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

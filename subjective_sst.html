@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB Social Science Master Question Bank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Tiro+Devanagari+Hindi&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Professional Gradient Theme */
+            --primary-grad: linear-gradient(135deg, #00897B, #004D40);
+            --primary-solid: #00796B;
+            --accent: #FFD54F;
+            
+            /* Light Mode Vars */
+            --bg-body: #F4F7F6;
+            --bg-card: #FFFFFF;
+            --text-head: #263238;
+            --text-body: #37474F;
+            --border: #CFD8DC;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        /* Dark Mode Vars */
+        [data-theme="dark"] {
+            --bg-body: #102027;
+            --bg-card: #1C282E;
+            --text-head: #ECEFF1;
+            --text-body: #B0BEC5;
+            --border: #37474F;
+            --shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+        
+        body { 
+            background: var(--bg-body); 
+            color: var(--text-body); 
+            font-family: 'Poppins', sans-serif; 
+            padding-bottom: 60px;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: var(--primary-grad);
+            padding: 12px 15px;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            color: white;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+
+        /* Back Button Style */
+        .btn-back {
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            width: 32px; height: 32px; 
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+
+        .logo { font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .controls { display: flex; gap: 8px; }
+        
+        .btn-ctrl {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+            color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 500; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-ctrl:hover { background: rgba(255,255,255,0.25); }
+
+        /* --- Container --- */
+        .container { max-width: 750px; margin: 15px auto; padding: 0 10px; }
+
+        .section-tag {
+            font-size: 0.85rem; color: var(--primary-solid); font-weight: 700;
+            margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 0.5px;
+            border-left: 4px solid var(--accent); padding-left: 10px;
+        }
+
+        /* --- Card Design (Compact) --- */
+        .card {
+            background: var(--bg-card); border-radius: 8px; margin-bottom: 10px;
+            border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden;
+        }
+
+        .card-header {
+            padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+        }
+        .card-header:hover { background: rgba(0,0,0,0.02); }
+
+        .q-badge {
+            font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+            background: #E0F2F1; color: #00695C; display: inline-block; margin-bottom: 4px;
+        }
+        [data-theme="dark"] .q-badge { background: #263238; color: #80CBC4; }
+
+        .q-text { 
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600; font-size: 0.9rem; line-height: 1.4; color: var(--text-head);
+        }
+        
+        .icon-toggle { font-size: 0.85rem; color: var(--text-body); margin-top: 4px; transition: transform 0.3s; }
+        .card.active .icon-toggle { transform: rotate(180deg); }
+
+        /* --- Answer Section --- */
+        .card-body {
+            max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out;
+            background: rgba(0, 121, 107, 0.04); border-top: 1px solid var(--border);
+        }
+        .card.active .card-body { max-height: 800px; transition: max-height 0.5s ease-in; }
+
+        .answer-content { 
+            padding: 12px; 
+            font-size: 0.95rem; 
+            line-height: 1.6; 
+            color: var(--text-body); 
+            text-align: justify;
+        }
+        
+        .text-hi { font-family: 'Tiro Devanagari Hindi', serif; }
+        .text-en { font-family: 'Merriweather', serif; font-size: 0.9rem; }
+
+        .answer-content strong { color: var(--primary-solid); font-weight: 700; }
+        [data-theme="dark"] .answer-content strong { color: #80CBC4; }
+
+        .answer-content ul { padding-left: 20px; margin-top: 5px; }
+        .answer-content li { margin-bottom: 4px; }
+
+        /* Language Switching Logic */
+        .text-en { display: none; }
+        body.lang-en .text-hi { display: none; }
+        body.lang-en .text-en { display: block; }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="subjective_qna.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            
+            <div class="logo">
+                <span class="text-hi">Social Science</span>
+                <span class="text-en">Social Science</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-ctrl" onclick="toggleLanguage()">
+                <i class="fas fa-language"></i> <span id="lang-label">Eng</span>
+            </button>
+            <button class="btn-ctrl" onclick="toggleTheme()">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="section-tag">
+            <span class="text-hi">महत्वपूर्ण प्रश्न (Part 1)</span>
+            <span class="text-en">Important Questions (Part 1)</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q1. आदि-औद्योगीकरण (Proto-industrialization) से क्या अभिप्राय है?</span>
+                        <span class="text-en">Q1. What is meant by Proto-industrialization?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> औद्योगीकरण के उस चरण को आदि-औद्योगीकरण कहते हैं जब कारखानों की स्थापना से पहले ही अंतरराष्ट्रीय बाजार के लिए बड़े पैमाने पर उत्पादन होने लगा था। यह उत्पादन शहरों में कारखानों में नहीं, बल्कि गाँवों में किसानों और कारीगरों के घरों पर होता था।</span>
+                    <span class="text-en"><strong>Answer:</strong> The phase of industrialization before the establishment of factories, when large-scale production for the international market took place, is called Proto-industrialization. This production happened in villages in the homes of farmers and artisans, not in city factories.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q2. फ्रैंकफर्ट संसद (Frankfurt Parliament) क्यों बुलाई गई थी?</span>
+                        <span class="text-en">Q2. Why was the Frankfurt Parliament convened?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> फ्रैंकफर्ट संसद 1848 में जर्मन राष्ट्र के एकीकरण की योजना बनाने और एक संविधान तैयार करने के लिए बुलाई गई थी। इसका उद्देश्य एक ऐसे जर्मन राष्ट्र का निर्माण करना था जिसकी अध्यक्षता एक राजा करे, लेकिन वह संसद के अधीन हो।</span>
+                    <span class="text-en"><strong>Answer:</strong> The Frankfurt Parliament was convened in 1848 to plan the unification of the German nation and draft a constitution. Its aim was to create a German nation headed by a monarch, but subject to a parliament.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q3. दक्षिणी वियतनाम में साम्यवाद रोकने के लिए अमेरिका ने क्या किया?</span>
+                        <span class="text-en">Q3. What steps did the US take to stop communism in South Vietnam?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> अमेरिका ने क्रूर कदम उठाए: 1. भारी बमबारी की। 2. 'नापाम' और 'एजेंट ऑरेंज' जैसे रासायनिक हथियारों से जंगल नष्ट किए। 3. कठपुतली सरकार का समर्थन किया। 4. हजारों सैनिकों को युद्ध में उतारा।</span>
+                    <span class="text-en"><strong>Answer:</strong> The US took brutal steps: 1. Heavy bombing. 2. Used chemical weapons like 'Napalm' and 'Agent Orange' to destroy forests. 3. Supported a puppet government. 4. Deployed thousands of soldiers.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q4. लैंगिक विभेद (Gender Discrimination) क्या है?</span>
+                        <span class="text-en">Q4. What is Gender Discrimination?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> लिंग के आधार पर समाज में स्त्रियों और पुरुषों के बीच किया जाने वाला भेदभाव लैंगिक विभेद कहलाता है। यह सामाजिक, आर्थिक और राजनीतिक क्षेत्रों में महिलाओं को कम अवसर देने के रूप में दिखता है।</span>
+                    <span class="text-en"><strong>Answer:</strong> Discrimination between men and women in society based on gender is called gender discrimination. It appears as denying women equal opportunities in social, economic, and political fields.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q5. सांप्रदायिकता लोकतंत्र के लिए खतरा क्यों है?</span>
+                        <span class="text-en">Q5. Why is Communalism a threat to democracy?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. यह धर्म के आधार पर नफरत फैलाती है। 2. इससे दंगे और हिंसा होती है। 3. यह देश की एकता को तोड़ती है और राजनीतिक अस्थिरता लाती है।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. It spreads hatred based on religion. 2. It leads to riots and violence. 3. It breaks national unity and brings political instability.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q6. स्थानीय स्वशासन का क्या महत्व है?</span>
+                        <span class="text-en">Q6. What is the importance of Local Self-Government?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>लोकतंत्र की मजबूती:</strong> यह लोकतंत्र को जमीनी स्तर तक ले जाता है। 2. <strong>समस्या समाधान:</strong> स्थानीय लोग अपनी समस्याएँ (पानी, सड़क) बेहतर समझते हैं। 3. <strong>जागरूकता:</strong> इससे लोगों में जिम्मेदारी की भावना बढ़ती है।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Strengthening Democracy:</strong> It takes democracy to the grass-root level. 2. <strong>Problem Solving:</strong> Locals understand their problems (water, roads) better. 3. <strong>Awareness:</strong> It increases the sense of responsibility among people.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q7. उदारीकरण (Liberalization) को परिभाषित करें।</span>
+                        <span class="text-en">Q7. Define Liberalization.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> सरकार द्वारा लगाए गए अनावश्यक नियंत्रणों और प्रतिबंधों (जैसे लाइसेंस, कोटा) को हटाना उदारीकरण कहलाता है, ताकि व्यापार स्वतंत्र रूप से हो सके।</span>
+                    <span class="text-en"><strong>Answer:</strong> Removing unnecessary controls and restrictions (like licenses, quotas) imposed by the government to allow trade to function freely is called Liberalization.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q8. राष्ट्रीय आय (National Income) क्या है?</span>
+                        <span class="text-en">Q8. What is National Income?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> किसी देश में एक वर्ष में उत्पादित सभी वस्तुओं और सेवाओं के कुल मौद्रिक मूल्य (विदेशों से प्राप्त आय सहित) को राष्ट्रीय आय कहते हैं।</span>
+                    <span class="text-en"><strong>Answer:</strong> The total monetary value of all goods and services produced in a country in a year (including income from abroad) is called National Income.</span>
+                </div>
+            </div>
+        </div>
+
+         <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q9. 'सुनहरा रेशा' (Golden Fibre) किसे कहा जाता है?</span>
+                        <span class="text-en">Q9. Which crop is known as 'Golden Fibre'?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 'जूट' (Jute) को सुनहरा रेशा कहा जाता है। इसका कारण इसका सुनहरा रंग और आर्थिक महत्व है। इसका उपयोग बोरे और रस्सी बनाने में होता है।</span>
+                    <span class="text-en"><strong>Answer:</strong> 'Jute' is called the Golden Fibre due to its golden color and economic importance. It is used in making gunny bags and ropes.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q10. सड़क परिवहन के महत्व का उल्लेख करें।</span>
+                        <span class="text-en">Q10. Mention the importance of Road Transport.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. यह घर-घर सेवा देता है। 2. यह कम दूरी के लिए सस्ता है। 3. यह पहाड़ी क्षेत्रों में भी बनाई जा सकती है। 4. यह रेल और वायु परिवहन का पूरक है।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. It provides door-to-door service. 2. Cheaper for short distances. 3. Can be built in hilly areas. 4. Acts as a feeder to rail and air transport.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q11. भारत के चाय उत्पादक क्षेत्रों का वर्णन करें।</span>
+                        <span class="text-en">Q11. Describe the tea producing regions of India.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> प्रमुख क्षेत्र: 1. <strong>असम:</strong> ब्रह्मपुत्र घाटी। 2. <strong>प. बंगाल:</strong> दार्जिलिंग। 3. <strong>तमिलनाडु:</strong> नीलगिरी। 4. <strong>केरल:</strong> कार्डमम पहाड़ियाँ। <br>भौगोलिक दशा: ढलान वाली भूमि और गर्म-आर्द्र जलवायु।</span>
+                    <span class="text-en"><strong>Answer:</strong> Major regions: 1. <strong>Assam:</strong> Brahmaputra valley. 2. <strong>W. Bengal:</strong> Darjeeling. 3. <strong>Tamil Nadu:</strong> Nilgiris. 4. <strong>Kerala:</strong> Cardamom hills. <br>Conditions: Slopy land and hot-humid climate.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Disaster Mgmt</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q12. भूस्खलन (Landslide) क्या है?</span>
+                        <span class="text-en">Q12. What is a Landslide?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> गुरुत्वाकर्षण के कारण चट्टानों या मिट्टी का पहाड़ों की ढलान से नीचे गिरना भूस्खलन कहलाता है। यह भारी वर्षा या भूकंप से होता है।</span>
+                    <span class="text-en"><strong>Answer:</strong> The downward movement of rocks or soil from a mountain slope due to gravity is called a landslide. It is caused by heavy rain or earthquakes.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-tag">
+            <span class="text-hi">दीर्घ उत्तरीय प्रश्न (Part 2 - New)</span>
+            <span class="text-en">Long Answer Questions (Part 2 - New)</span>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q13. इटली के एकीकरण में मेज़िनी, कावूर और गैरीबाल्डी की भूमिका।</span>
+                        <span class="text-en">Q13. Role of Mazzini, Cavour, and Garibaldi in Italy's unification.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 
+                    <ul>
+                        <li><strong>मेज़िनी (The Soul):</strong> यंग इटली की स्थापना की और राष्ट्रवाद जगाया।</li>
+                        <li><strong>कावूर (The Brain):</strong> अपनी कूटनीति से फ्रांस का साथ लिया और ऑस्ट्रिया को हराया।</li>
+                        <li><strong>गैरीबाल्डी (The Sword):</strong> 'लाल कुर्ती' सेना बनाकर सिसली और नेपल्स को जीता।</li>
+                    </ul></span>
+                    <span class="text-en"><strong>Answer:</strong>
+                    <ul>
+                        <li><strong>Mazzini (The Soul):</strong> Founded Young Italy and inspired nationalism.</li>
+                        <li><strong>Cavour (The Brain):</strong> Used diplomacy to ally with France and defeat Austria.</li>
+                        <li><strong>Garibaldi (The Sword):</strong> Formed 'Red Shirts' army and conquered Sicily and Naples.</li>
+                    </ul></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q14. रूसी क्रांति (1917) के कारण क्या थे?</span>
+                        <span class="text-en">Q14. What were the causes of the Russian Revolution (1917)?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. जार की निरंकुशता और अयोग्यता। 2. किसानों और मजदूरों की दयनीय स्थिति। 3. प्रथम विश्व युद्ध में रूस की हार। 4. रासपुतिन का बुरा प्रभाव।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. Autocracy and incompetence of the Czar. 2. Miserable condition of farmers and workers. 3. Russia's defeat in WWI. 4. Evil influence of Rasputin.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">History (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q15. मुद्रण क्रांति का आधुनिक विश्व पर प्रभाव।</span>
+                        <span class="text-en">Q15. Impact of Print Revolution on the modern world.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>ज्ञान का प्रसार:</strong> किताबें सस्ती हुईं और आम लोग पढ़ने लगे। 2. <strong>वैज्ञानिक सोच:</strong> विज्ञान के विचार तेजी से फैले। 3. <strong>क्रांति:</strong> विचारकों के लेखन ने फ्रांसीसी क्रांति को जन्म दिया।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Spread of Knowledge:</strong> Books became cheaper, common people started reading. 2. <strong>Scientific Temper:</strong> Scientific ideas spread rapidly. 3. <strong>Revolution:</strong> Writings of thinkers inspired the French Revolution.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q16. भारत में गेहूँ की खेती के लिए भौगोलिक दशाएँ।</span>
+                        <span class="text-en">Q16. Geographical conditions for Wheat cultivation in India.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>तापमान:</strong> बोते समय ठंडा (10°-15°C) और काटते समय धूप (21°-26°C)। 2. <strong>वर्षा:</strong> 50-75 सेमी। 3. <strong>मिट्टी:</strong> जलोढ़ या दोमट। 4. <strong>राज्य:</strong> पंजाब, हरियाणा, यूपी।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Temp:</strong> Cool at sowing (10°-15°C) and bright sun at harvesting (21°-26°C). 2. <strong>Rainfall:</strong> 50-75 cm. 3. <strong>Soil:</strong> Alluvial or Loamy. 4. <strong>States:</strong> Punjab, Haryana, UP.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q17. संसाधन संरक्षण क्या है और क्यों आवश्यक है?</span>
+                        <span class="text-en">Q17. What is Resource Conservation and why is it needed?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> संसाधनों का विवेकपूर्ण उपयोग संरक्षण कहलाता है। यह आवश्यक है क्योंकि: 1. संसाधन सीमित हैं। 2. भावी पीढ़ी को इनकी जरूरत होगी। 3. पर्यावरण संतुलन के लिए जरूरी है।</span>
+                    <span class="text-en"><strong>Answer:</strong> Judicious use of resources is called conservation. It is needed because: 1. Resources are limited. 2. Future generations will need them. 3. Essential for ecological balance.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Geography (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q18. बहुउद्देशीय नदी परियोजनाओं के लाभ-हानि।</span>
+                        <span class="text-en">Q18. Pros and Cons of Multipurpose River Projects.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>लाभ:</strong> बाढ़ नियंत्रण, सिंचाई, बिजली उत्पादन, मछली पालन।<br><strong>हानि:</strong> लोगों का विस्थापन (घर छूटना), जंगलों का डूबना, जलीय जीवन को नुकसान।</span>
+                    <span class="text-en"><strong>Pros:</strong> Flood control, irrigation, electricity generation, fisheries.<br><strong>Cons:</strong> Displacement of people, submergence of forests, harm to aquatic life.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q19. भारतीय लोकतंत्र की प्रमुख चुनौतियाँ।</span>
+                        <span class="text-en">Q19. Major challenges to Indian Democracy.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>जातिवाद:</strong> वोट जाति के आधार पर डलते हैं। 2. <strong>भ्रष्टाचार:</strong> चुनाव में काले धन का प्रयोग। 3. <strong>परिवारवाद:</strong> नेताओं के रिश्तेदारों को ही टिकट मिलता है। 4. <strong>अशिक्षा:</strong> जागरूकता की कमी।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Casteism:</strong> Votes are cast based on caste. 2. <strong>Corruption:</strong> Use of black money in elections. 3. <strong>Dynastic Politics:</strong> Tickets given to relatives of leaders. 4. <strong>Illiteracy:</strong> Lack of awareness.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q20. संघवाद (Federalism) क्या है? विशेषताएँ बताएँ।</span>
+                        <span class="text-en">Q20. What is Federalism? Mention features.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> शासन व्यवस्था जिसमें सत्ता केंद्र और राज्यों में बंटी हो।<br><strong>विशेषताएँ:</strong> 1. दोहरी सरकार (केंद्र व राज्य)। 2. लिखित संविधान। 3. स्वतंत्र न्यायपालिका (कोर्ट)।</span>
+                    <span class="text-en"><strong>Answer:</strong> A system where power is divided between center and states.<br><strong>Features:</strong> 1. Dual Govt (Center & State). 2. Written Constitution. 3. Independent Judiciary.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Civics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q21. नगर निगम के प्रमुख कार्य क्या हैं?</span>
+                        <span class="text-en">Q21. Main functions of Municipal Corporation.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. शहर की सफाई और कचरा प्रबंधन। 2. पीने के पानी की व्यवस्था। 3. जन्म-मृत्यु का पंजीकरण। 4. गलियों में रोशनी और सड़कों की मरम्मत।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. Cleaning of city and waste management. 2. Water supply arrangement. 3. Registration of Birth/Death. 4. Street lights and road repair.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q22. वैश्वीकरण का बिहार/भारत पर प्रभाव।</span>
+                        <span class="text-en">Q22. Impact of Globalization on Bihar/India.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> <strong>सकारात्मक:</strong> उपभोक्ताओं को सस्ती और अच्छी चीजें मिल रही हैं। रोजगार के नए अवसर (IT सेक्टर) मिले हैं।<br><strong>नकारात्मक:</strong> छोटे उद्योग बंद हो गए क्योंकि वे बड़ी कंपनियों से मुकाबला नहीं कर पाए।</span>
+                    <span class="text-en"><strong>Answer:</strong> <strong>Positive:</strong> Consumers get cheaper/better goods. New job opportunities (IT sector).<br><strong>Negative:</strong> Small industries closed down as they couldn't compete with big companies.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q23. उपभोक्ता संरक्षण अधिनियम 1986 के अधिकार।</span>
+                        <span class="text-en">Q23. Rights under Consumer Protection Act 1986.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>सुरक्षा का अधिकार:</strong> खतरनाक वस्तुओं से बचाव। 2. <strong>सूचना का अधिकार:</strong> वस्तु की कीमत, शुद्धता जानना। 3. <strong>चयन का अधिकार:</strong> पसंद की चीज खरीदना। 4. <strong>शिकायत का अधिकार:</strong> हर्जाना माँगना।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Right to Safety:</strong> Protection from hazardous goods. 2. <strong>Right to Information:</strong> Knowing price, purity. 3. <strong>Right to Choose:</strong> Buying preferred items. 4. <strong>Right to Redressal:</strong> Seeking compensation.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q24. व्यावसायिक बैंकों के प्रमुख कार्य।</span>
+                        <span class="text-en">Q24. Major functions of Commercial Banks.</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> 1. <strong>जमा स्वीकारना:</strong> लोगों का पैसा जमा करना। 2. <strong>ऋण देना:</strong> ब्याज पर लोन देना। 3. <strong>एजेंसी कार्य:</strong> चेक, ड्राफ्ट बनाना और पैसे ट्रांसफर करना।</span>
+                    <span class="text-en"><strong>Answer:</strong> 1. <strong>Accepting Deposits:</strong> Keeping people's money. 2. <strong>Granting Loans:</strong> Giving loans on interest. 3. <strong>Agency Functions:</strong> Issuing cheques, drafts and transferring money.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1;">
+                    <span class="q-badge">Economics (Long)</span>
+                    <div class="q-text">
+                        <span class="text-hi">Q25. सतत विकास (Sustainable Development) क्या है?</span>
+                        <span class="text-en">Q25. What is Sustainable Development?</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-down icon-toggle"></i>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi"><strong>उत्तर:</strong> ऐसा विकास जिससे पर्यावरण को नुकसान न हो और आने वाली पीढ़ियों के लिए संसाधन सुरक्षित रहें, उसे सतत विकास कहते हैं।</span>
+                    <span class="text-en"><strong>Answer:</strong> Development that does not damage the environment and preserves resources for future generations is called Sustainable Development.</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Toggle Accordion
+        function toggleCard(header) {
+            header.parentElement.classList.toggle('active');
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('sst_theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('sst_theme', 'dark');
+            }
+        }
+
+        // Language Toggle
+        function toggleLanguage() {
+            const body = document.body;
+            const label = document.getElementById('lang-label');
+            
+            if (body.classList.contains('lang-en')) {
+                body.classList.remove('lang-en');
+                label.innerText = 'Eng';
+                localStorage.setItem('sst_lang', 'hi');
+            } else {
+                body.classList.add('lang-en');
+                label.innerText = 'हिंदी';
+                localStorage.setItem('sst_lang', 'en');
+            }
+        }
+
+        // Load Preferences
+        window.onload = function() {
+            if (localStorage.getItem('sst_theme') === 'dark') {
+                toggleTheme(); 
+            }
+            if (localStorage.getItem('sst_lang') === 'en') {
+                toggleLanguage();
+            }
+        }
+    </script>
+</body>
+</html>

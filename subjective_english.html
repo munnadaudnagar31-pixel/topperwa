@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Subjective - Quiz Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* English Theme: Royal Blue/Indigo */
+            --primary: #3f51b5;
+            --secondary: #5c6bc0;
+            --text: #1a237e;
+            --bg: #e8eaf6;
+            --card: #ffffff;
+        }
+
+        .dark-mode {
+            --primary: #5c6bc0;
+            --secondary: #3f51b5;
+            --text: #ffffff;
+            --bg: #121212;
+            --card: #1e1e1e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding: 20px; transition: 0.3s; }
+
+        /* Header */
+        .header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .back-btn { 
+            background: var(--card); color: var(--text); width: 45px; height: 45px; 
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+            text-decoration: none; font-size: 22px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+        
+        /* Question Card */
+        .qa-card {
+            background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); border-left: 5px solid var(--primary);
+        }
+
+        .q-tag {
+            background: rgba(63, 81, 181, 0.1); color: var(--primary);
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; display: inline-block; margin-bottom: 8px;
+        }
+
+        .question { font-weight: 600; font-size: 15px; margin-bottom: 12px; line-height: 1.5; }
+        
+        .toggle-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border: none; padding: 10px 15px; border-radius: 8px; 
+            font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center;
+            transition: 0.2s;
+        }
+        .toggle-btn:active { transform: scale(0.98); }
+
+        .answer-box {
+            display: none; margin-top: 15px; font-size: 14px; line-height: 1.6;
+            background: rgba(0,0,0,0.03); padding: 15px; border-radius: 10px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="subjective_qna.html" class="back-btn">❮</a>
+        <div>
+            <h2 style="margin:0; font-size:20px;">English (Subjective)</h2>
+            <span style="font-size:12px; opacity:0.7;">Based on 2026 Model Paper</span>
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Ode on Solitude</span>
+        <div class="question">Q1. How does the tree help the happy man?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> According to Alexander Pope, the trees help the happy man by providing him with shade in the summer and wood for fire in the winter.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Me and the Ecology Bit</span>
+        <div class="question">Q2. Which animal messes up Ms. Greene's yard?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> It is the narrator's (Jim's) dog that digs up Ms. Greene's garden and messes up her yard.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Gillu</span>
+        <div class="question">Q3. How did Gillu nurse the narrator during her indisposition?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> When the narrator was ill, Gillu would sit near her head on her pillow and gently stroke her forehead and hair with his bushy tail, acting like a nurse.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Indian Culture</span>
+        <div class="question">Q4. Which spirit underlies the changes of Indian history?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> The spirit of "Unity in Diversity" underlies the changes of Indian history. Despite many invasions and foreign influences, Indian culture has maintained a unique continuity.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Polythene Bag</span>
+        <div class="question">Q5. In the poem 'Polythene Bag', what causes pain?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> The 'hurt' or pain caused by the polythene bag keeps coming back. It represents the lasting pain of separation or grief that, like plastic, does not dissolve or go away easily.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">The Empty Heart</span>
+        <div class="question">Q6. Why was the man given seven pots of gold?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> The man was given seven pots of gold to satisfy his greed. However, instead of being happy, he became more greedy and wanted to fill the eighth pot, ruining his health and peace of mind.
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-tag">Thinner Than a Crescent</span>
+        <div class="question">Q7. Why is Radha crying?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer 👇</button>
+        <div class="answer-box">
+            <strong>Answer:</strong> Radha is crying because of the intense pain of separation from her beloved Lord Krishna. Her grief is so deep that she has become thinner than the crescent moon.
+        </div>
+    </div>
+
+    <div class="qa-card" style="border-left-color: #FF9800;">
+        <span class="q-tag" style="background: #FFF3E0; color: #EF6C00;">Paragraph Writing (5 Marks)</span>
+        <div class="question">Topic: Student Life</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">View Sample 👇</button>
+        <div class="answer-box">
+            Student life is the most important period of a person's life. It is the time for learning and building character. A student's main duty is to study hard and acquire knowledge. Besides studies, students should also take part in sports and other activities. Discipline and punctuality are key virtues of student life. It prepares us for future challenges.
+        </div>
+    </div>
+
+    <div class="qa-card" style="border-left-color: #4CAF50;">
+        <span class="q-tag" style="background: #E8F5E9; color: #2E7D32;">Application Writing (5 Marks)</span>
+        <div class="question">Q. Write an application to your hostel warden requesting him to ensure cleanliness.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">View Format 👇</button>
+        <div class="answer-box">
+            To,<br>
+            The Warden,<br>
+            Boys' Hostel, [School Name]<br><br>
+            <strong>Subject: Request for cleanliness in the hostel.</strong><br><br>
+            Sir,<br>
+            Most respectfully, I want to draw your attention to the unhygienic condition of our hostel. The sweepers are irregular, and garbage is piled up in the corridors. This is causing a bad smell and mosquitoes.<br><br>
+            I request you to kindly ensure regular cleaning of the hostel premises.<br><br>
+            Yours faithfully,<br>
+            Name: XYZ<br>
+            Room No: 10
+        </div>
+    </div>
+
+    <div class="qa-card" style="border-left-color: #9C27B0;">
+        <span class="q-tag" style="background: #F3E5F5; color: #7B1FA2;">Notice Writing (5 Marks)</span>
+        <div class="question">Q. Write a notice inviting entry for inter-class drama competition.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">View Notice 👇</button>
+        <div class="answer-box">
+            <div style="border: 1px solid #ccc; padding: 10px; text-align: center;">
+                <strong>NOTICE</strong><br>
+                <strong>DRAMA COMPETITION</strong><br>
+                <span style="font-size:12px;">Date: 15th Feb 2026</span><br><br>
+                <div style="text-align: left;">
+                    All the students are hereby informed that our school is organizing an <strong>Inter-Class Drama Competition</strong> on 25th Feb 2026 in the school auditorium. Interested students should give their names to the undersigned by 20th Feb.<br><br>
+                    <strong>Raj</strong><br>
+                    Secretary, Cultural Club
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function toggleAnswer(btn) {
+            const ans = btn.nextElementSibling;
+            if (ans.style.display === "block") {
+                ans.style.display = "none";
+                btn.innerText = "Show Answer 👇";
+                btn.style.background = "linear-gradient(135deg, var(--primary), var(--secondary))";
+            } else {
+                ans.style.display = "block";
+                btn.innerText = "Hide Answer 👆";
+                btn.style.background = "#444"; 
+            }
+        }
+    </script>
+
+</body>
+</html>

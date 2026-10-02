@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-7: Coordinate Geometry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Coordinate Geometry</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Coordinate Geometry) ---
+        const questions = [
+            { q: "The distance of the point P(2, 3) from the x-axis is:", o: ["2", "3", "1", "5"], a: 1 },
+            { q: "The distance of the point P(-6, 8) from the origin is:", o: ["8", "2√7", "10", "6"], a: 2 },
+            { q: "The distance between the points A(0, 6) and B(0, -2) is:", o: ["6", "8", "4", "2"], a: 1 },
+            { q: "The distance between the points (0, 5) and (-5, 0) is:", o: ["5", "5√2", "2√5", "10"], a: 1 },
+            { q: "The coordinates of the origin are:", o: ["(0, 0)", "(0, 1)", "(1, 0)", "(1, 1)"], a: 0 },
+            { q: "The midpoint of the line segment joining the points A(-2, 8) and B(-6, -4) is:", o: ["(-4, -6)", "(2, 6)", "(-4, 2)", "(4, 2)"], a: 2 },
+            { q: "If the points A(1, 2), O(0, 0) and C(a, b) are collinear, then:", o: ["a = b", "a = 2b", "2a = b", "a = -b"], a: 2 },
+            { q: "The perimeter of a triangle with vertices (0, 4), (0, 0) and (3, 0) is:", o: ["5", "12", "11", "7 + √5"], a: 1 },
+            { q: "The area of a triangle with vertices A(3, 0), B(7, 0) and C(8, 4) is:", o: ["14", "28", "8", "6"], a: 2 },
+            { q: "The points (-4, 0), (4, 0), (0, 3) are the vertices of a:", o: ["Right triangle", "Isosceles triangle", "Equilateral triangle", "Scalene triangle"], a: 1 },
+            { q: "The distance of the point (α, β) from the origin is:", o: ["α + β", "α² + β²", "√(α² + β²)", "√(α² - β²)"], a: 2 },
+            { q: "If the distance between the points (2, -2) and (-1, x) is 5, then the value of x is:", o: ["-2", "2", "-1", "1"], a: 1 },
+            { q: "The perpendicular distance of A(5, 12) from the y-axis is:", o: ["13", "5", "12", "17"], a: 1 },
+            { q: "The line segment joining the points (3, -1) and (-6, 5) is trisected. The coordinates of the point of trisection nearer to (3, -1) are:", o: ["(0, 1)", "(1, 0)", "(0, -1)", "(1, 1)"], a: 0 },
+            { q: "Find the ratio in which the line segment joining the points (6, 4) and (1, -7) is divided by x-axis.", o: ["1:3", "2:7", "4:7", "6:7"], a: 2 },
+            { q: "If (a/3, 4) is the midpoint of the segment joining the points P(-6, 5) and R(-2, 3), then the value of a is:", o: ["-4", "-12", "12", "-6"], a: 1 },
+            { q: "The point which divides the line segment joining the points (7, -6) and (3, 4) in the ratio 1:2 internally lies in the:", o: ["I quadrant", "II quadrant", "III quadrant", "IV quadrant"], a: 3 },
+            { q: "The coordinates of the centroid of a triangle whose vertices are (0, 6), (8, 12) and (8, 0) is:", o: ["(4, 6)", "(16, 6)", "(8, 6)", "(16/3, 6)"], a: 3 },
+            { q: "Two vertices of a triangle are (3, -5) and (-7, 4). If its centroid is (2, -1), then the third vertex is:", o: ["(10, 2)", "(-10, 2)", "(10, -2)", "(-10, -2)"], a: 2 },
+            { q: "The area of the triangle formed by the points (0, 0), (3, 0) and (0, 4) is:", o: ["6", "12", "3", "24"], a: 0 },
+            { q: "If the points (1, 1), (-1, -1) and (-√3, k) are vertices of an equilateral triangle, then k =", o: ["1", "√3", "-√3", "±√3"], a: 1 },
+            { q: "The fourth vertex D of a parallelogram ABCD whose three vertices are A(-2, 3), B(6, 7) and C(8, 3) is:", o: ["(0, 1)", "(0, -1)", "(-1, 0)", "(1, 0)"], a: 1 },
+            { q: "If P(a/3, 4) is the midpoint of the line segment joining points Q(-6, 5) and R(-2, 3), then the value of a is:", o: ["-4", "-12", "12", "-6"], a: 1 },
+            { q: "If the area of a triangle is 0 square units, then the vertices of the triangle are:", o: ["Collinear", "Non-collinear", "Equal", "None"], a: 0 },
+            { q: "The point P which divides the line segment joining the points A(2, -5) and B(5, 2) in the ratio 2:3 lies in the quadrant:", o: ["I", "II", "III", "IV"], a: 3 },
+            { q: "The distance between the points (a cos θ + b sin θ, 0) and (0, a sin θ - b cos θ) is:", o: ["a² + b²", "a + b", "a² - b²", "√(a² + b²)"], a: 3 },
+            { q: "If the point P(2, 1) lies on the line segment joining points A(4, 2) and B(8, 4), then:", o: ["AP = 1/3 AB", "AP = PB", "PB = 1/3 AB", "AP = 1/2 AB"], a: 0 },
+            { q: "A point lies on x-axis at a distance of 9 units from y-axis. Its coordinates are:", o: ["(0, 9)", "(9, 0)", "(0, -9)", "Both B and (-9, 0)"], a: 3 },
+            { q: "The distance of the point P(4, -3) from the origin is:", o: ["1 unit", "7 units", "5 units", "3 units"], a: 2 },
+            { q: "If the points (1, x), (5, 2) and (9, 5) are collinear, then the value of x is:", o: ["5/2", "-5/2", "-1", "1"], a: 2 },
+            { q: "The endpoints of diameter of a circle are (2, 4) and (-3, -1). The radius of the circle is:", o: ["5√2/2", "5/2", "√26/2", "5√2"], a: 0 },
+            { q: "If A(2, 2), B(-4, -4) and C(5, -8) are vertices of a triangle, then the length of the median through C is:", o: ["√65", "√117", "√85", "√113"], a: 2 },
+            { q: "If the point C(k, 4) divides the join of A(2, 6) and B(5, 1) in ratio 2:3, then value of k is:", o: ["16", "16/5", "16/3", "8/5"], a: 1 },
+            { q: "The coordinates of a point on x-axis which is equidistant from (-3, 4) and (2, 5) is:", o: ["(20, 0)", "(-23, 0)", "(4/5, 0)", "None"], a: 1 },
+            { q: "If the centroid of a triangle is at (3, -5) and two vertices are (-1, 4) and (7, -8), then third vertex is:", o: ["(3, -11)", "(2, -10)", "(2, -11)", "(3, -10)"], a: 0 },
+            { q: "If the points (0, 0), (1, 2) and (x, y) are collinear, then:", o: ["x = y", "2x = y", "x = 2y", "2x = -y"], a: 1 },
+            { q: "Find the distance between the points (a, b) and (-a, -b).", o: ["2√(a² + b²)", "√(a² + b²)", "2(a + b)", "0"], a: 0 },
+            { q: "The line segment joining points (-3, -4) and (1, -2) is divided by y-axis in the ratio:", o: ["1:3", "2:3", "3:1", "3:2"], a: 2 },
+            { q: "If A(5, 3), B(11, -5) and P(12, y) are vertices of a right triangle right angled at P, then y =", o: ["-2, 4", "2, -4", "2, 4", "-2, -4"], a: 2 },
+            { q: "Name the type of quadrilateral formed by the points (-1, -2), (1, 0), (-1, 2), (-3, 0).", o: ["Rectangle", "Square", "Rhombus", "Parallelogram"], a: 1 },
+            { q: "Find the coordinates of the point which divides the join of (-1, 7) and (4, -3) in the ratio 2:3.", o: ["(1, 3)", "(-1, 3)", "(1, -3)", "(2, 3)"], a: 0 },
+            { q: "A point P divides the join of A(5, -2) and B(9, 6) in the ratio 3:1. The coordinates of P are:", o: ["(4, 7)", "(8, 4)", "(11/2, 5)", "(12, 8)"], a: 1 },
+            { q: "The point on the x-axis which is equidistant from (2, -5) and (-2, 9) is:", o: ["(-7, 0)", "(7, 0)", "(0, 7)", "(-7, 7)"], a: 0 },
+            { q: "Area of the triangle formed by (1, -1), (-4, 6) and (-3, -5) is:", o: ["24", "21", "28", "20"], a: 0 },
+            { q: "The distance of point (3, 4) from the origin is:", o: ["3", "4", "5", "7"], a: 2 },
+            { q: "If (x, 2), (-3, -4) and (7, -5) are collinear, then x =", o: ["63", "60", "-63", "-60"], a: 2 },
+            { q: "If points (a, 0), (0, b) and (1, 1) are collinear, then 1/a + 1/b =", o: ["1", "2", "0", "-1"], a: 0 },
+            { q: "The vertices of a triangle are (0,0), (3,0) and (0,4). Its centroid is:", o: ["(1, 4/3)", "(1, 1)", "(1, 4)", "(4/3, 1)"], a: 0 },
+            { q: "In which quadrant does the point (-2, 5) lie?", o: ["I", "II", "III", "IV"], a: 1 },
+            { q: "What is the distance of point (3, 0) from y-axis?", o: ["3 units", "0 units", "2 units", "None"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Excellent! Coordinates Master! 📍";
+            else if(accuracy >= 70) feedback.innerText = "Good job! Focus on formula application. 📐";
+            else if(accuracy >= 50) feedback.innerText = "Average. Watch out for calculation errors. ✍️";
+            else feedback.innerText = "Need practice with graphs and formulas. Try again! 🔥";
+        }
+    </script>
+</body>
+</html>

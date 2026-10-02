@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Chapter 5 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Challenge Red/Orange) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #ffebee; color: #b71c1c; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #FF416C; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #ffcdd2; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #FF416C; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #d50000; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #FF416C; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #FF416C; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="civics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="civics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CIVICS CHAPTER 5 QUESTIONS (लोकतंत्र की चुनौतियाँ) ▼▼▼
+    const questions = [
+        { question: "1. लोकतंत्र की सफलता की चुनौती है?", answers: [ { text: "अफसरशाही", correct: false }, { text: "अशिक्षा", correct: false }, { text: "जातिवाद", correct: false }, { text: "इनमें से सभी", correct: true } ] },
+        { question: "2. वर्तमान में नेपाल की शासन प्रणाली क्या है?", answers: [ { text: "लोकतंत्र", correct: true }, { text: "राजतंत्र", correct: false }, { text: "सैनिक तंत्र", correct: false }, { text: "तानाशाही", correct: false } ] },
+        { question: "3. 'परिवारवाद' (Nepotism) क्या है?", answers: [ { text: "परिवार का विकास", correct: false }, { text: "राजनीति में अपने रिश्तेदारों को लाभ पहुँचाना", correct: true }, { text: "समाज सेवा", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "4. भारत में लोकतंत्र के सामने बड़ी चुनौती क्या है?", answers: [ { text: "आर्थिक विकास", correct: false }, { text: "लोकतंत्र को सशक्त बनाना", correct: true }, { text: "उच्च शिक्षा", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "5. भारतीय लोकतंत्र की कमजोरियों को दूर करने का सबसे अच्छा उपाय क्या है?", answers: [ { text: "गरीबों को हटाना", correct: false }, { text: "सुधारात्मक कानूनों का निर्माण", correct: true }, { text: "सूचना तंत्र पर नियंत्रण", correct: false }, { text: "बूथ छापामारी", correct: false } ] },
+        { question: "6. क्षेत्रवाद की भावना का एक कुपरिणाम है?", answers: [ { text: "अपने क्षेत्र से लगाव", correct: false }, { text: "राष्ट्रीय एकता", correct: false }, { text: "अलगाववाद", correct: true }, { text: "विधि का शासन", correct: false } ] },
+        { question: "7. लोकतंत्र के मार्ग की सबसे बड़ी बाधा क्या है?", answers: [ { text: "आर्थिक समानता", correct: false }, { text: "राजनीतिक जागरूकता", correct: false }, { text: "अशिक्षा और जातिवाद", correct: true }, { text: "लोकतंत्र में आस्था", correct: false } ] },
+        { question: "8. दुनिया के कितने हिस्सों में अभी भी लोकतांत्रिक शासन व्यवस्था नहीं है?", answers: [ { text: "आधे हिस्से में", correct: false }, { text: "एक चौथाई हिस्से में", correct: true }, { text: "दो तिहाई हिस्से में", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "9. 15वीं लोकसभा चुनाव में संयुक्त प्रगतिशील गठबंधन (UPA) ने कितनी सीटों पर विजय प्राप्त की?", answers: [ { text: "200", correct: false }, { text: "250", correct: false }, { text: "265", correct: true }, { text: "300", correct: false } ] },
+        { question: "10. जल-संकट किस देश में लोकतांत्रिक चुनौती के रूप में उभरी?", answers: [ { text: "म्यांमार", correct: false }, { text: "अफगानिस्तान", correct: false }, { text: "घाना", correct: false }, { text: "बोलिविया", correct: true } ] },
+        { question: "11. 'लिच्छवी' गणतंत्र भारत के किस राज्य में अवस्थित था?", answers: [ { text: "बिहार", correct: true }, { text: "राजस्थान", correct: false }, { text: "महाराष्ट्र", correct: false }, { text: "त्रिपुरा", correct: false } ] },
+        { question: "12. 15वीं लोकसभा में महिलाओं की भागीदारी कितनी थी?", answers: [ { text: "10.86%", correct: true }, { text: "12.20%", correct: false }, { text: "15%", correct: false }, { text: "50%", correct: false } ] },
+        { question: "13. गठबंधन सरकार की पकड़ प्रशासन पर कैसी होती है?", answers: [ { text: "मजबूत", correct: false }, { text: "ढीली", correct: true }, { text: "अति मजबूत", correct: false }, { text: "कठोर", correct: false } ] },
+        { question: "14. निम्नलिखित में कौन-सा कारक लोकतंत्र की चुनौती नहीं है?", answers: [ { text: "आतंकवाद", correct: false }, { text: "जातिवाद", correct: false }, { text: "क्षेत्रवाद", correct: false }, { text: "देशप्रेम", correct: true } ] },
+        { question: "15. किस देश में महिलाओं को सार्वजनिक गतिविधियों में हिस्सा लेने पर प्रतिबंध लगा दिया गया था?", answers: [ { text: "बेल्जियम", correct: false }, { text: "नेपाल", correct: false }, { text: "सऊदी अरब", correct: true }, { text: "यूगोस्लाविया", correct: false } ] },
+        { question: "16. नए विश्व सर्वेक्षण के आधार पर भारतवर्ष में मतदाताओं की संख्या लगभग कितनी है?", answers: [ { text: "90 करोड़ (वर्तमान अनुमान)", correct: false }, { text: "71 करोड़ (किताब के अनुसार)", correct: true }, { text: "50 करोड़", correct: false }, { text: "60 करोड़", correct: false } ] },
+        { question: "17. लोकतंत्र के सामने सबसे बड़ी चुनौती क्या है?", answers: [ { text: "उच्च शिक्षा की व्यवस्था", correct: false }, { text: "खाद्यान्न की व्यवस्था", correct: false }, { text: "लोकतंत्र को सशक्त बनाना", correct: true }, { text: "जनसंख्या पर नियंत्रण", correct: false } ] },
+        { question: "18. लोकतंत्र में चुनावों में भाग लेने और अपने प्रतिनिधियों को चुनने का अधिकार किसे है?", answers: [ { text: "पार्टी अध्यक्ष को", correct: false }, { text: "जनता को", correct: true }, { text: "अमीर वर्ग को", correct: false }, { text: "सैनिकों को", correct: false } ] },
+        { question: "19. इनमें से कौन-सा तत्व लोकतंत्र की स्थापना में बाधक है?", answers: [ { text: "शिक्षा", correct: false }, { text: "अशिक्षा", correct: true }, { text: "मतदान", correct: false }, { text: "जागरूकता", correct: false } ] },
+        { question: "20. भारत में लोकतंत्र के विकास के मार्ग में कौन-सी प्रमुख बाधा है?", answers: [ { text: "सामाजिक भेदभाव", correct: false }, { text: "जाति प्रथा", correct: false }, { text: "आतंकवाद", correct: false }, { text: "इनमें सभी", correct: true } ] },
+        { question: "21. स्विट्जरलैंड को किस प्रकार के लोकतंत्र का उदाहरण माना जाता है?", answers: [ { text: "अप्रत्यक्ष", correct: false }, { text: "प्रत्यक्ष", correct: true }, { text: "सैनिक", correct: false }, { text: "मिश्रित", correct: false } ] },
+        { question: "22. रंगभेद के खिलाफ नेल्सन मंडेला ने कहाँ आंदोलन चलाया था?", answers: [ { text: "भारत", correct: false }, { text: "दक्षिण अफ्रीका", correct: true }, { text: "अमेरिका", correct: false }, { text: "इंग्लैंड", correct: false } ] },
+        { question: "23. 16वीं लोकसभा का चुनाव किस वर्ष हुआ?", answers: [ { text: "2012", correct: false }, { text: "2013", correct: false }, { text: "2014", correct: true }, { text: "2015", correct: false } ] },
+        { question: "24. भारतीय लोकतंत्र है?", answers: [ { text: "एक सफल लोकतंत्र", correct: false }, { text: "विश्व का सबसे बड़ा लोकतंत्र", correct: false }, { text: "दोनों (A और B)", correct: true }, { text: "असफल लोकतंत्र", correct: false } ] },
+        { question: "25. जनरल पिनोशे का संबंध किस देश से था (जहाँ लोकतंत्र की बहाली हुई)?", answers: [ { text: "चिली", correct: true }, { text: "पोलैंड", correct: false }, { text: "घाना", correct: false }, { text: "इराक", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🚨 बहुत अच्छे! चुनौतियों के बारे में आपकी समझ सही है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर और सुधार की गुंजाइश है।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 इस चैप्टर को गंभीरता से पढ़ें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

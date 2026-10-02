@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 5 (Bihar Special) - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Bihar Agriculture - Green & Earth) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #f1f8e9; color: #33691e; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #56ab2f; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #dcedc8; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #56ab2f; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #33691e; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #56ab2f; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #56ab2f; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 5 QUESTIONS (बिहार: कृषि एवं वन संसाधन) ▼▼▼
+    const questions = [
+        { question: "1. बिहार में कितने प्रतिशत क्षेत्र में खेती की जाती है?", answers: [ { text: "50%", correct: false }, { text: "60%", correct: true }, { text: "80%", correct: false }, { text: "36.5%", correct: false } ] },
+        { question: "2. बिहार राज्य की कितनी प्रतिशत जनसंख्या कृषि कार्य में लगी हुई है?", answers: [ { text: "80%", correct: true }, { text: "75%", correct: false }, { text: "65%", correct: false }, { text: "86%", correct: false } ] },
+        { question: "3. इनमें से कौन गन्ना उत्पादक जिला नहीं है?", answers: [ { text: "दरभंगा", correct: false }, { text: "पश्चिमी चंपारण", correct: false }, { text: "मुजफ्फरपुर", correct: false }, { text: "रोहतास", correct: true } ] },
+        { question: "4. बिहार के जूट उत्पादन में क्या हो रहा है?", answers: [ { text: "वृद्धि हो रही है", correct: false }, { text: "गिरावट हो रही है", correct: true }, { text: "स्थिर है", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "5. तंबाकू उत्पादन क्षेत्र है?", answers: [ { text: "गंगा का उत्तरी मैदान", correct: false }, { text: "गंगा का दक्षिणी मैदान", correct: false }, { text: "दियारा क्षेत्र", correct: true }, { text: "हिमालय की तराई", correct: false } ] },
+        { question: "6. कोसी नदी घाटी परियोजना का आरंभ कब हुआ?", answers: [ { text: "1950", correct: false }, { text: "1948", correct: false }, { text: "1952", correct: false }, { text: "1955", correct: true } ] },
+        { question: "7. गंडक परियोजना का निर्माण किस स्थान पर हुआ?", answers: [ { text: "बेतिया", correct: false }, { text: "वाल्मीकिनगर", correct: true }, { text: "मोतिहारी", correct: false }, { text: "छपरा", correct: false } ] },
+        { question: "8. बिहार में नहरों द्वारा सर्वाधिक सिंचाई किस जिले में होती है?", answers: [ { text: "रोहतास", correct: true }, { text: "सिवान", correct: false }, { text: "गया", correct: false }, { text: "पश्चिमी चंपारण", correct: false } ] },
+        { question: "9. बिहार में कुल कितने अधिसूचित क्षेत्र में वन का विस्तार है?", answers: [ { text: "6374 किमी", correct: false }, { text: "6370 किमी", correct: true }, { text: "6380 किमी", correct: false }, { text: "6350 किमी", correct: false } ] },
+        { question: "10. कुशेश्वरस्थान किस जिले में स्थित है?", answers: [ { text: "वैशाली में", correct: false }, { text: "दरभंगा में", correct: true }, { text: "बेगूसराय में", correct: false }, { text: "भागलपुर में", correct: false } ] },
+        { question: "11. कावर झील कहाँ स्थित है?", answers: [ { text: "दरभंगा में", correct: false }, { text: "भागलपुर में", correct: false }, { text: "बेगूसराय में", correct: true }, { text: "मुजफ्फरपुर में", correct: false } ] },
+        { question: "12. संजय गांधी जैविक उद्यान किस नगर में स्थित है?", answers: [ { text: "राजगीर", correct: false }, { text: "बोधगया", correct: false }, { text: "बिहारशरीफ", correct: false }, { text: "पटना", correct: true } ] },
+        { question: "13. बिहार में खनिज तेल मिलने की संभावनाएं हैं?", answers: [ { text: "हिमालय क्षेत्र में", correct: false }, { text: "दक्षिण बिहार के मैदान में", correct: false }, { text: "दक्षिण बिहार के पहाड़ी क्षेत्र में", correct: false }, { text: "गंगा की द्रोणी में", correct: true } ] },
+        { question: "14. चूना पत्थर का उपयोग मुख्य रूप से किस उद्योग में होता है?", answers: [ { text: "सीमेंट उद्योग", correct: true }, { text: "लोहा उद्योग", correct: false }, { text: "शीशा उद्योग", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "15. पाइराइट (Pyrite) खनिज है?", answers: [ { text: "धात्विक", correct: false }, { text: "अधात्विक", correct: true }, { text: "परमाणु", correct: false }, { text: "ईंधन", correct: false } ] },
+        { question: "16. बिहार में सोना अयस्क से प्रति टन शुद्ध सोना प्राप्त होता है?", answers: [ { text: "0.1 से 0.6 ग्राम", correct: true }, { text: "00.0 से 0.1 ग्राम", correct: false }, { text: "0.6 से 0.9 ग्राम", correct: false }, { text: "1 से 2 ग्राम", correct: false } ] },
+        { question: "17. कहलगाँव तापीय विद्युत परियोजना किस जिले में अवस्थित है?", answers: [ { text: "भागलपुर", correct: true }, { text: "मुंगेर", correct: false }, { text: "जमुई", correct: false }, { text: "साहिबगंज", correct: false } ] },
+        { question: "18. कांटी तापीय विद्युत परियोजना किस जिले में स्थापित है?", answers: [ { text: "पूर्णिया", correct: false }, { text: "सिवान", correct: false }, { text: "मुजफ्फरपुर", correct: true }, { text: "पूर्वी चंपारण", correct: false } ] },
+        { question: "19. बिहार में बी० एच० पी० सी० द्वारा वृहत् परियोजनाओं की संख्या कितनी है?", answers: [ { text: "3", correct: false }, { text: "10", correct: true }, { text: "5", correct: false }, { text: "7", correct: false } ] },
+        { question: "20. बिहार में कार्यरत जल विद्युत परियोजनाओं की कुल विद्युत उत्पादन क्षमता कितनी है?", answers: [ { text: "35.60 मेगावाट", correct: false }, { text: "44.20 मेगावाट", correct: true }, { text: "50.60 मेगावाट", correct: false }, { text: "30.00 मेगावाट", correct: false } ] },
+        { question: "21. मंदार हिल किस जिले में स्थित है?", answers: [ { text: "मुंगेर", correct: false }, { text: "भागलपुर", correct: false }, { text: "बांका", correct: true }, { text: "बक्सर", correct: false } ] },
+        { question: "22. बिहार की किस नदी को 'बिहार का शोक' (Sorrow of Bihar) कहा जाता है?", answers: [ { text: "गंगा", correct: false }, { text: "गंडक", correct: false }, { text: "कोसी", correct: true }, { text: "पुनपुन", correct: false } ] },
+        { question: "23. बिहार की प्रमुख खाद्यान्न फसल कौन सी है?", answers: [ { text: "गेहूँ", correct: false }, { text: "धान (चावल)", correct: true }, { text: "मक्का", correct: false }, { text: "गन्ना", correct: false } ] },
+        { question: "24. लीची की खेती के लिए बिहार के कौन से दो जिले प्रसिद्ध हैं?", answers: [ { text: "गया और नवादा", correct: false }, { text: "पटना और नालंदा", correct: false }, { text: "मुजफ्फरपुर और वैशाली", correct: true }, { text: "बांका और भागलपुर", correct: false } ] },
+        { question: "25. एशिया का सबसे बड़ा 'कांवर झील' पक्षी विहार कहाँ है?", answers: [ { text: "बेगूसराय", correct: true }, { text: "दरभंगा", correct: false }, { text: "कटिहार", correct: false }, { text: "सहरसा", correct: false } ] },
+        { question: "26. वाल्मीकि नगर वन्य जीव अभ्यारण्य कहाँ स्थित है?", answers: [ { text: "पश्चिमी चंपारण", correct: true }, { text: "पूर्वी चंपारण", correct: false }, { text: "सीतामढ़ी", correct: false }, { text: "गोपालगंज", correct: false } ] },
+        { question: "27. बिहार में रेल वर्कशॉप कहाँ स्थित है?", answers: [ { text: "जमालपुर", correct: true }, { text: "समस्तीपुर", correct: false }, { text: "सोनपुर", correct: false }, { text: "बरौनी", correct: false } ] },
+        { question: "28. पाइराइट (Pyrite) के लिए विख्यात अमझोर पहाड़ी किस जिले में है?", answers: [ { text: "कैमूर", correct: false }, { text: "रोहतास", correct: true }, { text: "औरंगाबाद", correct: false }, { text: "गया", correct: false } ] },
+        { question: "29. बिहार में रज्जू मार्ग (Ropeway) कहाँ है?", answers: [ { text: "बिहारशरीफ", correct: false }, { text: "राजगीर", correct: true }, { text: "गया", correct: false }, { text: "बांका", correct: false } ] },
+        { question: "30. बिहार की प्राचीनतम नदी घाटी परियोजना कौन सी है?", answers: [ { text: "सोन परियोजना", correct: true }, { text: "कोसी परियोजना", correct: false }, { text: "गंडक परियोजना", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बहुत बढ़िया! बिहार के बारे में आपकी जानकारी अच्छी है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर और रिवीजन करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 अपने राज्य के बारे में और पढ़ें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

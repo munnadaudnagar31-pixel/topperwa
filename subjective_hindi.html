@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Master - Class 10 BSEB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Hindi Theme: Saffron to Deep Orange */
+            --primary: #FF6D00;
+            --secondary: #FF3D00;
+            --accent: #212121;
+            --bg-gradient: linear-gradient(135deg, #FF9100 0%, #FF3D00 100%);
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --text-main: #37474F;
+            --text-highlight: #D84315;
+            --answer-bg: #FFF3E0;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --card-bg: rgba(30, 30, 30, 0.95);
+            --text-main: #ECEFF1;
+            --text-highlight: #FFAB91;
+            --answer-bg: #263238;
+            --primary: #FFAB40;
+            --bg-gradient: linear-gradient(135deg, #212121 0%, #3E2723 100%);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            padding: 15px; 
+            padding-bottom: 80px;
+        }
+
+        /* Hindi Font Class */
+        .hindi-text { font-family: 'Tiro Devanagari Hindi', serif; }
+
+        /* Modern Compact Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 10px 15px;
+            border-radius: 14px;
+            border: var(--glass-border);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+
+        .back-btn {
+            width: 38px;
+            height: 38px;
+            background: white;
+            color: var(--secondary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.95); }
+
+        .brand h1 { font-size: 18px; font-weight: 700; color: white; line-height: 1.1; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .brand span { font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 500; }
+
+        .controls { display: flex; gap: 8px; }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        /* Section Title */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            margin: 25px 5px 12px;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section-line { flex-grow: 1; height: 2px; background: rgba(255,255,255,0.4); border-radius: 2px; }
+
+        /* Compact Cards */
+        .qa-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        
+        .qa-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .q-badge {
+            background: rgba(255, 61, 0, 0.1);
+            color: var(--secondary);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .question-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.5;
+            margin-bottom: 10px;
+            font-family: 'Tiro Devanagari Hindi', serif;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.3s;
+            box-shadow: 0 4px 10px rgba(255, 61, 0, 0.25);
+        }
+
+        /* Answer Styling */
+        .answer-box {
+            display: none;
+            margin-top: 12px;
+            padding: 15px;
+            background: var(--answer-bg);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.8;
+            border: 1px solid rgba(0,0,0,0.05);
+            font-family: 'Tiro Devanagari Hindi', serif;
+            animation: slideDown 0.3s ease;
+        }
+
+        .answer-box strong { color: var(--text-highlight); font-weight: 700; }
+        .answer-box ul { padding-left: 20px; margin: 5px 0; }
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="subjective_qna.html" class="back-btn">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
+            <div class="brand">
+                <h1 id="appTitle">Hindi Hub</h1>
+                <span>BSEB • Class 10</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="icon-btn" onclick="toggleLang()" id="langBtn" title="Change Language">En</button>
+            <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-book-open" style="color:#FFF;"></i> 
+        <span id="sec1">Short Answer (Original)</span>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">गद्य (Prose)</span>
+        <div class="question-text">Q1. भीमराव अंबेडकर किस 'विडंबना' की बात करते हैं?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> लेखक के अनुसार, आधुनिक सभ्य समाज में भी <strong>'जाति प्रथा'</strong> का बना रहना विडंबना की बात है।<br>
+            * लोग इसे कार्य-कुशलता के लिए आवश्यक मानते हैं।<br>
+            * वास्तविकता यह है कि यह श्रम विभाजन का स्वाभाविक रूप नहीं है, बल्कि एक <strong>अस्वाभाविक विभाजन</strong> है जो मनुष्य की रूचि पर आधारित नहीं है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">गद्य (Prose)</span>
+        <div class="question-text">Q2. बढ़ते नाखून द्वारा प्रकृति मनुष्य को क्या याद दिलाती है?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> बढ़ते नाखून द्वारा प्रकृति मनुष्य को उसकी <strong>पाशविक वृत्ति</strong> (जानवरों वाली आदत) की याद दिलाती है।<br>
+            * यह बताती है कि कभी मनुष्य जंगली था और नाखून ही उसके अस्त्र थे।<br>
+            * आज मनुष्य सभ्य हो गया है, लेकिन उसके भीतर की <strong>पशुता (हिंसा)</strong> अभी पूरी तरह खत्म नहीं हुई है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">कहानी (Story)</span>
+        <div class="question-text">Q3. बहादुर अपने घर से क्यों भाग गया था?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            1. एक दिन बहादुर ने अपनी माँ की प्यारी भैंस को मारा।<br>
+            2. माँ ने गुस्से में बहादुर की जमकर पिटाई कर दी।<br>
+            3. माँ के व्यवहार में आए इस परिवर्तन और <strong>मार के डर</strong> से बहादुर का मन घर से फट गया और वह भाग गया।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">कहानी (Story)</span>
+        <div class="question-text">Q4. मछली को छूते हुए संतू क्यों हिचक रहा था?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> संतू अभी छोटा बच्चा था। उसे डर था कि अगर वह मछली को छुएगा तो <strong>मछली उसे काट लेगी</strong>। इसी बाल-सुलभ डर के कारण वह मछली को छूने से हिचक रहा था।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">काव्य (Poetry)</span>
+        <div class="question-text">Q5. 'राम नाम बिनु बिरथे जगि जनमा' का क्या अर्थ है?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> गुरु नानक का कहना है कि:<br>
+            * इस संसार में राम (ईश्वर) के नाम के बिना जन्म लेना <strong>व्यर्थ</strong> है।<br>
+            * जो व्यक्ति ईश्वर का नाम नहीं लेता, उसका भोजन और बोली <strong>विष (जहर)</strong> के समान हो जाती है।
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-fire" style="color:#FFD700;"></i> 
+        <span id="sec2">Most Important (New)</span>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">काव्य • स्वदेशी</span>
+        <div class="question-text">Q6. 'स्वदेशी' कविता में कवि ने 'डफाली' किसे कहा है और क्यों?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> कवि प्रेमघन ने उन भारतीय नेताओं और लोगों को <strong>'डफाली'</strong> कहा है जो:<br>
+            1. भारतीय होकर भी विदेशी (अंग्रेजी) सभ्यता का गुणगान करते हैं।<br>
+            2. जो अपनी संस्कृति को छोड़कर अंग्रेजों की झूठी प्रशंसा (खुशामद) करते हैं।<br>
+            कवि के अनुसार, ये लोग अपनी पहचान खो चुके हैं और केवल दिखावे के लिए बाजा (डफली) बजा रहे हैं।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">काव्य • भारतमाता</span>
+        <div class="question-text">Q7. 'भारतमाता' अपने ही घर में प्रवासिनी क्यों बनी हुई हैं?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> यह कविता गुलामी के समय की है।<br>
+            * भारतमाता अंग्रेजों की गुलामी के कारण अपने ही देश में पराई (प्रवासिनी) हो गई हैं।<br>
+            * उनके संतानों (भारतीयों) के पास न वस्त्र हैं, न भोजन।<br>
+            * वे शोषण, गरीबी और अज्ञानता के अंधकार में जी रहे हैं, इसलिए भारतमाता दुखी और मौन हैं।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">काव्य • जनतंत्र का जन्म</span>
+        <div class="question-text">Q8. कवि दिनकर के अनुसार आज के देवता कौन हैं और वे कहाँ मिलेंगे?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> कवि रामधारी सिंह दिनकर के अनुसार:<br>
+            * आज के देवता मंदिरों या महलों में नहीं मिलेंगे।<br>
+            * सच्चे देवता वे <strong>किसान और मजदूर</strong> हैं जो सड़कों पर गिट्टी तोड़ रहे हैं या खेतों में काम कर रहे हैं।<br>
+            कवि ने मेहनतकश जनता को ही आज का वास्तविक देवता माना है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">गद्य • नौबतखाने में इबादत</span>
+        <div class="question-text">Q9. बिस्मिल्ला खाँ को 'शहनाई का नायक' क्यों कहा जाता है?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            1. बिस्मिल्ला खाँ ने शहनाई को मांगलिक अवसरों से निकालकर <strong>शास्त्रीय संगीत</strong> के स्तर पर पहुँचाया।<br>
+            2. उन्होंने 80 वर्षों तक सुर की साधना की।<br>
+            3. उनकी शहनाई में जादुई मिठास थी, इसलिए उन्हें शहनाई का सिरमौर या नायक कहा जाता है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">गद्य • शिक्षा और संस्कृति</span>
+        <div class="question-text">Q10. गांधीजी किस तरह की शिक्षा को श्रेष्ठ मानते थे?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> गांधीजी <strong>'हृदय की शिक्षा'</strong> या चरित्र निर्माण को श्रेष्ठ मानते थे।<br>
+            * वे केवल किताबी ज्ञान के विरोधी थे।<br>
+            * उनका मानना था कि शिक्षा ऐसी होनी चाहिए जो बच्चे को स्वावलंबी बनाए और उसमें दया, प्रेम और सत्य जैसे गुणों का विकास करे (अहिंसक प्रतिरोध)।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">वर्णिका • दही वाली मंगम्मा</span>
+        <div class="question-text">Q11. रंगप्पा कौन था और वह मंगम्मा से क्या चाहता था?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            * रंगप्पा मंगम्मा के ही गाँव का एक <strong>शौकीन और जुआरी</strong> व्यक्ति था।<br>
+            * वह जानता था कि मंगम्मा दही बेचकर पैसे जमा करती है और उसका बहू से झगड़ा चल रहा है।<br>
+            * वह मंगम्मा से <strong>कर्ज (उधार)</strong> के रूप में पैसे ऐंठना चाहता था।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">वर्णिका • ढहते विश्वास</span>
+        <div class="question-text">Q12. लक्ष्मी कौन थी और उसकी पारिवारिक स्थिति कैसी थी?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            * लक्ष्मी 'ढहते विश्वास' कहानी की मुख्य पात्र है।<br>
+            * उसका पति लक्ष्मण कोलकाता में नौकरी करता था, लेकिन पैसे कम पड़ते थे।<br>
+            * वह दूसरों के घर काम करके और थोड़ी सी खेती करके अपना गुजारा करती थी। उसका घर <strong>बाढ़ और सूखे</strong> की चपेट में हमेशा रहता था।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">वर्णिका • माँ</span>
+        <div class="question-text">Q13. कुसुम के पागलपन में सुधार देख मंगु के प्रति माँ की क्या आशा जगी?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> गाँव की लड़की कुसुम जब पागल हो गई थी और अस्पताल में इलाज कराकर ठीक हो गई, तो माँ को भी आशा जगी। उन्हें लगा कि शायद <strong>अस्पताल में इलाज</strong> से उनकी बेटी मंगु भी ठीक हो सकती है। इसी उम्मीद में उन्होंने मंगु को अस्पताल भेजने का निर्णय लिया।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">वर्णिका • नगर</span>
+        <div class="question-text">Q14. पाप्पाति कौन थी और वह शहर क्यों लाई गई थी?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            * पाप्पाति वल्लिअम्माल की 12 वर्षीय पुत्री थी।<br>
+            * उसे तेज बुखार था और गाँव के डॉक्टर ने उसे <strong>'मेनिनजाइटिस'</strong> रोग बताया था।<br>
+            * बेहतर इलाज के लिए उसे मदुरै शहर के बड़े अस्पताल में लाया गया था।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">वर्णिका • धरती कब तक घूमेगी</span>
+        <div class="question-text">Q15. सीता को अपने ही घर में घुटन क्यों महसूस होती थी?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong><br>
+            * सीता के तीन बेटे थे, लेकिन वे उसे बोझ समझते थे।<br>
+            * उन्होंने माँ को बारी-बारी से एक-एक महीने रखने का नियम बनाया था।<br>
+            * बेटों और बहुओं के <strong>रूखे व्यवहार और अपमान</strong> के कारण सीता को अपने ही घर में घुटन होती थी।
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-pen-nib" style="color:#00E676;"></i> 
+        <span id="sec3">Hindi Grammar (Vyakaran)</span>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#00C853; background:#E8F5E9;">व्याकरण</span>
+        <div class="question-text">Q16. 'संज्ञा' किसे कहते हैं? इसके भेदों के नाम लिखें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>परिभाषा:</strong> किसी व्यक्ति, वस्तु, स्थान या भाव के नाम को संज्ञा कहते हैं।<br>
+            <strong>भेद (5 प्रकार):</strong><br>
+            1. व्यक्तिवाचक (जैसे: राम, पटना)<br>
+            2. जातिवाचक (जैसे: नदी, पहाड़)<br>
+            3. भाववाचक (जैसे: बुढ़ापा, मिठास)<br>
+            4. समूहवाचक (जैसे: सेना, सभा)<br>
+            5. द्रव्यवाचक (जैसे: सोना, पानी)
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#00C853; background:#E8F5E9;">व्याकरण</span>
+        <div class="question-text">Q17. 'संधि' और 'समास' में क्या अंतर है?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>संधि:</strong> दो <strong>वर्णों</strong> के मेल से जो विकार उत्पन्न होता है।<br>
+            (उदा०: विद्या + आलय = विद्यालय)<br><br>
+            <strong>समास:</strong> दो या दो से अधिक <strong>पदों (शब्दों)</strong> के मेल से बने नए शब्द को समास कहते हैं।<br>
+            (उदा०: राजा का पुत्र = राजपुत्र)
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#00C853; background:#E8F5E9;">व्याकरण</span>
+        <div class="question-text">Q18. 'कारक' के कितने भेद हैं? उदाहरण सहित लिखें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> कारक के <strong>8 भेद</strong> हैं:<br>
+            1. कर्ता (ने)<br>
+            2. कर्म (को)<br>
+            3. करण (से/द्वारा)<br>
+            4. संप्रदान (को/के लिए)<br>
+            5. अपादान (से - अलग होना)<br>
+            6. संबंध (का, के, की)<br>
+            7. अधिकरण (में, पर)<br>
+            8. संबोधन (हे, अरे)
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#00C853; background:#E8F5E9;">व्याकरण</span>
+        <div class="question-text">Q19. 'विशेषण' की परिभाषा दें और इसके भेद बताएं।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>परिभाषा:</strong> जो शब्द संज्ञा या सर्वनाम की विशेषता बताते हैं, उन्हें विशेषण कहते हैं।<br>
+            <strong>भेद (4 प्रकार):</strong><br>
+            1. गुणवाचक (अच्छा, काला)<br>
+            2. परिमाणवाचक (थोड़ा, दो किलो)<br>
+            3. संख्यावाचक (चार, दस)<br>
+            4. सार्वनामिक (यह घर, वह लड़का)
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#00C853; background:#E8F5E9;">व्याकरण</span>
+        <div class="question-text">Q20. निम्नलिखित मुहावरों का अर्थ लिखें: (1) 9 दो 11 होना, (2) आँखों का तारा।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            1. <strong>9 दो 11 होना:</strong> भाग जाना।<br>
+               (वाक्य: पुलिस को देखते ही चोर 9 दो 11 हो गया।)<br><br>
+            2. <strong>आँखों का तारा:</strong> बहुत प्यारा।<br>
+               (वाक्य: श्रवण कुमार अपने माता-पिता की आँखों के तारे थे।)
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-scroll" style="color:#29B6F6;"></i> 
+        <span id="sec4">Writing Skills (15 Marks)</span>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#0277BD; background:#E1F5FE;">निबंध (Essay)</span>
+        <div class="question-text">Q21. महत्वपूर्ण निबंध विषय (VVI Topics 2026)</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">विषय देखें 👇</button>
+        <div class="answer-box">
+            इन विषयों पर 250-300 शब्दों में निबंध तैयार करें:<br>
+            1. <strong>दहेज प्रथा:</strong> एक अभिशाप।<br>
+            2. <strong>प्रदूषण:</strong> समस्या और समाधान।<br>
+            3. <strong>मेरा प्रिय खेल:</strong> क्रिकेट/फुटबॉल।<br>
+            4. <strong>छात्र और अनुशासन:</strong> जीवन में महत्व।<br>
+            5. <strong>बेरोजगारी:</strong> भारत की प्रमुख समस्या।<br>
+            6. <strong>वृक्षारोपण:</strong> पर्यावरण संरक्षण।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#0277BD; background:#E1F5FE;">पत्र (Letter)</span>
+        <div class="question-text">Q22. अपने मित्र को परीक्षा में सफलता पर बधाई पत्र लिखें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">प्रारूप देखें 👇</button>
+        <div class="answer-box">
+            प्रिय मित्र [मित्र का नाम],<br>
+            सप्रेम नमस्ते।<br><br>
+            मुझे यह जानकर अत्यंत प्रसन्नता हुई कि तुमने मैट्रिक की परीक्षा में <strong>प्रथम श्रेणी</strong> प्राप्त की है। तुम्हारी मेहनत और लगन रंग लाई। यह न केवल तुम्हारे परिवार के लिए बल्कि हम सभी मित्रों के लिए गर्व की बात है।<br><br>
+            मैं ईश्वर से प्रार्थना करता हूँ कि तुम भविष्य में भी इसी तरह सफलता की सीढ़ियां चढ़ते रहो। मेरी ओर से तुम्हें और तुम्हारे माता-पिता को हार्दिक बधाई।<br><br>
+            तुम्हारा अभिन्न मित्र,<br>
+            [तुम्हारा नाम]<br>
+            [स्थान/दिनांक]
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#0277BD; background:#E1F5FE;">आवेदन (Application)</span>
+        <div class="question-text">Q23. प्रधानाध्यापक को छुट्टी के लिए आवेदन पत्र।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">प्रारूप देखें 👇</button>
+        <div class="answer-box">
+            सेवा में,<br>
+            श्रीमान प्रधानाध्यापक महोदय,<br>
+            [विद्यालय का नाम], [शहर]<br><br>
+            <strong>विषय: दो दिनों की छुट्टी हेतु।</strong><br><br>
+            महाशय,<br>
+            सविनय निवेदन है कि मुझे कल रात से तेज बुखार है, जिस कारण मैं विद्यालय आने में असमर्थ हूँ। डॉक्टर ने मुझे दो दिन आराम करने की सलाह दी है।<br><br>
+            अतः श्रीमान से नम्र निवेदन है कि मुझे दिनांक [तारीख] से [तारीख] तक का अवकाश प्रदान करने की कृपा करें।<br><br>
+            आपका आज्ञाकारी छात्र,<br>
+            नाम: [नाम]<br>
+            कक्षा: 10
+        </div>
+    </div>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const icon = document.querySelector('button[onclick="toggleTheme()"] i');
+            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('button[onclick="toggleTheme()"] i').className = 'fa-solid fa-sun';
+        }
+
+        // Toggle Answer Logic
+        function toggleAnswer(btn) {
+            const answerBox = btn.nextElementSibling;
+            
+            if (answerBox.style.display === "block") {
+                answerBox.style.display = "none";
+                btn.innerHTML = 'उत्तर देखें 👇';
+                btn.style.background = "linear-gradient(90deg, var(--primary), var(--secondary))";
+            } else {
+                answerBox.style.display = "block";
+                btn.innerHTML = 'उत्तर छिपाएं 👆';
+                btn.style.background = "var(--text-main)"; 
+            }
+        }
+
+        // UI Language Toggle (Does not translate Hindi content as it's a Hindi subject)
+        function toggleLang() {
+            const btn = document.getElementById('langBtn');
+            const title = document.getElementById('appTitle');
+            const sec1 = document.getElementById('sec1');
+            const sec2 = document.getElementById('sec2');
+
+            if(btn.innerText === 'En') {
+                btn.innerText = 'Hi';
+                // Just toggle UI labels, maintain Hindi content
+                title.innerText = 'हिंदी हब';
+                sec1.innerText = 'लघु उत्तरीय (मूल)';
+                sec2.innerText = 'महत्वपूर्ण प्रश्न (नए)';
+            } else {
+                btn.innerText = 'En';
+                title.innerText = 'Hindi Hub';
+                sec1.innerText = 'Short Answer (Original)';
+                sec2.innerText = 'Most Important (New)';
+            }
+        }
+    </script>
+
+</body>
+</html>

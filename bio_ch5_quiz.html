@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Biology Ch-5 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (BIOLOGY - PINK/RED) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #FFF0F5 0%, #FFF5F7 100%);
+            --header-gradient: linear-gradient(135deg, #ec008c 0%, #fc6767 100%);
+            --card-bg: #ffffff;
+            --text-main: #4a1c30;
+            --text-sub: #905d70;
+            --option-bg: #FFF0F6;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(236, 0, 140, 0.15);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #4a1c30; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #666; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(236, 0, 140, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #ec008c;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #ec008c; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="biology_chapters.html" class="close-btn">✕</a>
+        <span>Ch-5: Our Environment</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #ec008c; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are an Ecology Expert!</p>
+        <a href="biology_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#ec008c; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Our Environment) ---
+        const questions = [
+            { q: "Which of the following constitutes a food chain?", o: ["Grass, Wheat and Mango", "Grass, Goat and Human", "Goat, Cow and Elephant", "Grass, Fish and Goat"], a: 1 },
+            { q: "Which of the following is a biodegradable waste?", o: ["Plastic", "Glass", "Banana peel", "Aluminium foil"], a: 2 },
+            { q: "Which of the following is a non-biodegradable waste?", o: ["Paper", "Cotton cloth", "Wood", "DDT"], a: 3 },
+            { q: "In a food chain, the third trophic level is always occupied by:", o: ["Carnivores", "Herbivores", "Decomposers", "Producers"], a: 0 },
+            { q: "The decomposers in an ecosystem:", o: ["Convert inorganic material to simpler forms", "Convert organic material to inorganic forms", "Convert inorganic material into organic compounds", "Do not break down organic compounds"], a: 1 },
+            { q: "Which of the following is an abiotic component of an ecosystem?", o: ["Bacteria", "Plants", "Temperature", "Fungi"], a: 2 },
+            { q: "Organisms which synthesize their own food are called:", o: ["Consumers", "Decomposers", "Producers", "Parasites"], a: 2 },
+            { q: "The flow of energy in an ecosystem is:", o: ["Unidirectional", "Bidirectional", "Multidirectional", "Cyclic"], a: 0 },
+            { q: "In a food chain, how much energy is transferred from one trophic level to the next?", o: ["1%", "10%", "50%", "90%"], a: 1 },
+            { q: "The 10% law was proposed by:", o: ["Mendel", "Lindeman", "Darwin", "Morgan"], a: 1 },
+            { q: "If 100 J of energy is available at the producer level, what is the energy available to the primary consumer?", o: ["10 J", "1 J", "0.1 J", "0.01 J"], a: 0 },
+            { q: "The depletion of the ozone layer is mainly due to:", o: ["Carbon dioxide", "Methane", "Chlorofluorocarbons (CFCs)", "Nitrogen"], a: 2 },
+            { q: "Ozone layer protects us from harmful:", o: ["Infrared rays", "Ultraviolet rays", "X-rays", "Gamma rays"], a: 1 },
+            { q: "Ozone molecule is formed by how many atoms of oxygen?", o: ["1", "2", "3", "4"], a: 2 },
+            { q: "Which group of organisms are not constituents of a food chain?", o: ["Grass, Lion, Rabbit", "Plankton, Man, Fish", "Wolf, Snake, Tiger", "Frog, Snake, Eagle"], a: 2 },
+            { q: "Accumulation of non-biodegradable pesticides in the food chain in increasing amount at each higher trophic level is known as:", o: ["Eutrophication", "Pollution", "Biomagnification", "Accumulation"], a: 2 },
+            { q: "Which of the following limits the number of trophic levels in a food chain?", o: ["Decrease in energy at higher trophic levels", "Deficient food supply", "Polluted air", "Water"], a: 0 },
+            { q: "Which is the ultimate source of energy for an ecosystem?", o: ["Water", "Sun", "Green plants", "Air"], a: 1 },
+            { q: "Which artificial ecosystem is mentioned here?", o: ["Forest", "Pond", "Crop field", "Lake"], a: 2 },
+            { q: "Which of the following organisms are producers?", o: ["Human", "Amoeba", "Green plants", "Fungi"], a: 2 },
+            { q: "Primary consumers are also known as:", o: ["Herbivores", "Carnivores", "Omnivores", "Decomposers"], a: 0 },
+            { q: "Secondary consumers are usually:", o: ["Herbivores", "Carnivores", "Producers", "Decomposers"], a: 1 },
+            { q: "What happens if we kill all the deer in a forest?", o: ["Grass decreases", "Lions die of starvation", "Lions increase", "Grass remains same"], a: 1 },
+            { q: "Which chemical is used in refrigerators and fire extinguishers?", o: ["CFCs", "LPG", "Methane", "DDT"], a: 0 },
+            { q: "UNEP stands for:", o: ["United Nations Environment Programme", "United Nations Ecological Programme", "United Nations Energy Programme", "Union of National Environment Programme"], a: 0 },
+            { q: "The disposal of waste by burning it at high temperature is called:", o: ["Composting", "Incineration", "Recycling", "Landfill"], a: 1 },
+            { q: "Vermicomposting is done by:", o: ["Fungi", "Bacteria", "Earthworms", "Animals"], a: 2 },
+            { q: "The problem caused by non-biodegradable waste is:", o: ["Soil pollution", "Clogging of drains", "Harm to animals", "All of the above"], a: 3 },
+            { q: "The gas produced in landfills from the decomposition of organic waste is:", o: ["Oxygen", "Methane", "Nitrogen", "Chlorine"], a: 1 },
+            { q: "Which of the following is a tertiary consumer?", o: ["Grasshopper", "Frog", "Snake", "Eagle"], a: 3 },
+            { q: "The network of several food chains is called:", o: ["Food web", "Food cycle", "Trophic level", "Energy flow"], a: 0 },
+            { q: "Minamata disease was caused by pollution of:", o: ["Lead", "Mercury", "Cadmium", "Zinc"], a: 1 },
+            { q: "Which of these is a functional unit of the environment?", o: ["Ecosystem", "Nitrogen", "Carbon", "Oxygen"], a: 0 },
+            { q: "Disposable plastic cups were replaced by paper cups because:", o: ["Paper cups are cheaper", "Paper cups are more hygienic", "Paper cups are biodegradable", "Plastic cups are ugly"], a: 2 },
+            { q: "Which radiations are absorbed by ozone?", o: ["Infrared", "Gamma", "UV", "X-rays"], a: 2 },
+            { q: "Skin cancer is caused by:", o: ["Infrared rays", "UV rays", "Micro waves", "Radio waves"], a: 1 },
+            { q: "Which year did UNEP forge an agreement to freeze CFC production?", o: ["1985", "1987", "1990", "1995"], a: 1 },
+            { q: "The protocol signed to reduce production of CFCs is:", o: ["Kyoto Protocol", "Montreal Protocol", "Rio Protocol", "Geneva Protocol"], a: 1 },
+            { q: "Decomposers help in:", o: ["Cleaning the environment", "Recycling nutrients", "Both A and B", "None"], a: 2 },
+            { q: "A food chain always starts with:", o: ["Respiration", "Photosynthesis", "Nitrogen fixation", "Decay"], a: 1 },
+            { q: "Green plants capture about ___ of the sunlight that falls on their leaves.", o: ["1%", "10%", "50%", "100%"], a: 0 },
+            { q: "The biological magnification of DDT is highest in:", o: ["Small fish", "Water", "Zooplankton", "Fish eating birds"], a: 3 },
+            { q: "Kulhads (clay cups) were discontinued in trains because:", o: ["They were expensive", "They caused loss of fertile topsoil", "They were unhygienic", "They broke easily"], a: 1 },
+            { q: "Chipko Andolan is related to:", o: ["Soil conservation", "Water conservation", "Forest conservation", "Tiger conservation"], a: 2 },
+            { q: "Amrita Devi Bishnoi sacrificed her life for the protection of:", o: ["Khejri trees", "Pine trees", "Sal trees", "Teak trees"], a: 0 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

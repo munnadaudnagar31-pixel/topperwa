@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 1 (100 MCQ) - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Nature Green) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #134E5E 0%, #71B280 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #2e7d32; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; max-height: 60vh; overflow-y: auto; }
+        h2#question-text { font-size: 17px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 12px; border-radius: 10px; font-size: 14px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #c8e6c9; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        #next-btn { background: #2e7d32; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #1b5e20; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #2e7d32; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #2e7d32; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Q: <span id="q-index">1</span>/<span id="total-q">100</span></div>
+            <div class="timer-box">⏳ <span id="time-left">20:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit</a>
+            <button id="next-btn" onclick="nextQuestion()">Next ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapters</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 20; // 20 Minutes for 100 Questions
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 1 (100 QUESTIONS) ▼▼▼
+    const questions = [
+        { question: "1. कोयला किस प्रकार का संसाधन है?", answers: [ { text: "अनवीकरणीय", correct: true }, { text: "नवीकरणीय", correct: false }, { text: "जैव", correct: false }, { text: "अजैव", correct: false } ] },
+        { question: "2. सौर ऊर्जा निम्नलिखित में कौन-सा संसाधन है?", answers: [ { text: "मानवकृत", correct: false }, { text: "पुनः पूर्तियोग्य", correct: true }, { text: "अजैव", correct: false }, { text: "अचक्रीय", correct: false } ] },
+        { question: "3. तट रेखा से कितने किमी क्षेत्र की सीमा 'अपवर्जक आर्थिक क्षेत्र' कहलाते हैं?", answers: [ { text: "100 NM", correct: false }, { text: "200 NM", correct: true }, { text: "150 NM", correct: false }, { text: "250 NM", correct: false } ] },
+        { question: "4. डाकुओं की अर्थव्यवस्था का संबंध है?", answers: [ { text: "संसाधन संग्रहण से", correct: false }, { text: "संसाधन के विदोहन से", correct: true }, { text: "संसाधन के नियोजन से", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "5. पंजाब में भूमि निम्नीकरण का मुख्य कारण है?", answers: [ { text: "वनोन्मूलन", correct: false }, { text: "अति पशुचारण", correct: false }, { text: "अधिक सिंचाई", correct: true }, { text: "गहन खेती", correct: false } ] },
+        { question: "6. सोपानी कृषि किस राज्य में प्रचलित है?", answers: [ { text: "हरियाणा", correct: false }, { text: "पंजाब", correct: false }, { text: "उत्तराखंड", correct: true }, { text: "बिहार", correct: false } ] },
+        { question: "7. काली मृदा का दूसरा नाम क्या है?", answers: [ { text: "बलुई मृदा", correct: false }, { text: "रेगुर मृदा", correct: true }, { text: "लाल मृदा", correct: false }, { text: "पर्वतीय मृदा", correct: false } ] },
+        { question: "8. मरुस्थलीय मृदा का विस्तार निम्न में से कहाँ है?", answers: [ { text: "उत्तर प्रदेश", correct: false }, { text: "राजस्थान", correct: true }, { text: "कर्नाटक", correct: false }, { text: "महाराष्ट्र", correct: false } ] },
+        { question: "9. मेंढक के प्रजनन को नष्ट करने वाला रसायन कौन सा है?", answers: [ { text: "बेंजीन", correct: false }, { text: "यूरिया", correct: false }, { text: "एंड्रिन", correct: true }, { text: "फॉस्फोरस", correct: false } ] },
+        { question: "10. देश के बांधों को किसने 'भारत का मंदिर' कहा था?", answers: [ { text: "महात्मा गाँधी", correct: false }, { text: "स्वामी विवेकानंद", correct: false }, { text: "पं० नेहरू", correct: true }, { text: "डॉ० राजेंद्र प्रसाद", correct: false } ] },
+        { question: "11. कुल जल का कितना प्रतिशत भाग महासागरों में निहित है?", answers: [ { text: "96%", correct: false }, { text: "95%", correct: false }, { text: "96.6%", correct: true }, { text: "96.5%", correct: false } ] },
+        { question: "12. बिहार में अति जल-दोहन से किस तत्व का संकेन्द्रण बढ़ा है?", answers: [ { text: "फ्लोराइड", correct: false }, { text: "क्लोराइड", correct: false }, { text: "आर्सेनिक", correct: true }, { text: "लौह", correct: false } ] },
+        { question: "13. भारत का राष्ट्रीय पक्षी है?", answers: [ { text: "कबूतर", correct: false }, { text: "हंस", correct: false }, { text: "मयूर (मोर)", correct: true }, { text: "तोता", correct: false } ] },
+        { question: "14. इनमें कौन-सा जीव है जो केवल भारत में ही पाया जाता है?", answers: [ { text: "मगरमच्छ", correct: false }, { text: "डॉल्फिन", correct: true }, { text: "ह्वेल", correct: false }, { text: "कछुआ", correct: false } ] },
+        { question: "15. टैक्सोल (Taxol) का उपयोग होता है?", answers: [ { text: "मलेरिया में", correct: false }, { text: "एड्स में", correct: false }, { text: "कैंसर में", correct: true }, { text: "टीबी में", correct: false } ] },
+        { question: "16. चरक का संबंध किस देश से था?", answers: [ { text: "म्यांमार से", correct: false }, { text: "श्रीलंका से", correct: false }, { text: "भारत से", correct: true }, { text: "नेपाल से", correct: false } ] },
+        { question: "17. भारत का सबसे बड़ा लौह उत्पादक राज्य कौन है?", answers: [ { text: "कर्नाटक", correct: true }, { text: "गोवा", correct: false }, { text: "ओडिशा", correct: false }, { text: "झारखंड", correct: false } ] },
+        { question: "18. किस खनिज को 'उद्योगों की जननी' माना गया है?", answers: [ { text: "सोना", correct: false }, { text: "तांबा", correct: false }, { text: "लोहा", correct: true }, { text: "मैंगनीज", correct: false } ] },
+        { question: "19. एल्युमिनियम बनाने के लिए किस खनिज की आवश्यकता पड़ती है?", answers: [ { text: "मैंगनीज", correct: false }, { text: "टिन", correct: false }, { text: "लोहा", correct: false }, { text: "बॉक्साइट", correct: true } ] },
+        { question: "20. सीमेंट उद्योग का सबसे प्रमुख कच्चा माल क्या है?", answers: [ { text: "चूना पत्थर", correct: true }, { text: "बॉक्साइट", correct: false }, { text: "ग्रेनाइट", correct: false }, { text: "लोहा", correct: false } ] },
+        { question: "21. प्राथमिक ऊर्जा का उदाहरण नहीं है?", answers: [ { text: "कोयला", correct: false }, { text: "विद्युत", correct: true }, { text: "पेट्रोलियम", correct: false }, { text: "प्राकृतिक गैस", correct: false } ] },
+        { question: "22. भारत में कोयले का सर्वप्रमुख उत्पादक राज्य है?", answers: [ { text: "पश्चिम बंगाल", correct: false }, { text: "झारखंड", correct: true }, { text: "ओडिशा", correct: false }, { text: "छत्तीसगढ़", correct: false } ] },
+        { question: "23. भारत का प्रथम तेल शोधक कारखाना कहाँ स्थित है?", answers: [ { text: "मथुरा", correct: false }, { text: "बरौनी", correct: false }, { text: "डिगबोई", correct: true }, { text: "गुवाहाटी", correct: false } ] },
+        { question: "24. भाखड़ा नांगल परियोजना किस नदी पर अवस्थित है?", answers: [ { text: "नर्मदा", correct: false }, { text: "झेलम", correct: false }, { text: "सतलज", correct: true }, { text: "व्यास", correct: false } ] },
+        { question: "25. यूरेनियम का प्रमुख उत्पादक स्थल है?", answers: [ { text: "डिगबोई", correct: false }, { text: "झरिया", correct: false }, { text: "घाटशिला", correct: false }, { text: "जादूगोड़ा", correct: true } ] },
+        { question: "26. एशिया का सबसे बड़ा परमाणु विद्युत गृह है?", answers: [ { text: "तारापुर", correct: true }, { text: "कल्पक्कम", correct: false }, { text: "नरौरा", correct: false }, { text: "कैगा", correct: false } ] },
+        { question: "27. प्लास्टर ऑफ पेरिस किससे बनाया जाता है?", answers: [ { text: "डोलोमाइट", correct: false }, { text: "जिप्सम", correct: true }, { text: "प्लेटिनम", correct: false }, { text: "कायनाइट", correct: false } ] },
+        { question: "28. वन स्थिति रिपोर्ट के अनुसार भारत में वन का विस्तार है?", answers: [ { text: "20.60%", correct: false }, { text: "20.55%", correct: false }, { text: "24.62%", correct: true }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "29. एक टन इस्पात बनाने में कितने मैंगनीज का उपयोग होता है?", answers: [ { text: "5 किग्रा", correct: false }, { text: "10 किग्रा", correct: true }, { text: "15 किग्रा", correct: false }, { text: "20 किग्रा", correct: false } ] },
+        { question: "30. हीराकुंड बाँध है?", answers: [ { text: "कर्नाटक में", correct: false }, { text: "तमिलनाडु में", correct: false }, { text: "बिहार में", correct: false }, { text: "ओडिशा में", correct: true } ] },
+        { question: "31. काली मिट्टी किस फसल के लिए उपयुक्त है?", answers: [ { text: "कपास", correct: true }, { text: "गेहूँ", correct: false }, { text: "चावल", correct: false }, { text: "ईख", correct: false } ] },
+        { question: "32. भारत के किस राज्य में वन का सबसे अधिक विस्तार है?", answers: [ { text: "केरल", correct: false }, { text: "कर्नाटक", correct: false }, { text: "मध्य प्रदेश", correct: true }, { text: "उत्तर प्रदेश", correct: false } ] },
+        { question: "33. सुंदरवन है?", answers: [ { text: "कर्नाटक में", correct: false }, { text: "पश्चिम बंगाल में", correct: true }, { text: "केरल में", correct: false }, { text: "महाराष्ट्र में", correct: false } ] },
+        { question: "34. भारत में लगभग कितने प्रकार के खनिज पाये जाते हैं?", answers: [ { text: "50", correct: false }, { text: "100", correct: true }, { text: "150", correct: false }, { text: "200", correct: false } ] },
+        { question: "35. इनमें कौन अधात्विक खनिज का उदाहरण है?", answers: [ { text: "सोना", correct: false }, { text: "चाँदी", correct: false }, { text: "अभ्रक", correct: true }, { text: "टिन", correct: false } ] },
+        { question: "36. किस राज्य में खनिज तेल का विशाल भंडार है?", answers: [ { text: "असम", correct: true }, { text: "राजस्थान", correct: false }, { text: "बिहार", correct: false }, { text: "तमिलनाडु", correct: false } ] },
+        { question: "37. सर्वोत्तम कोयले का प्रकार कौन सा है?", answers: [ { text: "एन्थ्रासाइट", correct: true }, { text: "पीट", correct: false }, { text: "लिग्नाइट", correct: false }, { text: "बिटुमिनस", correct: false } ] },
+        { question: "38. मुंबई हाई क्यों प्रसिद्ध है?", answers: [ { text: "कोयले के लिए", correct: false }, { text: "तेल शोधक कारखाना हेतु", correct: false }, { text: "खनिज तेल हेतु", correct: true }, { text: "परमाणु शक्ति हेतु", correct: false } ] },
+        { question: "39. दक्षिण भारत की सबसे बड़ी नदी घाटी परियोजना है?", answers: [ { text: "तुंगभद्रा", correct: true }, { text: "शरावती", correct: false }, { text: "चंबल", correct: false }, { text: "हीराकुंड", correct: false } ] },
+        { question: "40. ताप विद्युत केन्द्र का उदाहरण है?", answers: [ { text: "गया", correct: false }, { text: "बरौनी", correct: true }, { text: "समस्तीपुर", correct: false }, { text: "कटिहार", correct: false } ] },
+        { question: "41. भारत में कितने सार्वजनिक क्षेत्र के तेल परिष्करण केन्द्र कार्य कर रहे हैं?", answers: [ { text: "15", correct: false }, { text: "16", correct: false }, { text: "18", correct: true }, { text: "20", correct: false } ] },
+        { question: "42. मैंगनीज उत्पादन में भारत का विश्व में क्या स्थान है?", answers: [ { text: "प्रथम", correct: false }, { text: "द्वितीय", correct: false }, { text: "तृतीय", correct: true }, { text: "चतुर्थ", correct: false } ] },
+        { question: "43. इनमें कौन लौह युक्त खनिज का उदाहरण है?", answers: [ { text: "मैंगनीज", correct: true }, { text: "अभ्रक", correct: false }, { text: "बॉक्साइट", correct: false }, { text: "चूना पत्थर", correct: false } ] },
+        { question: "44. इनमें कौन लौह अयस्क का एक प्रकार है?", answers: [ { text: "बिटुमिनस", correct: false }, { text: "एन्थ्रासाइट", correct: false }, { text: "हेमेटाइट", correct: true }, { text: "इनमें सभी", correct: false } ] },
+        { question: "45. छत्तीसगढ़ भारत का कितना प्रतिशत लौह अयस्क उत्पादन करता है?", answers: [ { text: "10%", correct: false }, { text: "20%", correct: true }, { text: "30%", correct: false }, { text: "40%", correct: false } ] },
+        { question: "46. प्राकृतिक संसाधनों के संरक्षण हेतु 1968 ई० में कौन सा कन्वेंशन हुआ था?", answers: [ { text: "अफ्रीकी कन्वेंशन", correct: true }, { text: "वेटलैंड्स कन्वेंशन", correct: false }, { text: "विश्व आपदा कन्वेंशन", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "47. पीतल बनाया जाता है?", answers: [ { text: "तांबे से", correct: false }, { text: "जस्ते से", correct: false }, { text: "तांबा और जस्ता दोनों से", correct: true }, { text: "तांबा, जस्ता और टिन से", correct: false } ] },
+        { question: "48. भारत में किस राज्य में सौर ऊर्जा के विकास की सर्वाधिक संभावनाएं हैं?", answers: [ { text: "असम", correct: false }, { text: "अरुणाचल प्रदेश", correct: false }, { text: "राजस्थान", correct: true }, { text: "मेघालय", correct: false } ] },
+        { question: "49. ऊर्जा का गैर-पारंपरिक स्रोत है?", answers: [ { text: "कोयला", correct: false }, { text: "विद्युत", correct: false }, { text: "पेट्रोलियम", correct: false }, { text: "सौर ऊर्जा", correct: true } ] },
+        { question: "50. भारत में जल विद्युत का विकास सर्वप्रथम कहाँ हुआ?", answers: [ { text: "दार्जिलिंग", correct: true }, { text: "शिवसमुद्रम", correct: false }, { text: "मैसूर", correct: false }, { text: "जम्मू", correct: false } ] },
+        { question: "51. भारत के किस स्थान पर पहला परमाणु ऊर्जा केन्द्र स्थापित किया गया था?", answers: [ { text: "कलपक्कम", correct: false }, { text: "नरोरा", correct: false }, { text: "राणा प्रताप सागर", correct: false }, { text: "तारापुर", correct: true } ] },
+        { question: "52. निम्न में से कौन-सा जानवर केवल भारत में ही पाया जाता है?", answers: [ { text: "घड़ियाल (मगरमच्छ)", correct: true }, { text: "कछुआ", correct: false }, { text: "ह्वेल", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "53. बिहार में वन क्षेत्र कितना है?", answers: [ { text: "15%", correct: false }, { text: "20%", correct: false }, { text: "7%", correct: true }, { text: "10%", correct: false } ] },
+        { question: "54. भारत का सर्वाधिक विदेशी व्यापार किस मार्ग द्वारा होता है?", answers: [ { text: "स्थल मार्ग", correct: false }, { text: "वायु मार्ग", correct: false }, { text: "समुद्री मार्ग", correct: true }, { text: "पाइपलाइन", correct: false } ] },
+        { question: "55. किस प्राकृतिक संसाधन का भंडार सीमित है?", answers: [ { text: "खनिज तेल", correct: true }, { text: "सौर ऊर्जा", correct: false }, { text: "पवन ऊर्जा", correct: false }, { text: "जलीय ऊर्जा", correct: false } ] },
+        { question: "56. संसाधन होते नहीं, बनते हैं - यह कथन किसका है?", answers: [ { text: "जिम्मरमैन", correct: true }, { text: "महात्मा गाँधी", correct: false }, { text: "पं० नेहरू", correct: false }, { text: "मेधा पाटेकर", correct: false } ] },
+        { question: "57. 'चिपको आंदोलन' के प्रणेता कौन थे?", answers: [ { text: "मेधा पाटेकर", correct: false }, { text: "सुंदरलाल बहुगुणा", correct: true }, { text: "संदीप पांडेय", correct: false }, { text: "महात्मा गाँधी", correct: false } ] },
+        { question: "58. 'नर्मदा बचाओ आंदोलन' किसने चलाया?", answers: [ { text: "मेधा पाटेकर", correct: true }, { text: "सुंदरलाल बहुगुणा", correct: false }, { text: "संदीप पांडेय", correct: false }, { text: "बाबा आम्टे", correct: false } ] },
+        { question: "59. विश्व पर्यावरण दिवस कब मनाया जाता है?", answers: [ { text: "5 जून", correct: true }, { text: "5 जुलाई", correct: false }, { text: "5 सितंबर", correct: false }, { text: "5 जनवरी", correct: false } ] },
+        { question: "60. प्रथम पृथ्वी सम्मेलन कहाँ आयोजित हुआ था?", answers: [ { text: "रियो डी जेनेरियो", correct: true }, { text: "न्यूयॉर्क", correct: false }, { text: "जापान", correct: false }, { text: "जोहान्सबर्ग", correct: false } ] },
+        { question: "61. पुरानी जलोढ़ मृदा को क्या कहते हैं?", answers: [ { text: "बांगर", correct: true }, { text: "खादर", correct: false }, { text: "रेगुर", correct: false }, { text: "भाबर", correct: false } ] },
+        { question: "62. नई जलोढ़ मृदा को क्या कहते हैं?", answers: [ { text: "बांगर", correct: false }, { text: "खादर", correct: true }, { text: "रेगुर", correct: false }, { text: "तराई", correct: false } ] },
+        { question: "63. भारत में सबसे अधिक विस्तार किस मिट्टी का है?", answers: [ { text: "जलोढ़", correct: true }, { text: "काली", correct: false }, { text: "लेटराइट", correct: false }, { text: "वनीय", correct: false } ] },
+        { question: "64. वृहद क्षेत्र में जल की उपस्थिति के कारण पृथ्वी को कहते हैं?", answers: [ { text: "उजला ग्रह", correct: false }, { text: "नीला ग्रह", correct: true }, { text: "लाल ग्रह", correct: false }, { text: "हरा ग्रह", correct: false } ] },
+        { question: "65. 'क्योटो सम्मेलन' किस देश में आयोजित हुआ था?", answers: [ { text: "फ्रांस", correct: false }, { text: "म्यांमार", correct: false }, { text: "जापान", correct: true }, { text: "इंडोनेशिया", correct: false } ] },
+        { question: "66. भारत में पहाड़ों से भरा भू-भाग कितना प्रतिशत है?", answers: [ { text: "10%", correct: false }, { text: "27%", correct: false }, { text: "30%", correct: true }, { text: "43%", correct: false } ] },
+        { question: "67. भारत में मैदानी भाग कितना प्रतिशत है?", answers: [ { text: "30%", correct: false }, { text: "43%", correct: true }, { text: "27%", correct: false }, { text: "50%", correct: false } ] },
+        { question: "68. 'स्माइल इज ब्यूटीफुल' (Small is Beautiful) पुस्तक के लेखक कौन हैं?", answers: [ { text: "शुमेसर", correct: true }, { text: "गाँधीजी", correct: false }, { text: "अमर्त्य सेन", correct: false }, { text: "मार्क्स", correct: false } ] },
+        { question: "69. मृदा निर्माण में निम्न में से कौन कारक उत्तरदायी है?", answers: [ { text: "चट्टान", correct: false }, { text: "जलवायु", correct: false }, { text: "वनस्पति", correct: false }, { text: "इनमें सभी", correct: true } ] },
+        { question: "70. भारत का कुल भौगोलिक क्षेत्रफल कितना है?", answers: [ { text: "32.8 लाख वर्ग किमी", correct: true }, { text: "30.5 लाख वर्ग किमी", correct: false }, { text: "35.2 लाख वर्ग किमी", correct: false }, { text: "28.8 लाख वर्ग किमी", correct: false } ] },
+        { question: "71. भारत में लगभग कितने करोड़ हेक्टेयर भूमि का क्षरण हो चुका है?", answers: [ { text: "13 करोड़ हेक्टेयर", correct: true }, { text: "20 करोड़ हेक्टेयर", correct: false }, { text: "18 करोड़ हेक्टेयर", correct: false }, { text: "5 करोड़ हेक्टेयर", correct: false } ] },
+        { question: "72. लौह अयस्क किस प्रकार का संसाधन है?", answers: [ { text: "नवीकरणीय", correct: false }, { text: "अनवीकरणीय", correct: true }, { text: "जैव", correct: false }, { text: "प्रवाह", correct: false } ] },
+        { question: "73. ज्वारीय ऊर्जा किस प्रकार का संसाधन है?", answers: [ { text: "पुनः पूर्तियोग्य", correct: true }, { text: "अजैव", correct: false }, { text: "मानवकृत", correct: false }, { text: "चक्रीय", correct: false } ] },
+        { question: "74. कौन-सी मिट्टी कपास की खेती के लिए सर्वोत्तम मानी जाती है?", answers: [ { text: "लाल", correct: false }, { text: "जलोढ़", correct: false }, { text: "काली", correct: true }, { text: "पर्वतीय", correct: false } ] },
+        { question: "75. झारखंड का कोडरमा किस खनिज के लिए प्रसिद्ध है?", answers: [ { text: "लौह अयस्क", correct: false }, { text: "तांबा", correct: false }, { text: "अभ्रक", correct: true }, { text: "बॉक्साइट", correct: false } ] },
+        { question: "76. इनमें से कौन ऊर्जा का गैर-पारंपरिक स्रोत नहीं है?", answers: [ { text: "सौर ऊर्जा", correct: false }, { text: "पवन ऊर्जा", correct: false }, { text: "ज्वारीय ऊर्जा", correct: false }, { text: "प्राकृतिक गैस", correct: true } ] },
+        { question: "77. नरोरा नाभिकीय विद्युत संयंत्र किस राज्य में है?", answers: [ { text: "राजस्थान", correct: false }, { text: "महाराष्ट्र", correct: false }, { text: "उत्तर प्रदेश", correct: true }, { text: "गुजरात", correct: false } ] },
+        { question: "78. काकरापारा परमाणु विद्युत गृह किस राज्य में है?", answers: [ { text: "तमिलनाडु", correct: false }, { text: "गुजरात", correct: true }, { text: "कर्नाटक", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "79. कैगा परमाणु विद्युत गृह किस राज्य में है?", answers: [ { text: "कर्नाटक", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "उत्तर प्रदेश", correct: false }, { text: "राजस्थान", correct: false } ] },
+        { question: "80. कल्पक्कम परमाणु विद्युत गृह किस राज्य में है?", answers: [ { text: "केरल", correct: false }, { text: "तमिलनाडु", correct: true }, { text: "आंध्र प्रदेश", correct: false }, { text: "ओडिशा", correct: false } ] },
+        { question: "81. डिगबोई तेल क्षेत्र किस राज्य में स्थित है?", answers: [ { text: "असम", correct: true }, { text: "गुजरात", correct: false }, { text: "महाराष्ट्र", correct: false }, { text: "मेघालय", correct: false } ] },
+        { question: "82. अंकलेश्वर किस खनिज के लिए प्रसिद्ध है?", answers: [ { text: "कोयला", correct: false }, { text: "खनिज तेल", correct: true }, { text: "अभ्रक", correct: false }, { text: "लौह अयस्क", correct: false } ] },
+        { question: "83. खंभात की खाड़ी किस ऊर्जा के लिए प्रसिद्ध है?", answers: [ { text: "भू-तापीय ऊर्जा", correct: false }, { text: "ज्वारीय ऊर्जा", correct: true }, { text: "पवन ऊर्जा", correct: false }, { text: "सौर ऊर्जा", correct: false } ] },
+        { question: "84. सरदार सरोवर बांध किस नदी पर बना है?", answers: [ { text: "कृष्णा", correct: false }, { text: "कावेरी", correct: false }, { text: "नर्मदा", correct: true }, { text: "महानदी", correct: false } ] },
+        { question: "85. नागार्जुन सागर परियोजना किस नदी पर है?", answers: [ { text: "कृष्णा", correct: true }, { text: "गोदावरी", correct: false }, { text: "कावेरी", correct: false }, { text: "ताप्ती", correct: false } ] },
+        { question: "86. टिहरी बांध परियोजना किस राज्य में है?", answers: [ { text: "उत्तराखंड", correct: true }, { text: "उत्तर प्रदेश", correct: false }, { text: "हिमाचल प्रदेश", correct: false }, { text: "पंजाब", correct: false } ] },
+        { question: "87. भारत में चंदन की लकड़ी के वन सबसे अधिक कहाँ पाए जाते हैं?", answers: [ { text: "असम में", correct: false }, { text: "मध्य प्रदेश में", correct: false }, { text: "कर्नाटक में", correct: true }, { text: "झारखंड में", correct: false } ] },
+        { question: "88. दुधवा राष्ट्रीय उद्यान कहाँ है?", answers: [ { text: "असम", correct: false }, { text: "राजस्थान", correct: false }, { text: "ओडिशा", correct: false }, { text: "उत्तर प्रदेश", correct: true } ] },
+        { question: "89. काजीरंगा राष्ट्रीय उद्यान किस राज्य में है?", answers: [ { text: "असम", correct: true }, { text: "बिहार", correct: false }, { text: "पश्चिम बंगाल", correct: false }, { text: "उत्तराखंड", correct: false } ] },
+        { question: "90. गिर राष्ट्रीय उद्यान किस जानवर के लिए प्रसिद्ध है?", answers: [ { text: "हाथी", correct: false }, { text: "शेर (Lion)", correct: true }, { text: "बाघ", correct: false }, { text: "गेंडा", correct: false } ] },
+        { question: "91. जिम कार्बेट नेशनल पार्क कहाँ स्थित है?", answers: [ { text: "उत्तराखंड", correct: true }, { text: "असम", correct: false }, { text: "बिहार", correct: false }, { text: "गुजरात", correct: false } ] },
+        { question: "92. पेरियार टाइगर रिजर्व किस राज्य में है?", answers: [ { text: "केरल", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "कर्नाटक", correct: false }, { text: "आंध्र प्रदेश", correct: false } ] },
+        { question: "93. भारत का पहला जैव मंडल आरक्षित क्षेत्र कौन सा है?", answers: [ { text: "नीलगिरी", correct: true }, { text: "नंदा देवी", correct: false }, { text: "सुंदरवन", correct: false }, { text: "पंचमढ़ी", correct: false } ] },
+        { question: "94. संविधान की धारा 21 का संबंध है?", answers: [ { text: "वन्यजीवों तथा प्राकृतिक संसाधनों के संरक्षण से", correct: true }, { text: "मृदा संरक्षण से", correct: false }, { text: "जल संरक्षण से", correct: false }, { text: "खनिज संरक्षण से", correct: false } ] },
+        { question: "95. 'हमारे पास पेट भरने के लिए बहुत कुछ है लेकिन पेटी भरने के लिए नहीं' - यह कथन किसका है?", answers: [ { text: "नेहरू जी", correct: false }, { text: "मेधा पाटेकर", correct: false }, { text: "गाँधीजी", correct: true }, { text: "सुंदरलाल बहुगुणा", correct: false } ] },
+        { question: "96. वर्षा जल संग्रहण के 'ढांचा' को हर घर में बनाना किस राज्य में अनिवार्य है?", answers: [ { text: "बिहार", correct: false }, { text: "उत्तर प्रदेश", correct: false }, { text: "ओडिशा", correct: false }, { text: "तमिलनाडु", correct: true } ] },
+        { question: "97. प्राणियों के शरीर में कितना प्रतिशत जल की मात्रा निहित होती है?", answers: [ { text: "55%", correct: false }, { text: "60%", correct: false }, { text: "65%", correct: true }, { text: "70%", correct: false } ] },
+        { question: "98. आधुनिक भारत का मंदिर किसे कहा गया है?", answers: [ { text: "बाँध को", correct: true }, { text: "नदी को", correct: false }, { text: "नहर को", correct: false }, { text: "तालाब को", correct: false } ] },
+        { question: "99. राजस्थान की सबसे महत्वपूर्ण परियोजना कौन-सी है?", answers: [ { text: "चंबल", correct: false }, { text: "नागार्जुन", correct: false }, { text: "इंदिरा गाँधी नहर", correct: true }, { text: "भाखड़ा नांगल", correct: false } ] },
+        { question: "100. भारत में सबसे लम्बा बाँध कौन सा है?", answers: [ { text: "भाखड़ा नांगल", correct: false }, { text: "नागार्जुन सागर", correct: false }, { text: "हीराकुंड", correct: true }, { text: "टिहरी", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बहुत खूब! 100 में से " + score + " नंबर बहुत बड़ी बात है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 अच्छा प्रयास! पर रिवीजन जरूरी है।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 भूगोल पर और मेहनत करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

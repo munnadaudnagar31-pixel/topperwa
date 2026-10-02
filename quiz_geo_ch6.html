@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 6 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Topographic Map Style) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #eceff1; color: #455a64; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #607d8b; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #cfd8dc; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #607d8b; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #455a64; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #607d8b; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(96, 125, 139, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #607d8b; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">08:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 8;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 6 QUESTIONS (मानचित्र अध्ययन) ▼▼▼
+    const questions = [
+        { question: "1. उच्चावच प्रदर्शन के लिए हैश्यूर विधि (Hachure Method) का विकास किसने किया था?", answers: [ { text: "गुटेनबर्ग", correct: false }, { text: "लेहमान", correct: true }, { text: "गिगर", correct: false }, { text: "रिटर", correct: false } ] },
+        { question: "2. पर्वतीय छायाकरण विधि में भू-आकृतियों पर किस दिशा से प्रकाश पड़ने की कल्पना की जाती है?", answers: [ { text: "उत्तर-पूर्व", correct: false }, { text: "पूर्व-दक्षिण", correct: false }, { text: "उत्तर-पश्चिम", correct: true }, { text: "दक्षिण-पश्चिम", correct: false } ] },
+        { question: "3. छोटी, महीन एवं खंडित रेखाओं को ढाल की दिशा में खींचकर उच्चावच प्रदर्शन करने की विधि को क्या कहते हैं?", answers: [ { text: "स्तर रंजन", correct: false }, { text: "पर्वतीय छायाकरण", correct: false }, { text: "हैश्यूर", correct: true }, { text: "तल चिह्न", correct: false } ] },
+        { question: "4. तल चिह्न (Bench Mark) की सहायता से किसी स्थान विशेष की मापी गई ऊँचाई को क्या कहा जाता है?", answers: [ { text: "स्थानिक ऊँचाई (Spot Height)", correct: true }, { text: "विशेष ऊँचाई", correct: false }, { text: "समोच्च रेखा", correct: false }, { text: "त्रिकोणमितीय स्टेशन", correct: false } ] },
+        { question: "5. स्तर रंजन विधि के अंतर्गत मानचित्रों में नीले रंग से किस भाग को दिखाया जाता है?", answers: [ { text: "पर्वत", correct: false }, { text: "पठार", correct: false }, { text: "मैदान", correct: false }, { text: "जल", correct: true } ] },
+        { question: "6. मानचित्र में मैदान को किस रंग से दिखलाया जाता है?", answers: [ { text: "हरा", correct: true }, { text: "पीला", correct: false }, { text: "लाल", correct: false }, { text: "भूरा", correct: false } ] },
+        { question: "7. मानचित्र में सफेद रंग किस आकृति को दर्शाता है?", answers: [ { text: "पर्वत शिखर", correct: false }, { text: "बर्फ (हिम)", correct: true }, { text: "पठार", correct: false }, { text: "मैदान", correct: false } ] },
+        { question: "8. समोच्च रेखाएँ (Contour Lines) क्या हैं?", answers: [ { text: "समान तापमान वाले स्थानों को मिलाने वाली रेखा", correct: false }, { text: "समान वर्षा वाले स्थानों को मिलाने वाली रेखा", correct: false }, { text: "समान ऊँचाई वाले स्थानों को मिलाने वाली रेखा", correct: true }, { text: "समान वायुदाब वाली रेखा", correct: false } ] },
+        { question: "9. यदि समोच्च रेखाएँ दूर-दूर खींची गई हों तो यह किस प्रकार की ढाल को प्रदर्शित करती हैं?", answers: [ { text: "खड़ी ढाल", correct: false }, { text: "मंद ढाल", correct: true }, { text: "सीढ़ीनुमा ढाल", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "10. यदि समोच्च रेखाएँ पास-पास और वृत्ताकार हों, तो वे किस आकृति को दर्शाती हैं?", answers: [ { text: "पहाड़ी या शंकु", correct: true }, { text: "झील", correct: false }, { text: "घाटी", correct: false }, { text: "पठार", correct: false } ] },
+        { question: "11. 'वी' (V) आकार की समोच्च रेखाएँ किस स्थलाकृति को प्रदर्शित करती हैं?", answers: [ { text: "पहाड़", correct: false }, { text: "नदी घाटी", correct: true }, { text: "पठार", correct: false }, { text: "जलप्रपात", correct: false } ] },
+        { question: "12. प्राकृतिक मानचित्र में मरुभूमि को किस रंग से प्रदर्शित किया जाता है?", answers: [ { text: "लाल", correct: false }, { text: "पीला", correct: true }, { text: "नीला", correct: false }, { text: "हरा", correct: false } ] },
+        { question: "13. किस स्थलाकृति को प्रदर्शित करने के लिए कंटूर रेखाएं एक-दूसरे को काटती नहीं हैं?", answers: [ { text: "पहाड़ी", correct: false }, { text: "ढाल", correct: false }, { text: "खड़ी चट्टान (Cliff)", correct: false }, { text: "सभी", correct: true } ] },
+        { question: "14. मानचित्र पर मापक (Scale) का क्या उपयोग है?", answers: [ { text: "दिशा दर्शाने के लिए", correct: false }, { text: "दूरी मापने के लिए", correct: true }, { text: "रंग भरने के लिए", correct: false }, { text: "ऊँचाई मापने के लिए", correct: false } ] },
+        { question: "15. स्तर रंजन विधि में 'बर्फ' को दिखाने के लिए किस रंग का प्रयोग होता है?", answers: [ { text: "काला", correct: false }, { text: "नीला", correct: false }, { text: "सफेद", correct: true }, { text: "बैंगनी", correct: false } ] },
+        { question: "16. हैश्यूर विधि में ढालू हिस्से को कैसे दिखाया जाता है?", answers: [ { text: "घना (गाढ़ा)", correct: true }, { text: "हल्का", correct: false }, { text: "सफेद", correct: false }, { text: "रिक्त", correct: false } ] },
+        { question: "17. मानचित्र में 'भूरा रंग' (Brown) किसका प्रतीक है?", answers: [ { text: "जलाशय", correct: false }, { text: "पर्वत/पहाड़", correct: true }, { text: "मैदान", correct: false }, { text: "बर्फ", correct: false } ] },
+        { question: "18. समुद्र की गहराई दर्शाने के लिए किस विधि का प्रयोग होता है?", answers: [ { text: "हैश्यूर", correct: false }, { text: "तल चिह्न", correct: false }, { text: "स्थानिक ऊँचाई", correct: false }, { text: "समोच्च रेखाएँ (गहराई वाली) या रंग विधि", correct: true } ] },
+        { question: "19. स्थलाकृतिक मानचित्रों (Topographical Maps) में 'काले रंग' से क्या दिखाया जाता है?", answers: [ { text: "जलाशय", correct: false }, { text: "रेल मार्ग और सीमाएँ", correct: true }, { text: "पर्वत", correct: false }, { text: "वनस्पति", correct: false } ] },
+        { question: "20. यदि मानचित्र का मापक '1 सेमी = 10 किमी' है, तो यह किस प्रकार का मापक है?", answers: [ { text: "कथनात्मक मापक", correct: true }, { text: "प्रदर्शक भिन्न", correct: false }, { text: "रैखिक मापक", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🗺️ शानदार! मानचित्र अध्ययन में आप माहिर हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर रंगों और विधियों को फिर से पढ़ें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

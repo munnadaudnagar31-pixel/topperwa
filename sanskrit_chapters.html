@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Sanskrit Piyusham Chapters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL SANSKRIT THEME (Maroon/Gold) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #fff3e0 0%, #ffecb3 100%); /* Creamy Background */
+            --header-gradient: linear-gradient(135deg, #880e4f 0%, #b71c1c 100%); /* Deep Maroon */
+            --text-main: #4a148c;
+            --text-sub: #880e4f;
+            --card-bg: #ffffff;
+            --card-shadow: 0 10px 20px rgba(136, 14, 79, 0.15);
+            --num-gradient: linear-gradient(135deg, #ffca28 0%, #ff6f00 100%); /* Gold/Saffron */
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        .dark-mode {
+            --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
+            --header-gradient: linear-gradient(135deg, #3e2723 0%, #212121 100%);
+            --text-main: #ffe0b2;
+            --text-sub: #ffcc80;
+            --card-bg: #3e2723;
+            --card-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            --num-gradient: linear-gradient(135deg, #ff6f00 0%, #e65100 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            overflow-y: scroll; transition: 0.3s;
+        }
+
+        /* --- HEADER --- */
+        .app-header {
+            background: var(--header-gradient); padding: 25px 25px 45px 25px;
+            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            box-shadow: 0 15px 30px rgba(136, 14, 79, 0.3); 
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; gap: 15px; color: white;
+        }
+
+        .back-btn {
+            width: 42px; height: 42px; background: var(--glass-bg); border-radius: 14px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            border: 1px solid var(--glass-border); backdrop-filter: blur(10px); font-size: 20px;
+            text-decoration: none; color: white; transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .header-title h1 { font-size: 24px; font-weight: 800; margin: 0; }
+        .header-title p { font-size: 13px; opacity: 0.9; margin: 0; font-weight: 500; }
+
+        .theme-toggle {
+            margin-left: auto; width: 42px; height: 42px; background: var(--glass-bg);
+            border-radius: 14px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+        }
+
+        /* --- CHAPTER LIST --- */
+        .container { padding: 20px; margin-top: -30px; padding-bottom: 40px; }
+
+        .chapter-card {
+            background: var(--card-bg); border-radius: 24px; padding: 15px 20px;
+            margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--card-shadow); text-decoration: none; color: var(--text-main);
+            animation: slideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px);
+            border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s;
+            cursor: pointer; /* Changed to pointer to show clickable */
+        }
+        
+        /* Staggered Animation */
+        .chapter-card:nth-child(n) { animation-delay: calc(0.05s * var(--i)); }
+
+        .chapter-card:active { transform: scale(0.97); }
+
+        .ch-left { display: flex; align-items: center; gap: 18px; }
+        
+        .ch-num {
+            background: var(--num-gradient); color: white; width: 50px; height: 50px;
+            border-radius: 16px; display: flex; justify-content: center; align-items: center;
+            font-weight: 700; font-size: 18px; flex-shrink: 0;
+        }
+
+        .ch-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+        .ch-info span { font-size: 11px; color: var(--text-sub); font-weight: 600; }
+
+        .play-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; 
+            color: #ccc; font-size: 14px; border: 2px solid #eee;
+        }
+
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- POPUP STYLES --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            display: none; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .popup-overlay.active { display: flex; opacity: 1; }
+
+        .popup-box {
+            background: var(--card-bg); width: 85%; max-width: 320px;
+            padding: 30px 20px; border-radius: 24px; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            transform: scale(0.8); transition: transform 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .popup-overlay.active .popup-box { transform: scale(1); }
+
+        .popup-icon {
+            font-size: 40px; margin-bottom: 15px; display: block;
+        }
+
+        .popup-box h2 {
+            font-size: 20px; margin-bottom: 10px; color: var(--text-main);
+        }
+
+        .popup-box p {
+            font-size: 14px; color: var(--text-sub); margin-bottom: 25px; line-height: 1.5;
+        }
+
+        .popup-btn {
+            background: var(--header-gradient); color: white; border: none;
+            padding: 12px 30px; border-radius: 50px; font-size: 14px; font-weight: 600;
+            cursor: pointer; box-shadow: 0 5px 15px rgba(136, 14, 79, 0.3);
+            transition: transform 0.2s;
+        }
+        .popup-btn:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <a href="index.html" class="back-btn">←</a>
+        <div class="header-title">
+            <h1>संस्कृत (पीयूषम्)</h1>
+            <p>Class 10 • 14 Chapters</p>
+        </div>
+        <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+    </div>
+
+    <div class="container">
+        
+        <a href="sanskrit_ch1.html" class="chapter-card" style="--i:1;">
+            <div class="ch-left">
+                <div class="ch-num">01</div>
+                <div class="ch-info">
+                    <h3>मंगलम्</h3>
+                    <span>उपनिषद्</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div> </a>
+
+        <a href="sanskrit_ch2.html" class="chapter-card" style="--i:2;">
+            <div class="ch-left">
+                <div class="ch-num">02</div>
+                <div class="ch-info">
+                    <h3>पाटलिपुत्रवैभवम्</h3>
+                    <span>निबंध</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch3.html" class="chapter-card" style="--i:3;">
+            <div class="ch-left">
+                <div class="ch-num">03</div>
+                <div class="ch-info">
+                    <h3>अलसकथा</h3>
+                    <span>विद्यापति</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch4.html" class="chapter-card" style="--i:4;">
+            <div class="ch-left">
+                <div class="ch-num">04</div>
+                <div class="ch-info">
+                    <h3>संस्कृतसाहित्ये लेखिकाः</h3>
+                    <span>निबंध</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch5.html" class="chapter-card" style="--i:5;">
+            <div class="ch-left">
+                <div class="ch-num">05</div>
+                <div class="ch-info">
+                    <h3>भारत-महिमा</h3>
+                    <span>पुराण</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch6.html" class="chapter-card" style="--i:6;">
+            <div class="ch-left">
+                <div class="ch-num">06</div>
+                <div class="ch-info">
+                    <h3>भारतीय-संस्काराः</h3>
+                    <span>निबंध</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch7.html" class="chapter-card" style="--i:7;">
+            <div class="ch-left">
+                <div class="ch-num">07</div>
+                <div class="ch-info">
+                    <h3>नीतिश्लोकाः</h3>
+                    <span>विदुर नीति</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch8.html" class="chapter-card" style="--i:8;">
+            <div class="ch-left">
+                <div class="ch-num">08</div>
+                <div class="ch-info">
+                    <h3>कर्मवीर कथा</h3>
+                    <span>आधुनिक कथा</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch9.html" class="chapter-card" style="--i:9;">
+            <div class="ch-left">
+                <div class="ch-num">09</div>
+                <div class="ch-info">
+                    <h3>स्वामी दयानन्दः</h3>
+                    <span>निबंध</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch10.html" class="chapter-card" style="--i:10;">
+            <div class="ch-left">
+                <div class="ch-num">10</div>
+                <div class="ch-info">
+                    <h3>मन्दाकिनीवर्णनम्</h3>
+                    <span>वाल्मीकि रामायण</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch11.html" class="chapter-card" style="--i:11;">
+            <div class="ch-left">
+                <div class="ch-num">11</div>
+                <div class="ch-info">
+                    <h3>व्याघ्रपथिककथा</h3>
+                    <span>हितोपदेश (नारायण पंडित)</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch12.html" class="chapter-card" style="--i:12;">
+            <div class="ch-left">
+                <div class="ch-num">12</div>
+                <div class="ch-info">
+                    <h3>कर्णस्य दानवीरता</h3>
+                    <span>भास (नाटक)</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch13.html" class="chapter-card" style="--i:13;">
+            <div class="ch-left">
+                <div class="ch-num">13</div>
+                <div class="ch-info">
+                    <h3>विश्वशान्तिः</h3>
+                    <span>निबंध</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+        <a href="sanskrit_ch14.html" class="chapter-card" style="--i:14;">
+            <div class="ch-left">
+                <div class="ch-num">14</div>
+                <div class="ch-info">
+                    <h3>शास्त्रकाराः</h3>
+                    <span>वार्तालाप</span>
+                </div>
+            </div>
+            <div class="play-icon">🔒</div>
+        </a>
+
+    </div>
+
+    <div class="popup-overlay" id="premiumPopup">
+        <div class="popup-box">
+            <span class="popup-icon">👑</span>
+            <h2>Premium Access Only</h2>
+            <p>This section is only for premium users. Please upgrade to access this content.</p>
+            <button class="popup-btn" onclick="closePopup()">OK, Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // Dark Mode Logic
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle').textContent = "☀️";
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.querySelector('.theme-toggle').textContent = isDark ? "☀️" : "🌙";
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // --- LOCK LOGIC START ---
+        
+        // Select all elements with class 'chapter-card'
+        const chapters = document.querySelectorAll('.chapter-card');
+        const popup = document.getElementById('premiumPopup');
+
+        chapters.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault(); // Stop the link from opening
+                openPopup();
+            });
+        });
+
+        function openPopup() {
+            popup.classList.add('active');
+        }
+
+        function closePopup() {
+            popup.classList.remove('active');
+        }
+
+        // Close popup if clicking outside the box
+        popup.addEventListener('click', function(e) {
+            if (e.target === popup) {
+                closePopup();
+            }
+        });
+
+    </script>
+
+</body>
+</html>

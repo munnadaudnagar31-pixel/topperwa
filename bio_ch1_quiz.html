@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Biology Ch-1 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (BIOLOGY - PINK/RED) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #FFF0F5 0%, #FFF5F7 100%);
+            --header-gradient: linear-gradient(135deg, #ec008c 0%, #fc6767 100%);
+            --card-bg: #ffffff;
+            --text-main: #4a1c30;
+            --text-sub: #905d70;
+            --option-bg: #FFF0F6;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(236, 0, 140, 0.15);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #4a1c30; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #666; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(236, 0, 140, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #ec008c;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #ec008c; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="biology_chapters.html" class="close-btn">✕</a>
+        <span>Ch-1: Life Processes</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #ec008c; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are a Life Processes expert!</p>
+        <a href="biology_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#ec008c; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Life Processes) ---
+        const questions = [
+            { q: "The mode of nutrition in fungi is:", o: ["Parasitic", "Holozoic", "Autotrophic", "Saprotrophic"], a: 3 },
+            { q: "In amoeba, food is digested in the:", o: ["Food vacuole", "Mitochondria", "Pseudopodia", "Chloroplast"], a: 0 },
+            { q: "The site of photosynthesis in the cells of a leaf is:", o: ["Chloroplast", "Mitochondria", "Cytoplasm", "Protoplasm"], a: 0 },
+            { q: "Which of the following events in the mouth cavity will be affected if salivary amylase is lacking in the saliva?", o: ["Starch breaking down into sugars", "Proteins breaking down into amino acids", "Absorption of vitamins", "Fats breaking down into fatty acids"], a: 0 },
+            { q: "Which region of the alimentary canal absorbs the digested food?", o: ["Stomach", "Small intestine", "Large intestine", "Liver"], a: 1 },
+            { q: "The contraction and expansion movement of the walls of the food pipe is called:", o: ["Translocation", "Transpiration", "Peristaltic movement", "Digestion"], a: 2 },
+            { q: "When a few drops of iodine solution are added to rice water, the solution turns blue-black. This indicates that rice water contains:", o: ["Fats", "Complex proteins", "Starch", "Simple proteins"], a: 2 },
+            { q: "The exit of unabsorbed food material is regulated by:", o: ["Liver", "Anus", "Small intestine", "Anal sphincter"], a: 3 },
+            { q: "What are the products obtained by anaerobic respiration in plants?", o: ["Lactic acid + Energy", "Carbon dioxide + Water + Energy", "Ethanol + Carbon dioxide + Energy", "Pyruvate"], a: 2 },
+            { q: "The breakdown of pyruvate to give carbon dioxide, water and energy takes place in:", o: ["Cytoplasm", "Mitochondria", "Chloroplast", "Nucleus"], a: 1 },
+            { q: "Glycolysis process occurs in which part of the cell?", o: ["Cytoplasm", "Nucleus", "Mitochondria", "Chloroplast"], a: 0 },
+            { q: "Name the pores in a leaf through which respiratory exchange of gases takes place.", o: ["Lenticels", "Vacuoles", "Xylem", "Stomata"], a: 3 },
+            { q: "The respiratory pigment in human beings is:", o: ["Carotene", "Chlorophyll", "Haemoglobin", "Mitochondria"], a: 2 },
+            { q: "Which plant tissue transports water and minerals from the roots to the leaf?", o: ["Xylem", "Phloem", "Parenchyma", "Collenchyma"], a: 0 },
+            { q: "The movement of food in phloem is called:", o: ["Transpiration", "Translocation", "Respiration", "Evaporation"], a: 1 },
+            { q: "A blood vessel which pumps the blood from the heart to the entire body is called:", o: ["Artery", "Capillary", "Vein", "Haemoglobin"], a: 0 },
+            { q: "Name a circulatory fluid in the human body other than blood.", o: ["Platelets", "RBC", "Lymph", "Plasma"], a: 2 },
+            { q: "Which chamber of the human heart receives oxygenated blood?", o: ["Right atrium", "Left atrium", "Right ventricle", "Left ventricle"], a: 1 },
+            { q: "The filtration units of kidneys are called:", o: ["Ureter", "Urethra", "Neurons", "Nephrons"], a: 3 },
+            { q: "Oxygen released during photosynthesis comes from:", o: ["Water", "CO2", "Glucose", "Chlorophyll"], a: 0 },
+            { q: "The blood leaving the tissues becomes richer in:", o: ["Carbon dioxide", "Water", "Haemoglobin", "Oxygen"], a: 0 },
+            { q: "Which of the following is an incorrect statement?", o: ["Organisms grow with time", "Organisms must repair and maintain their structure", "Movement of molecules does not take place among cells", "Energy is essential for life processes"], a: 2 },
+            { q: "The internal (cellular) energy reserve in autotrophs is:", o: ["Glycogen", "Protein", "Starch", "Fatty acid"], a: 2 },
+            { q: "Which of the following enzymes is found in pancreatic juice?", o: ["Amylase", "Trypsin", "Pepsin", "Both Amylase and Trypsin"], a: 3 },
+            { q: "The kidneys in human beings are a part of the system for:", o: ["Nutrition", "Respiration", "Excretion", "Transportation"], a: 2 },
+            { q: "The xylem in plants are responsible for:", o: ["Transport of water", "Transport of food", "Transport of amino acids", "Transport of oxygen"], a: 0 },
+            { q: "The autotrophic mode of nutrition requires:", o: ["Carbon dioxide and water", "Chlorophyll", "Sunlight", "All of the above"], a: 3 },
+            { q: "The breakdown of pyruvate into lactic acid during lack of oxygen occurs in:", o: ["Mitochondria", "Muscle cells", "Yeast", "Chloroplast"], a: 1 },
+            { q: "Which of the following carries oxygenated blood from lungs to heart?", o: ["Pulmonary artery", "Pulmonary vein", "Aorta", "Vena cava"], a: 1 },
+            { q: "The main function of the ureter is:", o: ["Filter blood", "Carry urine from kidney to bladder", "Store urine", "Produce urine"], a: 1 },
+            { q: "Which instrument is used to measure blood pressure?", o: ["Barometer", "Sphygmomanometer", "Thermometer", "Glucometer"], a: 1 },
+            { q: "In which group of organisms is food material broken down outside the body and then absorbed?", o: ["Mushroom, Green plants, Amoeba", "Yeast, Mushroom, Bread mould", "Paramecium, Amoeba, Cuscuta", "Cuscuta, Lice, Tapeworm"], a: 1 },
+            { q: "Which of the following prevents the backflow of blood inside the heart during contraction?", o: ["Valves", "Thick muscular walls", "Thin walls", "Pericardium"], a: 0 },
+            { q: "Single circulation involves blood passing through the heart only once. Which organisms show this?", o: ["Labeo, Chameleon, Salamander", "Hippocampus, Exocoetus, Anabas", "Hyla, Rana, Draco", "Whale, Dolphin, Turtle"], a: 1 },
+            { q: "The opening and closing of the stomatal pore depends upon:", o: ["Oxygen", "Temperature", "Water in guard cells", "Concentration of CO2"], a: 2 },
+            { q: "Rings of cartilage are present in:", o: ["Oesophagus", "Bile duct", "Throat (Trachea)", "Small intestine"], a: 2 },
+            { q: "The loss of water in the form of vapour from the aerial parts of the plant is known as:", o: ["Translocation", "Transpiration", "Respiration", "Transportation"], a: 1 },
+            { q: "Which of the following is the first enzyme to mix with food in the digestive tract?", o: ["Pepsin", "Cellulase", "Amylase", "Trypsin"], a: 2 },
+            { q: "The procedure used for cleaning the blood of a person by separating the waste substance from it is called:", o: ["Dialysis", "Filtration", "Double circulation", "Transfusion"], a: 0 },
+            { q: "The correct path of urine flow in our body is:", o: ["Kidney -> Ureter -> Urethra -> Bladder", "Kidney -> Bladder -> Urethra -> Ureter", "Kidney -> Ureter -> Bladder -> Urethra", "Bladder -> Kidney -> Ureter -> Urethra"], a: 2 },
+            { q: "During respiration, exchange of gases takes place in:", o: ["Trachea and larynx", "Alveoli of lungs", "Alveoli and throat", "Throat and larynx"], a: 1 },
+            { q: "Bile juice is secreted by:", o: ["Stomach", "Pancreas", "Small intestine", "Liver"], a: 3 },
+            { q: "Trypsin digests:", o: ["Fats", "Starch", "Proteins", "Vitamins"], a: 2 },
+            { q: "Lipase acts on:", o: ["Amino acids", "Fats", "Carbohydrates", "All of these"], a: 1 },
+            { q: "Cramps in leg muscles during heavy exercise are caused by accumulation of:", o: ["Carbon dioxide", "Lactic acid", "Alcohol", "Water"], a: 1 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

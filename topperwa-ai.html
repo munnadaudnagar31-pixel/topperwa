@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>EduBzz Quantum Solver - AI-Powered Physics & Math Doubts</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* --- PREMIUM COLOR SCHEME (Quantum Glow) --- */
+        :root {
+            /* Light Mode */
+            --bg-body: #060911; /* Always dark for premium feel */
+            --bg-glass: rgba(14, 21, 39, 0.7);
+            --bg-bubble: #171f37;
+            --text-main: #e6edf7;
+            --text-muted: #8b9bb4;
+            --border: rgba(255, 255, 255, 0.08);
+            
+            /* Signature Quantum Glow (Blue/Teal) */
+            --primary-base: #1fe0d1;
+            --primary-glow: rgba(31, 224, 209, 0.4);
+            --secondary-base: #3b82f6;
+            
+            /* Gradients */
+            --gradient-quantum: linear-gradient(135deg, var(--secondary-base) 0%, var(--primary-base) 100%);
+            --shadow-quantum: 0 10px 40px -10px rgba(10, 16, 32, 0.5), 0 0 20px -5px var(--primary-glow);
+            
+            /* Animations */
+            --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* --- BASIC RESET & STRUCTURE (Quantum Mode) --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            background-image: radial-gradient(at 10% 10%, rgba(31, 224, 209, 0.1) 0px, transparent 50%), radial-gradient(at 90% 90%, rgba(59, 130, 246, 0.08) 0px, transparent 50%);
+            color: var(--text-main); 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-weight: 400;
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            height: 100dvh; 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        /* --- QUANTUM HEADER (Frosted Glass) --- */
+        .quantum-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; 
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: relative; z-index: 100; flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .icon-btn-quantum {
+            width: 44px; height: 44px; border-radius: 14px; 
+            background: rgba(255,255,255,0.03); color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; text-decoration: none; border: 1px solid var(--border); cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .icon-btn-quantum:hover { background: rgba(255,255,255,0.06); color: var(--text-main); border-color: rgba(255,255,255,0.15); }
+        .icon-btn-quantum:active { transform: scale(0.92); opacity: 0.8; }
+        
+        .header-title-quantum { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-family: 'Unbounded', sans-serif; font-weight: 700; color: var(--text-main); }
+        
+        /* Premium Core Status Animation */
+        .quantum-core {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: var(--gradient-quantum);
+            box-shadow: 0 0 10px 0 var(--primary-glow);
+            position: relative;
+        }
+        .quantum-core::after {
+            content: ''; position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
+            border-radius: 50%; border: 1.5px solid var(--primary-base);
+            opacity: 0.6;
+            animation: corePulse 1.8s infinite cubic-bezier(0.36, 0.11, 0.89, 0.32);
+        }
+
+        @keyframes corePulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        /* --- QUANTUM CHAT STREAM --- */
+        .quantum-stream {
+            flex: 1; padding: 24px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+            scroll-behavior: smooth; position: relative;
+        }
+
+        /* Pure CSS message stream animation */
+        .quantum-stream::-webkit-scrollbar { width: 4px; }
+        .quantum-stream::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+
+        @keyframes streamPop {
+            0% { opacity: 0; transform: translateY(30px) scale(0.92); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .quantum-message { display: flex; flex-direction: column; max-width: 90%; animation: streamPop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .quantum-message.ai { align-self: flex-start; }
+        .quantum-message.user { align-self: flex-end; align-items: flex-end; }
+
+        .quantum-bubble {
+            padding: 16px 20px; border-radius: 22px; font-size: 1rem; line-height: 1.6; font-weight: 400;
+            box-shadow: var(--shadow-quantum); position: relative; overflow-wrap: break-word;
+        }
+        
+        /* Markdown Styles Inside Bubble */
+        .quantum-bubble p { margin-bottom: 10px; }
+        .quantum-bubble p:last-child { margin-bottom: 0; }
+        .quantum-bubble ul, .quantum-bubble ol { margin-left: 20px; margin-bottom: 10px; list-style: circle;}
+        .quantum-bubble strong { font-weight: 700; color: #fff; background-image: var(--gradient-quantum); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .ai .quantum-bubble {
+            background: var(--bg-bubble); color: var(--text-main);
+            border-bottom-left-radius: 5px; border: 1px solid var(--border);
+        }
+        .user .quantum-bubble {
+            background: var(--gradient-quantum); color: #060911; /* Text dark on light background */
+            border-bottom-right-radius: 5px; font-weight: 500;
+        }
+        .msg-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; margin-right: 6px; margin-left: 6px; font-family: 'Space Grotesk', sans-serif; opacity: 0.7;}
+
+        /* PREMIUM LOADING INDICATOR */
+        .quantum-loader { display: flex; gap: 6px; padding: 10px 6px; align-items: center;}
+        .quantum-loader .orb { width: 8px; height: 8px; border-radius: 50%; border: 2px solid var(--primary-base); opacity: 0.3; animation: orbFlow 1.5s infinite ease-in-out; }
+        .quantum-loader .orb:nth-child(1) { animation-delay: -0.4s; }
+        .quantum-loader .orb:nth-child(2) { animation-delay: -0.2s; opacity: 0.5; }
+        .quantum-loader .orb:nth-child(3) { opacity: 0.7;}
+        @keyframes orbFlow { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.3); opacity: 1; border-color: var(--primary-base); box-shadow: 0 0 10px var(--primary-glow); } }
+
+        /* --- QUANTUM INPUT CONSOLE --- */
+        .quantum-console {
+            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 16px; 
+            padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* Full Safari/iOS fix */
+            border-top: 1px solid var(--border);
+            display: flex; gap: 12px; align-items: center;
+            flex-shrink: 0; width: 100%; position: relative; z-index: 100;
+        }
+
+        .quantum-cam-btn {
+            background: rgba(255,255,255,0.03); color: var(--primary-base); border: 1px solid rgba(31, 224, 209, 0.2);
+            width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; cursor: pointer; transition: var(--transition-smooth); flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(31, 224, 209, 0.05);
+        }
+        .quantum-cam-btn:active { transform: scale(0.92); opacity: 0.8; }
+
+        .quantum-input {
+            flex: 1; background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+            border-radius: 16px; padding: 14px 18px; font-size: 1rem; color: var(--text-main); font-family: 'Space Grotesk', sans-serif;
+            outline: none; transition: var(--transition-smooth);
+        }
+        .quantum-input:focus { border-color: rgba(31, 224, 209, 0.4); background: rgba(255,255,255,0.04); box-shadow: 0 0 15px -2px rgba(31, 224, 209, 0.1); }
+        .quantum-input::placeholder { color: var(--text-muted); opacity: 0.7; }
+
+        .quantum-send-btn {
+            background: var(--gradient-quantum); color: #060911; border: none;
+            width: 48px; height: 48px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; cursor: pointer; transition: var(--transition-smooth); flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1), 0 0 10px rgba(31, 224, 209, 0.2);
+        }
+        .quantum-send-btn:active { transform: scale(0.92) translateY(1px); opacity: 0.9; }
+        
+        /* Advanced Image Preview Style */
+        .quantum-preview-img { max-width: 100%; border-radius: 16px; margin-top: 10px; border: 1px solid var(--primary-base); box-shadow: 0 0 15px var(--primary-glow); transition: var(--transition-smooth); }
+        .quantum-preview-img:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <header class="quantum-header">
+        <a href="index.html" class="icon-btn-quantum" title="Home">
+            <i class="ri-arrow-left-s-line" style="font-size: 1.9rem;"></i>
+        </a>
+        <div class="header-title-quantum">
+            <div class="quantum-core"></div>
+            QUANTUM SOLVER
+        </div>
+        <button class="icon-btn-quantum" title="Physics Theory" style="border: none; background: transparent;">
+            <i class="ri-lightbulb-flash-line" style="color: var(--primary-base);"></i>
+        </button>
+    </header>
+
+    <div class="quantum-stream" id="chatStream">
+        <div class="quantum-message ai">
+            <div class="quantum-bubble">
+                Greetings student! 👋 Ready to unlock the quantum realm of physics and mathematics? <br><br>
+                Upload a picture of your complex doubt or type your question below. Let's solve it!
+            </div>
+            <span class="msg-time">Initialization Complete</span>
+        </div>
+    </div>
+
+    <div class="quantum-console">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
+        
+        <button class="quantum-cam-btn" title="Scan Doubt" onclick="document.getElementById('cameraInput').click()">
+            <i class="ri-scan-2-line"></i>
+        </button>
+        <input type="text" id="userInput" class="quantum-input" placeholder="Initiate complex query..." autocomplete="off">
+        <button class="quantum-send-btn" onclick="sendMessage()" id="sendBtn">
+            <i class="ri-rocket-fill"></i>
+        </button>
+    </div>
+
+    <script>
+        const chatStream = document.getElementById('chatStream');
+        const userInput = document.getElementById('userInput');
+        
+        // 🛑 YAHAN APNI NAYI KEY DALO 🛑
+        const API_KEY = "AIzaSyDMYFNGNT2urt8rPn0MjxR3hk_TVCDGJ8s"; 
+
+        let selectedImageBase64 = null;
+        let selectedMimeType = null;
+        let imagePreviewUrl = null;
+
+        // Enhanced: Automatic focus on input box for premium feel
+        userInput.focus();
+
+        // Convert image file to Base64 (Quantum Converter)
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- CAMERA/IMAGE LISTENER (Quantum Scan) ---
+        document.getElementById('cameraInput').addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                try {
+                    // Show a mini 'processing' notification in chat
+                    const userHtml = `
+                        <div class="quantum-message user">
+                            <div class="quantum-bubble">
+                                <i class="ri-image-2-line" style="margin-right:8px; color:#060911;"></i>
+                                Processing Doubt Scan... [${file.name}]
+                            </div>
+                            <span class="msg-time">${getCurrentTime()}</span>
+                        </div>
+                    `;
+                    chatStream.insertAdjacentHTML('beforeend', userHtml);
+                    chatStream.scrollTop = chatStream.scrollHeight;
+
+                    // Execute conversion
+                    const fullBase64 = await fileToBase64(file);
+                    selectedImageBase64 = fullBase64.split(',')[1]; 
+                    selectedMimeType = file.type;
+                    imagePreviewUrl = fullBase64;
+
+                    // Update last user message with preview and prompt
+                    const userMessages = document.querySelectorAll('.quantum-message.user');
+                    const lastUserMessage = userMessages[userMessages.length - 1];
+                    lastUserMessage.innerHTML = `
+                        <div class="quantum-bubble">
+                            <i class="ri-scan-check-line" style="margin-right:8px; color:#060911;"></i>
+                            Doubt Scan Complete: ${file.name}
+                            <br>
+                            <img src="${imagePreviewUrl}" class="quantum-preview-img" alt="Attached Doubt">
+                            <br><small style="font-size:0.8rem; opacity:0.8; font-weight:400;">Ready for quantum analysis. <br>Type a question or press Launch!</small>
+                        </div>
+                        <span class="msg-time">${getCurrentTime()}</span>
+                    `;
+                    chatStream.scrollTop = chatStream.scrollHeight;
+                    userInput.focus();
+
+                } catch (error) {
+                    alert("Quantum Conversion Error: Photo process nahi ho payi.");
+                    console.error("Scan err", error);
+                }
+            }
+        });
+
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // --- AI API CALL (Quantum Core API) ---
+        async function getAIResponse(userText, typingId) {
+            // Quantum Safeguard
+            if(API_KEY === "PASTE_YOUR_NEW_KEY_HERE" || API_KEY === "") {
+                const typingElement = document.getElementById(typingId);
+                if(typingElement) typingElement.remove();
+                alert("🛑 SECURITY ALERT: Tumne Quantum Core API Key nahi daali hai! Line ~251 check karo.");
+                return;
+            }
+
+            // Corrected and guaranteed updated Gemini 2.5 Flash endpoint
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+            
+            let requestBody;
+            if (selectedImageBase64) {
+                // Multimodal Request (Text + Image)
+                requestBody = {
+                    contents: [{
+                        parts: [
+                            { text: userText !== "" ? userText : "Analyze the question in this image, identify the physics/math concepts, solve it step-by-step, and explain the theory clearly." },
+                            { inlineData: { mimeType: selectedMimeType, data: selectedImageBase64 } }
+                        ]
+                    }]
+                };
+            } else {
+                // Text Only Request
+                requestBody = { contents: [{ parts: [{ text: userText }] }] };
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                
+                // Reset console state immediately
+                selectedImageBase64 = null;
+                selectedMimeType = null;
+                imagePreviewUrl = null;
+
+                // Safely remove quantum loader
+                const typingElement = document.getElementById(typingId);
+                if(typingElement) typingElement.remove();
+
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                if(data.candidates && data.candidates.length > 0) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    
+                    // Convert advanced Markdown to premium HTML
+                    let htmlText = aiText;
+                    if(typeof marked !== 'undefined') {
+                        htmlText = marked.parse(aiText);
+                    } else {
+                        // Very basic fallback if library fails
+                        htmlText = aiText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        htmlText = htmlText.replace(/\n/g, "<br>");
+                    }
+
+                    // Insert signature quantum AI message
+                    const aiHtml = `
+                        <div class="quantum-message ai">
+                            <div class="quantum-bubble">${htmlText}</div>
+                            <span class="msg-time">Quantum Core Analysis • ${getCurrentTime()}</span>
+                        </div>
+                    `;
+                    chatStream.insertAdjacentHTML('beforeend', aiHtml);
+
+                    // Re-render MathJax to make formulas beautifully textbook-perfect
+                    if (window.MathJax) {
+                        try {
+                            await MathJax.typesetPromise();
+                        } catch(err) { console.log('MathJax typeset err ignored', err); }
+                    }
+
+                } else {
+                    throw new Error("Invalid response from API");
+                }
+                
+                chatStream.scrollTop = chatStream.scrollHeight;
+
+            } catch (error) {
+                console.error("Quantum Error:", error);
+                
+                // Exact popup error to immediately identify API Key issues
+                alert("🛑 QUANTUM CORE API ERROR: " + error.message); 
+                
+                const typingElement = document.getElementById(typingId);
+                if(typingElement) typingElement.remove();
+                
+                // Add stylized error message to chat
+                const errorHtml = `
+                    <div class="quantum-message ai">
+                        <div class="quantum-bubble" style="color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                            Oops! Core analysis failed: <br>${error.message}
+                            <br><small style="color: var(--text-muted);">Please check internet or API settings.</small>
+                        </div>
+                        <span class="msg-time">Core Failure</span>
+                    </div>
+                `;
+                chatStream.insertAdjacentHTML('beforeend', errorHtml);
+                chatStream.scrollTop = chatStream.scrollHeight;
+            }
+        }
+
+        function sendMessage() {
+            try {
+                const text = userInput.value.trim();
+                if (text === "" && !selectedImageBase64) return;
+
+                // Add User message UI (if text prompt added after image scan)
+                if (text !== "" && !selectedImageBase64) {
+                    const userHtml = `
+                        <div class="quantum-message user">
+                            <div class="quantum-bubble">${text}</div>
+                            <span class="msg-time">${getCurrentTime()}</span>
+                        </div>
+                    `;
+                    chatStream.insertAdjacentHTML('beforeend', userHtml);
+                } else if (text !== "" && selectedImageBase64) {
+                     // Add prompt to preview message
+                    const userMessages = document.querySelectorAll('.quantum-message.user');
+                    const lastUserMessage = userMessages[userMessages.length - 1];
+                    const promptHtml = `<br><span style="color:#060911; font-weight:700;">Query: ${text}</span>`;
+                    lastUserMessage.querySelector('.quantum-bubble').insertAdjacentHTML('beforeend', promptHtml);
+                }
+
+                // Clean console and focus
+                userInput.value = "";
+                chatStream.scrollTop = chatStream.scrollHeight;
+                userInput.focus();
+
+                // Advanced Quantum Loader Indicator
+                const typingId = "typing-" + Date.now();
+                const typingHtml = `
+                    <div class="quantum-message ai" id="${typingId}">
+                        <div class="quantum-bubble">
+                            <div class="quantum-loader">
+                                <div class="orb"></div><div class="dot">Initializing Quantum Stream...</div><div class="orb"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatStream.insertAdjacentHTML('beforeend', typingHtml);
+                chatStream.scrollTop = chatStream.scrollHeight;
+
+                // Execute core API call
+                getAIResponse(text, typingId);
+            } catch (e) {
+                alert("🛑 Launch Core Failure: " + e.message);
+                console.error("Code Send karne me fasa:", e);
+            }
+        }
+    </script>
+</body>
+</html>

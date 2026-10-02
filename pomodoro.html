@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Pomodoro Timer – Topperwa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{font-family:'Outfit',sans-serif;background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 60%,#F0FDF4 100%);min-height:100vh;display:flex;flex-direction:column;}
+    .navbar{background:rgba(255,255,255,.88);backdrop-filter:blur(14px);border-bottom:1px solid #BFDBFE;position:sticky;top:0;z-index:50;}
+
+    /* Timer ring */
+    .ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+    #ring-svg{transform:rotate(-90deg);}
+    #ring-bg{fill:none;stroke:#DBEAFE;stroke-width:10;}
+    #ring-progress{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s linear,stroke .4s;}
+    .timer-display{position:absolute;text-align:center;}
+    .timer-hms{font-size:3.2rem;font-weight:800;letter-spacing:-.02em;line-height:1;}
+    .timer-label{font-size:.8rem;font-weight:600;margin-top:.3rem;letter-spacing:.1em;}
+
+    /* Mode tabs */
+    .mode-btn{padding:.45rem 1.1rem;border-radius:999px;font-size:.8rem;font-weight:600;border:1.5px solid #BFDBFE;background:#fff;color:#64748B;cursor:pointer;transition:all .2s;}
+    .mode-btn.active,.mode-btn:hover{background:#3B82F6;color:#fff;border-color:#3B82F6;}
+
+    /* Control buttons */
+    .ctrl-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:1.2rem;transition:transform .2s,box-shadow .2s;}
+    .ctrl-btn:hover{transform:scale(1.1);}
+    .ctrl-btn:active{transform:scale(.95);}
+
+    /* Sound toggle */
+    .sound-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1.2rem;border-radius:999px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;border:1.5px solid #BFDBFE;background:#fff;color:#64748B;}
+    .sound-btn.on{background:#DCFCE7;color:#16A34A;border-color:#86EFAC;}
+
+    /* Session dots */
+    .sess-dot{width:12px;height:12px;border-radius:50%;background:#BFDBFE;transition:background .3s;}
+    .sess-dot.done{background:#3B82F6;}
+
+    /* Motivational quotes */
+    @keyframes fadeQ{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    #quote{animation:fadeQ .6s ease both;}
+
+    @keyframes pulseBg{0%,100%{background:linear-gradient(135deg,#EFF6FF 0%,#DBEAFE 60%,#F0FDF4 100%)}50%{background:linear-gradient(135deg,#FEF9C3 0%,#FDE68A 60%,#F0FDF4 100%)}}
+    body.break-mode{animation:pulseBg 2s ease infinite;}
+  </style>
+</head>
+<body>
+
+<nav class="navbar px-4 h-14 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <a href="index.html" class="text-blue-400 hover:text-blue-600 text-lg transition"><i class="fas fa-arrow-left"></i></a>
+    <div class="w-8 h-8 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center text-white text-sm"><i class="fas fa-stopwatch"></i></div>
+    <span class="font-extrabold text-blue-800 text-base">Pomodoro Focus</span>
+  </div>
+  <div class="text-xs font-semibold text-slate-400">Session <span id="session-num">1</span>/4</div>
+</nav>
+
+<main class="flex-1 flex flex-col items-center justify-center px-4 py-10 gap-8">
+
+  <!-- Mode selector -->
+  <div class="flex gap-2">
+    <button class="mode-btn active" onclick="setMode('focus',this)">🎯 Focus 25m</button>
+    <button class="mode-btn" onclick="setMode('short',this)">☕ Short Break 5m</button>
+    <button class="mode-btn" onclick="setMode('long',this)">🌙 Long Break 15m</button>
+  </div>
+
+  <!-- Timer Ring -->
+  <div class="ring-wrap">
+    <svg id="ring-svg" width="240" height="240" viewBox="0 0 240 240">
+      <circle id="ring-bg" cx="120" cy="120" r="105"/>
+      <circle id="ring-progress" cx="120" cy="120" r="105"/>
+    </svg>
+    <div class="timer-display">
+      <div class="timer-hms text-blue-800" id="timer-display">25:00</div>
+      <div class="timer-label text-blue-400 uppercase" id="mode-label">Focus Time</div>
+    </div>
+  </div>
+
+  <!-- Session dots -->
+  <div class="flex gap-3">
+    <div class="sess-dot" id="dot-1"></div>
+    <div class="sess-dot" id="dot-2"></div>
+    <div class="sess-dot" id="dot-3"></div>
+    <div class="sess-dot" id="dot-4"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="flex items-center gap-5">
+    <button class="ctrl-btn bg-blue-100 text-blue-600 hover:bg-blue-200" onclick="resetTimer()"><i class="fas fa-undo"></i></button>
+    <button class="ctrl-btn bg-blue-500 text-white shadow-lg hover:bg-blue-700" id="start-btn" onclick="toggleTimer()">
+      <i class="fas fa-play" id="play-icon"></i>
+    </button>
+    <button class="ctrl-btn bg-blue-100 text-blue-600 hover:bg-blue-200" onclick="skipSession()"><i class="fas fa-forward-step"></i></button>
+  </div>
+
+  <!-- Sound Toggle -->
+  <div class="flex flex-col items-center gap-2">
+    <button class="sound-btn" id="sound-btn" onclick="toggleSound()">
+      <i class="fas fa-volume-mute" id="sound-icon"></i>
+      <span id="sound-label">Nature Sounds: Off</span>
+    </button>
+    <p class="text-xs text-slate-400">(Place <code>nature.mp3</code> in the same folder for audio)</p>
+  </div>
+
+  <!-- Motivational Quote -->
+  <div class="bg-white/70 border border-blue-100 rounded-2xl px-6 py-4 max-w-sm text-center backdrop-blur" id="quote-wrap">
+    <p class="text-sm text-slate-600 italic" id="quote">"Focus on being productive instead of busy."</p>
+    <p class="text-xs text-blue-400 font-medium mt-1" id="quote-author">– Tim Ferriss</p>
+  </div>
+
+</main>
+
+<script>
+  // ── Modes ──────────────────────────────────────────────────
+  const MODES = {
+    focus: { seconds: 25 * 60, label: 'Focus Time',    color: '#3B82F6', ring: '#3B82F6' },
+    short: { seconds:  5 * 60, label: 'Short Break ☕', color: '#10B981', ring: '#10B981' },
+    long:  { seconds: 15 * 60, label: 'Long Break 🌙',  color: '#8B5CF6', ring: '#8B5CF6' },
+  };
+  const QUOTES = [
+    { q: '"Focus on being productive instead of busy."',            a: '– Tim Ferriss' },
+    { q: '"The secret of getting ahead is getting started."',        a: '– Mark Twain' },
+    { q: '"You don\'t have to be great to start, but you have to start to be great."', a: '– Zig Ziglar' },
+    { q: '"Success is the sum of small efforts, repeated day-in and day-out."', a: '– Robert Collier' },
+    { q: '"Topperwa mein pado, board mein topper bano! 🎯"',        a: '– Topperwa AI' },
+  ];
+
+  const circumference = 2 * Math.PI * 105; // r=105
+  const ring = document.getElementById('ring-progress');
+  ring.style.strokeDasharray  = circumference;
+  ring.style.strokeDashoffset = 0;
+
+  let currentMode = 'focus';
+  let totalSeconds  = MODES.focus.seconds;
+  let secondsLeft   = totalSeconds;
+  let timerInterval = null;
+  let isRunning     = false;
+  let sessionCount  = 0;
+  let soundOn       = false;
+
+  // Audio (place nature.mp3 in same folder)
+  const audio = new Audio('nature.mp3');
+  audio.loop  = true;
+  audio.volume = 0.4;
+
+  function setMode(mode, btn) {
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMode  = mode;
+    totalSeconds = MODES[mode].seconds;
+    secondsLeft  = totalSeconds;
+    resetTimer();
+    updateRingColor(mode);
+    document.getElementById('mode-label').textContent = MODES[mode].label;
+    document.body.classList.toggle('break-mode', mode !== 'focus');
+  }
+
+  function updateRingColor(mode) { ring.style.stroke = MODES[mode].ring; }
+  updateRingColor('focus');
+
+  function formatTime(s) {
+    const m = Math.floor(s/60).toString().padStart(2,'0');
+    const sec = (s % 60).toString().padStart(2,'0');
+    return `${m}:${sec}`;
+  }
+
+  function updateDisplay() {
+    document.getElementById('timer-display').textContent = formatTime(secondsLeft);
+    document.title = `${formatTime(secondsLeft)} – Topperwa Focus`;
+    // Ring
+    const pct = secondsLeft / totalSeconds;
+    ring.style.strokeDashoffset = circumference * (1 - pct);
+  }
+
+  function toggleTimer() {
+    if (isRunning) {
+      clearInterval(timerInterval); isRunning = false;
+      document.getElementById('play-icon').className = 'fas fa-play';
+      document.getElementById('start-btn').classList.replace('bg-blue-500','bg-green-500');
+    } else {
+      document.getElementById('play-icon').className = 'fas fa-pause';
+      document.getElementById('start-btn').classList.replace('bg-green-500','bg-blue-500');
+      isRunning = true;
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        updateDisplay();
+        if (secondsLeft <= 0) {
+          clearInterval(timerInterval); isRunning = false;
+          sessionDone();
+        }
+      }, 1000);
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(timerInterval); isRunning = false;
+    secondsLeft = MODES[currentMode].seconds;
+    totalSeconds = secondsLeft;
+    updateDisplay();
+    document.getElementById('play-icon').className = 'fas fa-play';
+    document.getElementById('start-btn').className = 'ctrl-btn bg-blue-500 text-white shadow-lg hover:bg-blue-700';
+    document.title = 'Pomodoro – Topperwa';
+  }
+
+  function skipSession() { sessionDone(); }
+
+  function sessionDone() {
+    sessionCount = Math.min(sessionCount + 1, 4);
+    for (let i=1;i<=4;i++) {
+      document.getElementById('dot-'+i).classList.toggle('done', i <= sessionCount);
+    }
+    document.getElementById('session-num').textContent = sessionCount;
+    playBeep();
+    rotateQuote();
+    if (sessionCount >= 4) {
+      sessionCount = 0;
+      alert('🎉 Great work! 4 Pomodoros done! Time for a long break!');
+    } else {
+      // Auto switch to short break
+      const shortBtn = document.querySelectorAll('.mode-btn')[1];
+      setMode('short', shortBtn);
+      shortBtn.classList.add('active');
+    }
+  }
+
+  function playBeep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+      osc.start(); osc.stop(ctx.currentTime + 0.8);
+    } catch(e) {}
+  }
+
+  function toggleSound() {
+    soundOn = !soundOn;
+    const btn  = document.getElementById('sound-btn');
+    const icon = document.getElementById('sound-icon');
+    const lbl  = document.getElementById('sound-label');
+    if (soundOn) {
+      audio.play().catch(()=>{});
+      btn.classList.add('on');
+      icon.className = 'fas fa-volume-up';
+      lbl.textContent = 'Nature Sounds: On';
+    } else {
+      audio.pause(); audio.currentTime = 0;
+      btn.classList.remove('on');
+      icon.className = 'fas fa-volume-mute';
+      lbl.textContent = 'Nature Sounds: Off';
+    }
+  }
+
+  function rotateQuote() {
+    const q  = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+    const el = document.getElementById('quote');
+    const au = document.getElementById('quote-author');
+    el.style.opacity = '0';
+    setTimeout(()=>{ el.textContent = q.q; au.textContent = q.a; el.style.opacity='1'; el.style.animation='fadeQ .6s ease both'; },300);
+  }
+
+  updateDisplay();
+</script>
+</body>
+</html>

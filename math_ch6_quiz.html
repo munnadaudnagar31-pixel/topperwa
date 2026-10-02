@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-6: Triangles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Triangles</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Triangles) ---
+        const questions = [
+            { q: "If two triangles are similar, their corresponding sides are:", o: ["Equal", "Proportional", "Parallel", "Perpendicular"], a: 1 },
+            { q: "Two triangles are similar if their corresponding angles are equal and their corresponding sides are:", o: ["Equal", "Unequal", "Proportional", "None of these"], a: 2 },
+            { q: "Basic Proportionality Theorem is also known as:", o: ["Pythagoras Theorem", "Thales Theorem", "Euclid's Theorem", "Similarity Theorem"], a: 1 },
+            { q: "If a line divides any two sides of a triangle in the same ratio, then the line is:", o: ["Parallel to the third side", "Perpendicular to the third side", "Equal to the third side", "None of these"], a: 0 },
+            { q: "In ΔABC, if DE || BC, then AD/DB is equal to:", o: ["AE/EC", "EC/AE", "AB/AC", "AC/AB"], a: 0 },
+            { q: "If ΔABC ~ ΔPQR, then AB/PQ is equal to:", o: ["BC/QR", "AC/PQ", "AB/QR", "BC/PR"], a: 0 },
+            { q: "The ratio of the areas of two similar triangles is equal to the ratio of:", o: ["Their corresponding sides", "Squares of their corresponding sides", "Their corresponding angles", "Their corresponding altitudes"], a: 1 },
+            { q: "Pythagoras theorem is applicable to:", o: ["Acute angled triangle", "Right angled triangle", "Obtuse angled triangle", "Equilateral triangle"], a: 1 },
+            { q: "In a right triangle, the square of the hypotenuse is equal to the sum of the squares of the:", o: ["Other two sides", "Angles", "Medians", "Altitudes"], a: 0 },
+            { q: "In ΔABC, AB = 6√3 cm, AC = 12 cm and BC = 6 cm. The angle B is:", o: ["120°", "60°", "90°", "45°"], a: 2 },
+            { q: "The sides of two similar triangles are in the ratio 4:9. Areas of these triangles are in the ratio:", o: ["2:3", "4:9", "81:16", "16:81"], a: 3 },
+            { q: "If ΔABC ~ ΔDEF and area(ΔABC) = 64 cm², area(ΔDEF) = 121 cm² and EF = 15.4 cm, then BC = ?", o: ["11.2 cm", "12.1 cm", "11 cm", "14.4 cm"], a: 0 },
+            { q: "The hypotenuse of a right-angled isosceles triangle with side 1 cm is:", o: ["2 cm", "√2 cm", "3 cm", "1 cm"], a: 1 },
+            { q: "If D, E, F are midpoints of sides BC, CA and AB respectively of ΔABC, then the ratio of the areas of ΔDEF and ΔABC is:", o: ["1:4", "1:2", "2:3", "4:1"], a: 0 },
+            { q: "Which of the following sets of sides forms a right triangle?", o: ["3 cm, 4 cm, 6 cm", "9 cm, 12 cm, 15 cm", "2 cm, 3 cm, 4 cm", "1 cm, 2 cm, 3 cm"], a: 1 },
+            { q: "In ΔABC, DE || BC. If AD = x, DB = x-2, AE = x+2 and EC = x-1, find x.", o: ["3", "4", "5", "6"], a: 1 },
+            { q: "Diagonals of a trapezium ABCD with AB || DC intersect each other at O. If AB = 2CD, then ratio of areas of ΔAOB and ΔCOD is:", o: ["1:4", "4:1", "1:2", "2:1"], a: 1 },
+            { q: "The length of the altitude of an equilateral triangle of side 2a is:", o: ["a√3", "2a√3", "a√2", "a"], a: 0 },
+            { q: "If ΔABC is an equilateral triangle of side a, then its area is:", o: ["a²", "√3a²/4", "√3a²/2", "a²/2"], a: 1 },
+            { q: "Two poles of heights 6 m and 11 m stand on a plane ground. If the distance between the feet of the poles is 12 m, find the distance between their tops.", o: ["13 m", "14 m", "15 m", "12.5 m"], a: 0 },
+            { q: "A ladder 10 m long reaches a window 8 m above the ground. Find the distance of the foot of the ladder from the base of the wall.", o: ["6 m", "5 m", "4 m", "7 m"], a: 0 },
+            { q: "The perimeter of two similar triangles ΔABC and ΔPQR are 60 cm and 48 cm respectively. If PQ = 8 cm, then AB is:", o: ["10 cm", "8 cm", "12 cm", "6 cm"], a: 0 },
+            { q: "In a rhombus, sum of squares of sides is equal to:", o: ["Sum of squares of diagonals", "Sum of diagonals", "Product of diagonals", "None"], a: 0 },
+            { q: "All circles are:", o: ["Congruent", "Similar", "Equal", "None"], a: 1 },
+            { q: "All squares are:", o: ["Congruent", "Similar", "Equal", "None"], a: 1 },
+            { q: "In ΔABC, ∠B = 90° and BD ⊥ AC. Then BD² is equal to:", o: ["AD × DC", "AB × BC", "AB² / BC", "BC² / AB"], a: 0 },
+            { q: "The areas of two similar triangles are 81 cm² and 49 cm². If the altitude of the first triangle is 6.3 cm, then the corresponding altitude of the second is:", o: ["4.9 cm", "5.6 cm", "7 cm", "9 cm"], a: 0 },
+            { q: "A vertical stick 20 cm long casts a shadow 15 cm long. At the same time, a tower casts a shadow 50 m long. The height of the tower is:", o: ["66.6 m", "60 m", "75 m", "150 m"], a: 0 },
+            { q: "The intersection point of the medians of a triangle is called:", o: ["Incenter", "Centroid", "Orthocenter", "Circumcenter"], a: 1 },
+            { q: "The intersection point of the altitudes of a triangle is called:", o: ["Incenter", "Centroid", "Orthocenter", "Circumcenter"], a: 2 },
+            { q: "In ΔABC, if AB² + BC² = AC², then the right angle is at:", o: ["A", "B", "C", "None"], a: 1 },
+            { q: "If in two triangles ABC and DEF, AB/DE = BC/FD, then they will be similar when:", o: ["∠B = ∠E", "∠A = ∠D", "∠B = ∠D", "∠A = ∠F"], a: 2 },
+            { q: "It is given that ΔABC ~ ΔDFE, ∠A = 30°, ∠C = 50°, AB = 5 cm, AC = 8 cm and DF = 7.5 cm. Then DE is:", o: ["12 cm", "6 cm", "8 cm", "4.5 cm"], a: 0 },
+            { q: "A man goes 24 m due west and then 7 m due north. How far is he from the starting point?", o: ["31 m", "17 m", "25 m", "26 m"], a: 2 },
+            { q: "The lengths of the diagonals of a rhombus are 16 cm and 12 cm. Then the length of the side of the rhombus is:", o: ["9 cm", "10 cm", "8 cm", "20 cm"], a: 1 },
+            { q: "In an isosceles triangle ABC, if AC = BC and AB² = 2AC², then ∠C is:", o: ["30°", "45°", "90°", "60°"], a: 2 },
+            { q: "Which theorem states that 'In a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides'?", o: ["BPT", "Pythagoras", "Converse of Pythagoras", "Thales"], a: 1 },
+            { q: "The ratio of corresponding sides of two similar triangles is 5:3, then the ratio of their areas is:", o: ["5:3", "25:9", "9:25", "3:5"], a: 1 },
+            { q: "In ΔABC, AD is the bisector of ∠A meeting BC at D. If AB = 10 cm, AC = 6 cm and BC = 12 cm, find BD.", o: ["4.5", "7.5", "3.5", "5.5"], a: 1 },
+            { q: "Two triangles are congruent if they are:", o: ["Similar", "Same size and shape", "Same area", "None"], a: 1 },
+            { q: "If ΔABC is similar to ΔDEF such that 2AB = DE and BC = 8 cm, then EF =", o: ["16 cm", "12 cm", "8 cm", "4 cm"], a: 0 },
+            { q: "In a right triangle, the perpendicular from the vertex of the right angle to the hypotenuse divides the triangle into two triangles similar to the whole triangle and to:", o: ["Each other", "None", "Opposite side", "Only one"], a: 0 },
+            { q: "The lengths of sides of a triangle are 7, 24, 25. The triangle is:", o: ["Acute", "Obtuse", "Right-angled", "Isosceles"], a: 2 },
+            { q: "If the corresponding medians of two similar triangles are in the ratio 4:7, then the ratio of their areas is:", o: ["4:7", "16:49", "7:4", "49:16"], a: 1 },
+            { q: "Which similarity criterion is used if two angles of one triangle are equal to two angles of another triangle?", o: ["SAS", "SSS", "AA", "RHS"], a: 2 },
+            { q: "If a line intersects sides AB and AC of a ΔABC at D and E respectively and is parallel to BC, then:", o: ["AD/AB = AE/AC", "AD/DB = AE/AC", "AD/AB = DB/EC", "None"], a: 0 },
+            { q: "Side of an equilateral triangle is 2a. The length of its median is:", o: ["a√3", "a√2", "a", "2a"], a: 0 },
+            { q: "In ΔABC, if D is a point on BC such that AD is the bisector of ∠A, then:", o: ["AB/AC = BD/DC", "AB/AC = DC/BD", "AB/BD = AC/DC", "None"], a: 0 },
+            { q: "The perimeter of a triangle with vertices (0,4), (0,0) and (3,0) is:", o: ["7", "12", "11", "10"], a: 1 },
+            { q: "Areas of two similar triangles are 36 cm² and 100 cm². If the length of a side of the larger triangle is 20 cm, then the length of the corresponding side of the smaller triangle is:", o: ["12 cm", "13 cm", "14 cm", "15 cm"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Triangle Expert! Geometry is easy for you! 📐";
+            else if(accuracy >= 70) feedback.innerText = "Good job! Review the similarity theorems. 📚";
+            else if(accuracy >= 50) feedback.innerText = "Not bad, but check Pythagoras theorem again. 🔍";
+            else feedback.innerText = "Triangles are tricky. Practice more proofs! 🔥";
+        }
+    </script>
+</body>
+</html>

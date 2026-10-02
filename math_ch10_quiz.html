@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-10: Circles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Circles</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Circles) ---
+        const questions = [
+            { q: "A line intersecting a circle in two distinct points is called a:", o: ["Secant", "Tangent", "Chord", "Diameter"], a: 0 },
+            { q: "A line intersecting a circle in exactly one point is called a:", o: ["Secant", "Tangent", "Chord", "Radius"], a: 1 },
+            { q: "The number of tangents that can be drawn to a circle from a point inside it is:", o: ["Zero", "One", "Two", "Infinite"], a: 0 },
+            { q: "The maximum number of tangents that can be drawn to a circle from a point outside it is:", o: ["Zero", "One", "Two", "Infinite"], a: 2 },
+            { q: "The maximum number of parallel tangents a circle can have is:", o: ["1", "2", "4", "Infinite"], a: 1 },
+            { q: "The angle between the tangent at any point of a circle and the radius through the point of contact is:", o: ["60°", "90°", "45°", "180°"], a: 1 },
+            { q: "The lengths of tangents drawn from an external point to a circle are:", o: ["Equal", "Unequal", "Parallel", "Perpendicular"], a: 0 },
+            { q: "In two concentric circles, the chord of the larger circle, which touches the smaller circle, is bisected at the point of:", o: ["Intersection", "Contact", "Origin", "None"], a: 1 },
+            { q: "From a point Q, the length of the tangent to a circle is 24 cm and the distance of Q from the centre is 25 cm. The radius of the circle is:", o: ["7 cm", "12 cm", "15 cm", "24.5 cm"], a: 0 },
+            { q: "If TP and TQ are the two tangents to a circle with centre O so that ∠POQ = 110°, then ∠PTQ is equal to:", o: ["60°", "70°", "80°", "90°"], a: 1 },
+            { q: "If tangents PA and PB from a point P to a circle with centre O are inclined to each other at angle of 80°, then ∠POA is equal to:", o: ["50°", "60°", "70°", "80°"], a: 0 },
+            { q: "The length of a tangent from a point A at distance 5 cm from the centre of the circle is 4 cm. The radius of the circle is:", o: ["3 cm", "5 cm", "7 cm", "9 cm"], a: 0 },
+            { q: "Two concentric circles are of radii 5 cm and 3 cm. Find the length of the chord of the larger circle which touches the smaller circle.", o: ["8 cm", "4 cm", "10 cm", "6 cm"], a: 0 },
+            { q: "A parallelogram circumscribing a circle is a:", o: ["Rectangle", "Rhombus", "Square", "Trapezium"], a: 1 },
+            { q: "The tangents drawn at the ends of a diameter of a circle are:", o: ["Perpendicular", "Parallel", "Equal", "Intersecting"], a: 1 },
+            { q: "If the angle between two tangents drawn from an external point P to a circle of radius a and centre O, is 60°, then the length of OP is:", o: ["a", "2a", "a√3", "a/√3"], a: 1 },
+            { q: "At one end A of a diameter AB of a circle of radius 5 cm, tangent XAY is drawn to the circle. The length of the chord CD parallel to XY and at a distance 8 cm from A is:", o: ["4 cm", "5 cm", "6 cm", "8 cm"], a: 3 },
+            { q: "If radii of two concentric circles are 4 cm and 5 cm, then the length of each chord of one circle which is tangent to the other circle is:", o: ["3 cm", "6 cm", "9 cm", "1 cm"], a: 1 },
+            { q: "In a circle of radius 7 cm, tangent PT is drawn from a point P such that PT = 24 cm. If O is the centre of the circle, then the length of OP is:", o: ["30 cm", "28 cm", "25 cm", "26 cm"], a: 2 },
+            { q: "How many tangents can a circle have?", o: ["One", "Two", "Infinite", "Zero"], a: 2 },
+            { q: "The distance between two parallel tangents of a circle of radius 4 cm is:", o: ["2 cm", "4 cm", "6 cm", "8 cm"], a: 3 },
+            { q: "In the given figure, if ∠APB = 60°, then ∠AOB is:", o: ["120°", "100°", "60°", "90°"], a: 0 },
+            { q: "A circle can have how many parallel tangents at the most?", o: ["1", "2", "3", "4"], a: 1 },
+            { q: "The common point of a tangent to a circle and the circle is called:", o: ["Point of contact", "Centre", "Origin", "Intersection"], a: 0 },
+            { q: "The tangent at any point of a circle is perpendicular to the radius through the:", o: ["Centre", "Point of contact", "Origin", "Chord"], a: 1 },
+            { q: "PQ is a tangent to a circle with centre O at the point P. If ΔOPQ is an isosceles triangle, then ∠OQP is equal to:", o: ["30°", "45°", "60°", "90°"], a: 1 },
+            { q: "If a hexagon ABCDEF circumscribe a circle, then AB + CD + EF is equal to:", o: ["BC + DE + FA", "AF + BD + CE", "AC + CE + FB", "None"], a: 0 },
+            { q: "If a circle touches all the four sides of a quadrilateral ABCD, then:", o: ["AB + CD = BC + DA", "AB + CD = AC + BD", "AB + BC = CD + DA", "None"], a: 0 },
+            { q: "Two circles touch each other externally at C and AB is a common tangent to the circles. Then, ∠ACB =", o: ["60°", "45°", "30°", "90°"], a: 3 },
+            { q: "A tangent PQ at a point P of a circle of radius 5 cm meets a line through the centre O at a point Q so that OQ = 12 cm. Length PQ is:", o: ["12 cm", "13 cm", "8.5 cm", "√119 cm"], a: 3 },
+            { q: "If angle between two radii of a circle is 130°, the angle between the tangents at the ends of the radii is:", o: ["90°", "50°", "70°", "40°"], a: 1 },
+            { q: "The pair of tangents AP and AQ drawn from an external point A to a circle with centre O are perpendicular to each other and length of each tangent is 3 cm. The radius of the circle is:", o: ["10 cm", "7.5 cm", "3 cm", "4 cm"], a: 2 },
+            { q: "The length of the tangent from an external point P to a circle of radius 5 cm is 10 cm. The distance of the point from the centre of the circle is:", o: ["√125", "√100", "√75", "√50"], a: 0 },
+            { q: "If four sides of a quadrilateral ABCD are tangential to a circle, then:", o: ["AC + AD = BD + CD", "AB + CD = BC + AD", "AB + CD = AC + BC", "AC + AD = BC + DB"], a: 1 },
+            { q: "If two tangents inclined at an angle 60° are drawn to a circle of radius 3 cm, then length of each tangent is equal to:", o: ["3/2 √3 cm", "6 cm", "3 cm", "3√3 cm"], a: 3 },
+            { q: "The sum of the angles of a quadrilateral formed by the radii and the tangents at their extremities is:", o: ["180°", "360°", "90°", "270°"], a: 1 },
+            { q: "Consider a circle with centre O. Let P be an external point. AP and BP are tangents. If ∠APB = 50°, then ∠AOB =", o: ["120°", "130°", "140°", "100°"], a: 1 },
+            { q: "If a line touches a circle at only one point, it is called a:", o: ["Chord", "Secant", "Tangent", "Diameter"], a: 2 },
+            { q: "A line which intersects a circle at two distinct points is called a:", o: ["Tangent", "Chord", "Secant", "Diameter"], a: 2 },
+            { q: "The distance between two parallel tangents of a circle is 12 cm. The radius of the circle is:", o: ["6 cm", "12 cm", "24 cm", "3 cm"], a: 0 },
+            { q: "If a quadrilateral ABCD is drawn to circumscribe a circle, then AB+CD is equal to:", o: ["AD+BC", "AC+BD", "AD+AB", "BC+CD"], a: 0 },
+            { q: "From a point P which is at a distance of 13 cm from the centre O of a circle of radius 5 cm, the pair of tangents PQ and PR to the circle are drawn. Then the area of the quadrilateral PQOR is:", o: ["60 cm²", "65 cm²", "30 cm²", "32.5 cm²"], a: 0 },
+            { q: "The length of the tangent drawn from a point 8 cm away from the centre of a circle of radius 6 cm is:", o: ["√7 cm", "2√7 cm", "10 cm", "5 cm"], a: 1 },
+            { q: "Number of tangents to a circle which are parallel to a secant is:", o: ["1", "2", "3", "Infinite"], a: 1 },
+            { q: "If the angle between two tangents drawn from a point P to a circle of radius 'a' and centre O is 90°, then OP =", o: ["2a", "a√2", "a", "√2a"], a: 1 },
+            { q: "In a circle of radius 10 cm, a chord subtends a right angle at the centre. Find the length of the chord.", o: ["10√2 cm", "10 cm", "20 cm", "5√2 cm"], a: 0 },
+            { q: "From a point P, 10 cm away from the centre of a circle, a tangent PT of length 8 cm is drawn. Find the radius of the circle.", o: ["4 cm", "5 cm", "6 cm", "7 cm"], a: 2 },
+            { q: "If a chord AB subtends an angle of 60° at the centre of a circle, then angle between the tangents at A and B is also:", o: ["60°", "120°", "90°", "30°"], a: 1 },
+            { q: "A tangent is drawn from a point at a distance of 17 cm of circle C(0, r) of radius 8 cm. The length of its tangent is:", o: ["15 cm", "17 cm", "25 cm", "9 cm"], a: 0 },
+            { q: "Tangents from an external point to a circle are:", o: ["Equal", "Not equal", "Parallel", "Perpendicular"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Circle Master! You know every tangent perfectly! ⭕";
+            else if(accuracy >= 70) feedback.innerText = "Great! Your geometry skills are sharp. 📐";
+            else if(accuracy >= 50) feedback.innerText = "Good effort. Review the tangent theorems. 📘";
+            else feedback.innerText = "Don't worry. Practice circles more! 🔄";
+        }
+    </script>
+</body>
+</html>

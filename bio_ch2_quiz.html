@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Biology Ch-2 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (BIOLOGY - PINK/RED) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #FFF0F5 0%, #FFF5F7 100%);
+            --header-gradient: linear-gradient(135deg, #ec008c 0%, #fc6767 100%);
+            --card-bg: #ffffff;
+            --text-main: #4a1c30;
+            --text-sub: #905d70;
+            --option-bg: #FFF0F6;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(236, 0, 140, 0.15);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #4a1c30; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #666; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(236, 0, 140, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #ec008c;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #ec008c; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="biology_chapters.html" class="close-btn">✕</a>
+        <span>Ch-2: Control & Coordination</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #ec008c; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You mastered Control & Coordination.</p>
+        <a href="biology_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#ec008c; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Control and Coordination) ---
+        const questions = [
+            { q: "Which part of the neuron acquires the information?", o: ["Axon", "Dendrite", "Cell body", "Nerve ending"], a: 1 },
+            { q: "The gap between two neurons is called a:", o: ["Dendrite", "Synapse", "Axon", "Impulse"], a: 1 },
+            { q: "The brain is responsible for:", o: ["Thinking", "Regulating heart beat", "Balancing the body", "All of the above"], a: 3 },
+            { q: "Which of the following is a plant hormone?", o: ["Insulin", "Thyroxin", "Estrogen", "Cytokinin"], a: 3 },
+            { q: "Which part of the brain controls involuntary actions like blood pressure and vomiting?", o: ["Cerebellum", "Cerebrum", "Medulla", "Forebrain"], a: 2 },
+            { q: "Posture and balance of the body is controlled by:", o: ["Cerebrum", "Cerebellum", "Medulla", "Pons"], a: 1 },
+            { q: "Spinal cord originates from:", o: ["Cerebrum", "Medulla", "Pons", "Cerebellum"], a: 1 },
+            { q: "The movement of sunflower towards the sun is due to:", o: ["Phototropism", "Geotropism", "Chemotropism", "Hydrotropism"], a: 0 },
+            { q: "The growth of pollen tubes towards ovules is due to:", o: ["Hydrotropism", "Chemotropism", "Geotropism", "Phototropism"], a: 1 },
+            { q: "Which hormone promotes cell division in plants?", o: ["Auxin", "Gibberellin", "Cytokinin", "Abscisic acid"], a: 2 },
+            { q: "Which hormone inhibits growth in plants?", o: ["Auxin", "Gibberellin", "Cytokinin", "Abscisic acid"], a: 3 },
+            { q: "Iodine is necessary for the synthesis of which hormone?", o: ["Adrenaline", "Thyroxin", "Auxin", "Insulin"], a: 1 },
+            { q: "Which hormone regulates blood sugar level?", o: ["Adrenaline", "Estrogen", "Insulin", "Testosterone"], a: 2 },
+            { q: "Insulin is secreted by:", o: ["Thyroid", "Pancreas", "Liver", "Pituitary"], a: 1 },
+            { q: "The master gland of the body is:", o: ["Adrenal", "Thyroid", "Pituitary", "Pancreas"], a: 2 },
+            { q: "Which hormone prepares the body for emergency situations?", o: ["Insulin", "Thyroxin", "Adrenaline", "Growth hormone"], a: 2 },
+            { q: "Dwarfism results due to deficiency of:", o: ["Thyroxin", "Growth hormone", "Adrenaline", "Insulin"], a: 1 },
+            { q: "A diabetic patient suffers from deficiency of:", o: ["Thyroxin", "Estrogen", "Insulin", "Cytokinin"], a: 2 },
+            { q: "The upward and downward growth of shoots and roots respectively due to gravity is:", o: ["Phototropism", "Geotropism", "Hydrotropism", "Chemotropism"], a: 1 },
+            { q: "Reflex arcs are formed in:", o: ["Brain", "Spinal Cord", "Muscles", "Nerves"], a: 1 },
+            { q: "The longest cell in the human body is:", o: ["Muscle cell", "Nerve cell", "Bone cell", "Blood cell"], a: 1 },
+            { q: "Gustatory receptors detect:", o: ["Smell", "Taste", "Sound", "Light"], a: 1 },
+            { q: "Olfactory receptors detect:", o: ["Smell", "Taste", "Touch", "Hear"], a: 0 },
+            { q: "Which part of the brain is the main thinking part?", o: ["Hind brain", "Mid brain", "Fore brain", "Spinal cord"], a: 2 },
+            { q: "The protective covering of the brain is called:", o: ["Pleura", "Pericardium", "Cranium (Skull)", "Vertebral column"], a: 2 },
+            { q: "Electrical impulse travels in a neuron from:", o: ["Dendrite -> Axon -> Axonal end -> Cell body", "Cell body -> Dendrite -> Axon -> Axonal end", "Dendrite -> Cell body -> Axon -> Axonal end", "Axonal end -> Axon -> Cell body -> Dendrite"], a: 2 },
+            { q: "Which hormone is associated with puberty in males?", o: ["Estrogen", "Testosterone", "Insulin", "Adrenaline"], a: 1 },
+            { q: "Which hormone is associated with puberty in females?", o: ["Estrogen", "Testosterone", "Thyroxin", "Growth Hormone"], a: 0 },
+            { q: "Goitre is caused due to deficiency of:", o: ["Iron", "Calcium", "Iodine", "Potassium"], a: 2 },
+            { q: "The movement of roots towards water is called:", o: ["Phototropism", "Geotropism", "Hydrotropism", "Chemotropism"], a: 2 },
+            { q: "Which of the following acts as both an endocrine and exocrine gland?", o: ["Thyroid", "Adrenal", "Pancreas", "Pituitary"], a: 2 },
+            { q: "Which hormone is responsible for the wilting of leaves?", o: ["Auxin", "Abscisic acid", "Cytokinin", "Gibberellin"], a: 1 },
+            { q: "Central Nervous System (CNS) consists of:", o: ["Brain only", "Spinal cord only", "Brain and Spinal cord", "Brain, Spinal cord and Nerves"], a: 2 },
+            { q: "Nastic movements are:", o: ["Directional", "Non-directional", "Growth dependent", "Gravity dependent"], a: 1 },
+            { q: "Touch-me-not plant shows which type of movement?", o: ["Thigmotropism", "Seismonastic (Thigmonasty)", "Phototropism", "Geotropism"], a: 1 },
+            { q: "The junction between two neurons is called:", o: ["Neuromuscular junction", "Synapse", "Axon", "Dendrite"], a: 1 },
+            { q: "Chemical messengers secreted by ductless glands are called:", o: ["Enzymes", "Vitamins", "Hormones", "Proteins"], a: 2 },
+            { q: "Which hormone controls the rate of metabolism of carbohydrates, fats and proteins?", o: ["Insulin", "Thyroxin", "Adrenaline", "Growth hormone"], a: 1 },
+            { q: "In voluntary actions, the signals are sent from:", o: ["Spinal cord", "Forebrain", "Hindbrain", "Muscles"], a: 1 },
+            { q: "Reflex action is an:", o: ["Involuntary action", "Voluntary action", "Slow action", "Planned action"], a: 0 },
+            { q: "The fluid present between the meninges of the brain is:", o: ["Cerebrospinal fluid", "Lymph", "Blood", "Plasma"], a: 0 },
+            { q: "Auxins are synthesized at the:", o: ["Shoot tip", "Root tip", "Middle of stem", "Leaves"], a: 0 },
+            { q: "Flight or fight response is controlled by:", o: ["Thyroid gland", "Adrenal gland", "Pituitary gland", "Pancreas"], a: 1 },
+            { q: "The nervous system uses ______ impulses to transmit messages.", o: ["Magnetic", "Chemical", "Electrical", "Mechanical"], a: 2 },
+            { q: "Feedback mechanism regulates the:", o: ["Timing and amount of hormone released", "Type of hormone released", "Growth of glands", "Digestion of food"], a: 0 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

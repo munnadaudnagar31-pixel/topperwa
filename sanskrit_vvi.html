@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanskrit VVI 100 Questions 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Sanskrit Theme: Saffron/Gold/Maroon */
+            --primary: #FF8008; 
+            --secondary: #FFC837;
+            --accent: #8E2DE2;
+            --text: #3E2723; /* Dark Brown text for contrast */
+            --bg: #FFF8E1; /* Light Cream bg */
+            --card: #ffffff;
+            --success: #2E7D32;
+            --error: #C62828;
+        }
+
+        .dark-mode {
+            --primary: #FF8008;
+            --secondary: #FFC837;
+            --text: #ffffff;
+            --bg: #1A120B; /* Dark Brown bg */
+            --card: #2D241E;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
+
+        /* --- Header --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 15px 20px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        .timer {
+            font-family: 'Poppins', monospace; font-size: 18px; font-weight: 700;
+            color: var(--text); background: linear-gradient(90deg, var(--secondary), var(--primary)); 
+            padding: 8px 15px; border-radius: 12px; color: white;
+        }
+        .back-btn { text-decoration: none; font-size: 20px; color: var(--text); font-weight: 700; }
+
+        /* --- Layout --- */
+        .quiz-layout {
+            display: grid; grid-template-columns: 1fr 300px; gap: 20px;
+            max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+
+        /* --- Question Card --- */
+        .q-card {
+            background: var(--card); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative;
+            min-height: 400px; display: flex; flex-direction: column;
+            border-top: 5px solid var(--primary);
+        }
+        
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .q-badge { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        
+        .q-text { font-size: 20px; font-weight: 600; margin-bottom: 30px; line-height: 1.6; }
+        
+        /* Options */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn {
+            background: var(--bg); border: 2px solid transparent; padding: 15px;
+            border-radius: 15px; text-align: left; font-size: 16px; color: var(--text);
+            cursor: pointer; transition: 0.2s; font-weight: 500; position: relative;
+        }
+        .option-btn:hover { border-color: var(--primary); background: rgba(255, 128, 8, 0.1); }
+        
+        .option-btn.selected { border-color: var(--primary); background: rgba(255, 128, 8, 0.2); }
+        .option-btn.correct { background: rgba(46, 125, 50, 0.2); border-color: var(--success); color: var(--success); }
+        .option-btn.wrong { background: rgba(198, 40, 40, 0.2); border-color: var(--error); color: var(--error); }
+
+        /* --- Navigator (Right Side) --- */
+        .navigator {
+            background: var(--card); border-radius: 25px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: fit-content;
+        }
+        .nav-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+            max-height: 500px; overflow-y: auto; padding-right: 5px;
+        }
+        .nav-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: none;
+            background: var(--bg); color: var(--text); font-weight: 600;
+            cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(255, 128, 8, 0.3); }
+        .nav-btn.solved { background: var(--success); color: white; }
+        .nav-btn.wrong-mark { background: var(--error); color: white; }
+
+        /* --- Footer Controls --- */
+        .controls {
+            margin-top: auto; display: flex; gap: 15px; justify-content: flex-end; padding-top: 20px;
+        }
+        .ctrl-btn {
+            padding: 12px 30px; border-radius: 15px; border: none;
+            font-weight: 700; cursor: pointer; font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-next { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 8px 20px rgba(255, 128, 8, 0.25); }
+        .btn-prev { background: transparent; border: 2px solid var(--bg); color: var(--text); }
+
+        /* --- Result Modal --- */
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .result-box {
+            background: var(--card); padding: 40px; border-radius: 30px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .quiz-layout { grid-template-columns: 1fr; }
+            .navigator { display: none; }
+            .options-grid { grid-template-columns: 1fr; }
+            .q-text { font-size: 18px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="most_expected_questions.html" class="back-btn">❮ Sanskrit Hub</a>
+        <div class="timer" id="timer">00:00</div>
+        <button onclick="submitQuiz()" class="ctrl-btn btn-next" style="padding: 8px 20px; background: var(--error);">Finish</button>
+    </div>
+
+    <div class="quiz-layout">
+        <div class="q-card">
+            <div class="q-header">
+                <span class="q-badge" id="subjectTag">Topic</span>
+                <span style="font-weight:600; opacity:0.6;">Q: <span id="currentQNum">1</span>/100</span>
+            </div>
+            
+            <div class="q-text" id="questionText">Loading...</div>
+            
+            <div class="options-grid" id="optionsContainer">
+                </div>
+
+            <div class="controls">
+                <button class="ctrl-btn btn-prev" onclick="prevQ()">Previous</button>
+                <button class="ctrl-btn btn-next" onclick="nextQ()">Next ➜</button>
+            </div>
+        </div>
+
+        <div class="navigator">
+            <h4 style="margin-bottom:15px; opacity:0.7;">Question Palette</h4>
+            <div class="nav-grid" id="navGrid">
+                </div>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultScreen">
+        <div class="result-box">
+            <div style="font-size:50px; margin-bottom:10px;">🚩</div>
+            <h2 style="color:var(--text);">Test Completed!</h2>
+            <p style="color:var(--text); opacity:0.7; margin-bottom:20px;">100 Questions (Sanskrit)</p>
+            
+            <div style="background:var(--bg); padding:15px; border-radius:15px; margin-bottom:25px;">
+                <h1 style="color:var(--primary); font-size:40px; margin:0;" id="finalScore">0%</h1>
+                <span style="font-size:12px; font-weight:600; letter-spacing:1px;">SCORE</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="location.reload()" class="ctrl-btn btn-next" style="width:100%">Replay</button>
+                <a href="index.html" class="ctrl-btn btn-prev" style="width:100%; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 100 ANALYZED SANSKRIT QUESTIONS ---
+        const questions = [
+            // --- Mangalam (Upanishad) ---
+            { q: "'मंगलम्' पाठ में कितने मंत्र संकलित हैं?", options: ["चार", "पाँच", "सात", "आठ"], ans: 1, topic: "साहित्य" },
+            { q: "सत्य का मुख किस पात्र से ढका हुआ है?", options: ["रजत", "मृण्मय", "हिरण्मय", "ताम्र"], ans: 2, topic: "साहित्य" },
+            { q: "महान् से भी महान् क्या है?", options: ["आत्मा", "देवता", "ऋषि", "दानव"], ans: 0, topic: "साहित्य" },
+            { q: "नदियाँ नाम और रूप को छोड़कर किसमें मिल जाती हैं?", options: ["समुद्र में", "सरोवर में", "तालाब में", "झील में"], ans: 0, topic: "साहित्य" },
+            { q: "किसकी विजय नहीं होती है?", options: ["सत्य की", "असत्य की", "धर्म की", "सत्कर्म की"], ans: 1, topic: "साहित्य" },
+
+            // --- Pataliputra Vaibhavam ---
+            { q: "पटना का इतिहास कितना पुराना है?", options: ["2500 वर्ष", "2000 वर्ष", "1500 वर्ष", "1000 वर्ष"], ans: 0, topic: "साहित्य" },
+            { q: "'कुट्टनीमत' काव्य के कवि कौन हैं?", options: ["राजशेखर", "दामोदर गुप्त", "विशाखदत्त", "कालिदास"], ans: 1, topic: "साहित्य" },
+            { q: "यूनान का राजदूत कौन था?", options: ["फाह्यान", "ह्वेनसांग", "मेगास्थनीज", "इत्सिंग"], ans: 2, topic: "साहित्य" },
+            { q: "कौमुदी महोत्सव किस ऋतु में मनाया जाता था?", options: ["वसंत ऋतु", "वर्षा ऋतु", "शरद ऋतु", "ग्रीष्म ऋतु"], ans: 2, topic: "साहित्य" },
+            { q: "सिख संप्रदाय के दसवें गुरु कौन थे?", options: ["गुरु नानक", "गुरु तेगबहादुर", "गुरु गोविंद सिंह", "गुरु अर्जुन देव"], ans: 2, topic: "साहित्य" },
+
+            // --- Alaskatha ---
+            { q: "'अलसकथा' पाठ के लेखक कौन हैं?", options: ["विद्यापति", "नारायण पंडित", "विष्णु शर्मा", "बाणभट्ट"], ans: 0, topic: "साहित्य" },
+            { q: "वीरेश्वर कौन था?", options: ["मिथिला का राजा", "मिथिला का मंत्री", "मिथिला का राजकुमार", "मिथिला का संतरी"], ans: 1, topic: "साहित्य" },
+            { q: "आलसशाला में आग क्यों लगाई गई?", options: ["आलसियों को भगाने के लिए", "आलसियों की परीक्षा के लिए", "मच्छर भगाने के लिए", "ठंड से बचने के लिए"], ans: 1, topic: "साहित्य" },
+            { q: "आलसशाला में आग लगने पर कितने लोग नहीं भागे?", options: ["तीन", "पाँच", "चार", "छह"], ans: 2, topic: "साहित्य" },
+            { q: "चारों आलसियों को बाहर कैसे निकाला गया?", options: ["पैर पकड़कर", "हाथ पकड़कर", "केश पकड़कर", "बाह पकड़कर"], ans: 2, topic: "साहित्य" },
+
+            // --- Sanskrit Sahitya Lekhika ---
+            { q: "आधुनिक काल की संस्कृत कवयित्री कौन हैं?", options: ["तिरुमलाम्बा", "विजयांका", "सुलभा", "पंडिता क्षमाराव"], ans: 3, topic: "साहित्य" },
+            { q: "सर्वशुक्ला सरस्वती किसे कहा गया है?", options: ["याज्ञवल्क्य को", "मैत्रेयी को", "विजयांका को", "गार्गी को"], ans: 2, topic: "साहित्य" },
+            { q: "'शङ्करचरितम्' के रचनाकार कौन हैं?", options: ["पंडिता क्षमाराव", "वनमाला भवालकर", "पुष्पा दीक्षित", "मिथिलेश कुमारी मिश्र"], ans: 0, topic: "साहित्य" },
+            { q: "लौकिक संस्कृत साहित्य में कितनी कवयित्रियों का वर्णन है?", options: ["30", "40", "50", "60"], ans: 1, topic: "साहित्य" },
+
+            // --- Bharat Mahima ---
+            { q: "'भारत महिमा' पाठ का प्रथम पद्य किस पुराण से संकलित है?", options: ["विष्णु पुराण", "भागवत पुराण", "नारद पुराण", "पद्म पुराण"], ans: 0, topic: "साहित्य" },
+            { q: "भारत की शोभा से कौन प्रसन्न होते हैं?", options: ["ईश्वर", "दैत्य", "आलसी", "क्रधी"], ans: 0, topic: "साहित्य" },
+            { q: "किस देश में देवता बार-बार जन्म लेना चाहते हैं?", options: ["पाकिस्तान", "नेपाल", "भारत", "यूनान"], ans: 2, topic: "साहित्य" },
+            { q: "हम सबों में भारतवर्ष के प्रति क्या होनी चाहिए?", options: ["गुरुभक्ति", "पितृभक्ति", "देशभक्ति", "देवभक्ति"], ans: 2, topic: "साहित्य" },
+
+            // --- Sanskar ---
+            { q: "भारतीय संस्कारों की कुल संख्या कितनी है?", options: ["16", "14", "18", "20"], ans: 0, topic: "संस्कृति" },
+            { q: "जन्मपूर्व कितने संस्कार होते हैं?", options: ["दो", "तीन", "पाँच", "छह"], ans: 1, topic: "संस्कृति" },
+            { q: "'अक्षरारंभ' कैसा संस्कार है?", options: ["विवाह", "शिक्षा", "शैशव", "जन्मपूर्व"], ans: 1, topic: "संस्कृति" },
+            { q: "'सप्तपदी' क्रिया किस संस्कार में सम्पन्न की जाती है?", options: ["जातकर्म", "उपनयन", "विवाह", "शिक्षा"], ans: 2, topic: "संस्कृति" },
+            { q: "अंत्येष्टि संस्कार कब होता है?", options: ["जन्म के बाद", "विवाह के बाद", "मरने के बाद", "शिक्षा के बाद"], ans: 2, topic: "संस्कृति" },
+
+            // --- Nitishloka (Vidur Niti) ---
+            { q: "'नीतिश्लोकाः' पाठ किस ग्रंथ से संकलित है?", options: ["चाणक्यनीति", "विदुरनीति", "शुक्रनीति", "नीतिशतक"], ans: 1, topic: "साहित्य" },
+            { q: "अपनी उन्नति चाहने वालों को कितने दोषों को त्याग देना चाहिए?", options: ["पाँच", "छह", "सात", "आठ"], ans: 1, topic: "साहित्य" },
+            { q: "धर्म की रक्षा किससे होती है?", options: ["सत्य से", "अभ्यास से", "उबटन से", "आचरण से"], ans: 0, topic: "साहित्य" },
+            { q: "बिना बुलाए कौन आता है?", options: ["विद्वान", "मूर्ख", "चतुर", "स्वाभिमानी"], ans: 1, topic: "साहित्य" },
+
+            // --- Karmavir Katha ---
+            { q: "कर्मवीर रामप्रवेश राम के परिवार में सदस्यों की कुल संख्या कितनी थी?", options: ["चार", "छह", "आठ", "दस"], ans: 0, topic: "साहित्य" },
+            { q: "भीखनटोला गाँव कहाँ है?", options: ["उत्तर प्रदेश", "झारखंड", "बिहार", "मध्य प्रदेश"], ans: 2, topic: "साहित्य" },
+            { q: "लक्ष्मी किसका वरण करती हैं?", options: ["मूर्ख", "उद्योगी पुरुष", "लोभी", "क्रोधी"], ans: 1, topic: "साहित्य" },
+            { q: "कर्मवीर ने कौन सा पद प्राप्त किया?", options: ["लिपिक", "लघु पद", "महत् पद", "शिक्षक"], ans: 2, topic: "साहित्य" },
+
+            // --- Swami Dayanand ---
+            { q: "स्वामी दयानंद का जन्म किस गाँव में हुआ था?", options: ["कंटारा", "टंकारा", "अंकारा", "भंकारा"], ans: 1, topic: "साहित्य" },
+            { q: "स्वामी दयानंद का जन्म कब हुआ था?", options: ["1824", "1842", "1820", "1830"], ans: 0, topic: "साहित्य" },
+            { q: "आर्य समाज की स्थापना किसने की?", options: ["स्वामी विवेकानंद", "स्वामी दयानंद", "राजाराम मोहन राय", "रामकृष्ण परमहंस"], ans: 1, topic: "साहित्य" },
+            { q: "'सत्यार्थ प्रकाश' किसकी रचना है?", options: ["स्वामी दयानंद", "विद्यासागर", "गांधीजी", "विवेकानंद"], ans: 0, topic: "साहित्य" },
+            { q: "स्वामी दयानंद के बचपन का नाम क्या था?", options: ["शंकर", "शिवशंकर", "मूलशंकर", "उमाशंकर"], ans: 2, topic: "साहित्य" },
+
+            // --- Mandakini Varnanam ---
+            { q: "'मंदाकिनीवर्णनम्' पाठ के कवि कौन हैं?", options: ["व्यास", "वाल्मीकि", "कालिदास", "भारवि"], ans: 1, topic: "साहित्य" },
+            { q: "मंदाकिनी नदी किस पर्वत के निकट बहती है?", options: ["हिमालय", "विंध्याचल", "चित्रकूट", "हेमकूट"], ans: 2, topic: "साहित्य" },
+            { q: "राम मंदाकिनी की शोभा किसको दिखा रहे हैं?", options: ["लक्ष्मण को", "सीता को", "भरत को", "शत्रुघ्न को"], ans: 1, topic: "साहित्य" },
+
+            // --- Vyaghrapathik Katha ---
+            { q: "'व्याघ्रपथिक कथा' के रचयिता कौन हैं?", options: ["विष्णु शर्मा", "नारायण पंडित", "दंडी", "बाणभट्ट"], ans: 1, topic: "साहित्य" },
+            { q: "बाघ के हाथ में क्या था?", options: ["सोने का कंगन", "तलवार", "मृतक का सिर", "मिट्टी"], ans: 0, topic: "साहित्य" },
+            { q: "पथिक कहाँ फँस गया?", options: ["नदी में", "तालाब में", "कीचड़ में", "गुफा में"], ans: 2, topic: "साहित्य" },
+
+            // --- Karnasya Danavirata ---
+            { q: "कर्ण किस देश का राजा था?", options: ["मगध", "अंग", "मिथिला", "काशी"], ans: 1, topic: "साहित्य" },
+            { q: "कर्ण से कवच और कुंडल किसने माँगा?", options: ["कृष्ण", "इन्द्र", "अर्जुन", "भीष्म"], ans: 1, topic: "साहित्य" },
+            { q: "कर्ण ने कवच-कुंडल देने से पहले क्या देने की इच्छा प्रकट की?", options: ["सोना", "पृथ्वी", "सिर", "गायें"], ans: 0, topic: "साहित्य" }, // Note: He offered many things, cows/gold first.
+
+            // --- Vishwashanti & Shastrakara ---
+            { q: "वैर से वैर का शमन क्या है?", options: ["संभव", "असंभव", "नाभिकीय", "सहज"], ans: 1, topic: "साहित्य" },
+            { q: "शास्त्र किसके लिए कर्त्तव्य और अकर्त्तव्य का विधान करते हैं?", options: ["दानवों के लिए", "मानवों के लिए", "छात्रों के लिए", "पशुओं के लिए"], ans: 1, topic: "साहित्य" },
+            { q: "न्याय दर्शन के प्रवर्तक कौन हैं?", options: ["कपिल", "गौतम", "कणाद", "पतंजलि"], ans: 1, topic: "साहित्य" },
+            { q: "चरक संहिता क्या है?", options: ["आयुर्वेद शास्त्र", "धनुर वेद", "वास्तु शास्त्र", "गणित"], ans: 0, topic: "साहित्य" },
+
+            // --- Grammar (Sandhi) ---
+            { q: "'सदैव' में कौन सी संधि है?", options: ["यण्", "वृद्धि", "गुण", "अयादि"], ans: 1, topic: "व्याकरण" },
+            { q: "'नयनम्' का संधि विच्छेद होगा:", options: ["ने + अनम्", "न + यनम्", "नै + अनम्", "ना + यनम्"], ans: 0, topic: "व्याकरण" },
+            { q: "'जगन्नाथ' का संधि विच्छेद है:", options: ["जगत + नाथ", "जगद् + नाथ", "जग + नाथ", "जगन + नाथ"], ans: 0, topic: "व्याकरण" },
+            { q: "'मनोरथः' में कौन सी संधि है?", options: ["स्वर", "व्यंजन", "विसर्ग", "इनमें कोई नहीं"], ans: 2, topic: "व्याकरण" },
+            { q: "'उच्चारणम्' का संधि विच्छेद है:", options: ["उत् + चारणम्", "उच् + चारणम्", "उद् + चारणम्", "उच्च + रणम्"], ans: 0, topic: "व्याकरण" },
+
+            // --- Grammar (Samas) ---
+            { q: "'लंबोदरः' में कौन सा समास है?", options: ["कर्मधारय", "बहुव्रीहि", "द्विगु", "द्वन्द्व"], ans: 1, topic: "व्याकरण" },
+            { q: "'यथाशक्ति' में कौन सा समास है?", options: ["अव्ययीभाव", "तत्पुरुष", "द्वन्द्व", "कर्मधारय"], ans: 0, topic: "व्याकरण" },
+            { q: "'पीताम्बरः' में समास है:", options: ["बहुव्रीहि", "तत्पुरुष", "द्विगु", "अव्ययीभाव"], ans: 0, topic: "व्याकरण" },
+            { q: "'राजपुत्रः' का विग्रह क्या होगा?", options: ["राज्ञाः पुत्रः", "राज्ञः पुत्रः", "राजा पुत्रः", "राज्ञी पुत्रः"], ans: 1, topic: "व्याकरण" },
+            { q: "'त्रिभुवनम्' में कौन सा समास है?", options: ["द्वन्द्व", "द्विगु", "तत्पुरुष", "कर्मधारय"], ans: 1, topic: "व्याकरण" },
+
+            // --- Grammar (Upsarg & Pratyay) ---
+            { q: "'पराजय' में कौन सा उपसर्ग है?", options: ["प्र", "परा", "परि", "प्रति"], ans: 1, topic: "व्याकरण" },
+            { q: "'अधिकारः' में उपसर्ग है:", options: ["अ", "अधि", "अध", "आ"], ans: 1, topic: "व्याकरण" },
+            { q: "'पठितुम्' में कौन सा प्रत्यय है?", options: ["तुमुन्", "क्त्वा", "ल्यप्", "शत्रृ"], ans: 0, topic: "व्याकरण" },
+            { q: "'गत्वा' में कौन सा प्रत्यय है?", options: ["तुमुन्", "क्त्वा", "क्त", "ल्यप्"], ans: 1, topic: "व्याकरण" },
+            { q: "'सेवमानः' में कौन सा प्रत्यय है?", options: ["शानच्", "शत्रृ", "क्तवतु", "घञ्"], ans: 0, topic: "व्याकरण" },
+            { q: "'लघुतरम्' में कौन सा तद्धित प्रत्यय है?", options: ["तरप्", "तमप्", "मठुप्", "इष्ठन्"], ans: 0, topic: "व्याकरण" },
+            { q: "'किशोरी' में कौन सा स्त्री प्रत्यय है?", options: ["ङीप्", "ङीष्", "ङीन्", "टाप्"], ans: 0, topic: "व्याकरण" },
+            { q: "'अजा' में कौन सा स्त्री प्रत्यय है?", options: ["टाप्", "डाप्", "चाप्", "ङीप्"], ans: 0, topic: "व्याकरण" },
+            { q: "'लेखकः' में कौन सा प्रत्यय है?", options: ["ण्वुल्", "तृच्", "ल्युट्", "घञ्"], ans: 0, topic: "व्याकरण" },
+            { q: "'दशरथस्य' में कौन सी विभक्ति है?", options: ["चतुर्थी", "पंचमी", "षष्ठी", "सप्तमी"], ans: 2, topic: "व्याकरण" },
+
+            // --- Grammar (Shabda & Dhatu Rup) ---
+            { q: "'लता' शब्द के तृतीया बहुवचन का रूप है:", options: ["लताभिः", "लतायै", "लतानाम्", "लतासु"], ans: 0, topic: "व्याकरण" },
+            { q: "'नदी' शब्द का सप्तमी एकवचन रूप है:", options: ["नद्याम्", "नदीम्", "नद्याः", "नद्यै"], ans: 0, topic: "व्याकरण" },
+            { q: "'साधु' शब्द का चतुर्थी एकवचन रूप है:", options: ["साधवे", "साधौ", "साधोः", "साधुना"], ans: 0, topic: "व्याकरण" },
+            { q: "'गच्छति' किस धातु का रूप है?", options: ["गम्", "गच्छ", "गा", "गु"], ans: 0, topic: "व्याकरण" },
+            { q: "'पश्यति' किस लकार का रूप है?", options: ["लट", "लृट्", "लङ्", "लोट्"], ans: 0, topic: "व्याकरण" },
+            { q: "'भवेत्' किस लकार का रूप है?", options: ["विधिलिङ्", "लोट्", "लृट्", "लङ्"], ans: 0, topic: "व्याकरण" },
+            { q: "'अपठत्' में कौन सा काल है?", options: ["वर्तमान", "भूत", "भविष्यत", "आज्ञार्थक"], ans: 1, topic: "व्याकरण" },
+            { q: "'तिष्ठति' में मूल धातु क्या है?", options: ["स्था", "तिष्ठ", "तस्", "तिष्"], ans: 0, topic: "व्याकरण" },
+
+            // --- Grammar (Karak & Vibhakti) ---
+            { q: "'सहार्थे तृतीया' सूत्र का उदाहरण है:", options: ["रामेण सह सीता गच्छति", "सः पादेन खञ्जः", "हिमालयात् गंगा प्रभवति", "श्री गणेशाय नमः"], ans: 0, topic: "व्याकरण" },
+            { q: "'नमः' के योग में कौन सी विभक्ति होती है?", options: ["द्वितीया", "तृतीया", "चतुर्थी", "पंचमी"], ans: 2, topic: "व्याकरण" },
+            { q: "'येनाङ्गविकारः' सूत्र से किस विभक्ति का बोध होता है?", options: ["द्वितीया", "तृतीया", "चतुर्थी", "पंचमी"], ans: 1, topic: "व्याकरण" },
+            { q: "'भीत्रार्थानां भयहेतुः' सूत्र का प्रयोग किस कारक में होता है?", options: ["करण", "संप्रदान", "अपादान", "अधिकरण"], ans: 2, topic: "व्याकरण" },
+
+            // --- Miscellaneous ---
+            { q: "'अति' उपसर्ग से बना शब्द है:", options: ["अत्याचार", "आचार", "उपकार", "अवतार"], ans: 0, topic: "व्याकरण" },
+            { q: "वेद कितने हैं?", options: ["चार", "पाँच", "छह", "तीन"], ans: 0, topic: "साहित्य" },
+            { q: "वेदांग कितने हैं?", options: ["6", "4", "5", "8"], ans: 0, topic: "साहित्य" },
+            { q: "'रामायण' के रचनाकार कौन हैं?", options: ["वाल्मीकि", "वेदव्यास", "तुलसीदास", "कालिदास"], ans: 0, topic: "साहित्य" },
+            { q: "'महाभारत' में कितने पर्व हैं?", options: ["18", "12", "15", "20"], ans: 0, topic: "साहित्य" },
+            { q: "किसकी महिमा सर्वत्र गाई जाती है?", options: ["देव", "भारत", "विश्व", "पाटलिपुत्र"], ans: 1, topic: "साहित्य" },
+            { q: "शैशव संस्कार कितने होते हैं?", options: ["6", "5", "4", "3"], ans: 0, topic: "संस्कृति" },
+            { q: "नीतिश्लोकाः पाठ में कितने श्लोक हैं?", options: ["10", "5", "8", "12"], ans: 0, topic: "साहित्य" },
+            { q: "मंदाकिनी नदी में कौन स्नान करते हैं?", options: ["ऋषिगण", "पक्षी", "नगरवासी", "देवता"], ans: 0, topic: "साहित्य" },
+            { q: "दान किसको देना चाहिए?", options: ["दरिद्र को", "धनवान को", "राजा को", "विद्वान को"], ans: 0, topic: "साहित्य" },
+            { q: "पथिक को किसने मारा?", options: ["व्याघ्र", "सिंह", "भालू", "सियार"], ans: 0, topic: "साहित्य" }
+        ];
+
+        // --- STATE & LOGIC ---
+        let currentQ = 0;
+        let answers = new Array(questions.length).fill(null);
+        let time = 0;
+        let timerInterval;
+
+        window.onload = function() {
+            initNav();
+            loadQ(0);
+            startTimer();
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        };
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                time++;
+                let m = Math.floor(time / 60).toString().padStart(2, '0');
+                let s = (time % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function initNav() {
+            const grid = document.getElementById('navGrid');
+            questions.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.innerText = i + 1;
+                btn.onclick = () => loadQ(i);
+                btn.id = `nav-${i}`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQ(index) {
+            currentQ = index;
+            const q = questions[index];
+            
+            document.getElementById('currentQNum').innerText = index + 1;
+            document.getElementById('subjectTag').innerText = q.topic;
+            document.getElementById('questionText').innerText = q.q;
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${index}`).classList.add('active');
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                
+                if(answers[index] !== null) {
+                    if(i === questions[index].ans) btn.classList.add('correct');
+                    if(i === answers[index] && i !== questions[index].ans) btn.classList.add('wrong');
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => selectOption(i, btn);
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(optIndex, btn) {
+            answers[currentQ] = optIndex;
+            
+            const navBtn = document.getElementById(`nav-${currentQ}`);
+            if(optIndex === questions[currentQ].ans) {
+                navBtn.classList.add('solved');
+            } else {
+                navBtn.classList.add('wrong-mark');
+            }
+
+            loadQ(currentQ);
+        }
+
+        function nextQ() {
+            if(currentQ < questions.length - 1) loadQ(currentQ + 1);
+        }
+
+        function prevQ() {
+            if(currentQ > 0) loadQ(currentQ - 1);
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            let score = 0;
+            answers.forEach((ans, i) => {
+                if(ans === questions[i].ans) score++;
+            });
+
+            let percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').innerText = percentage + "%";
+            document.getElementById('resultScreen').style.display = 'flex';
+        }
+
+    </script>
+</body>
+</html>

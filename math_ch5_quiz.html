@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-5: Arithmetic Progressions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Arithmetic Progressions</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Arithmetic Progressions) ---
+        const questions = [
+            { q: "An arithmetic progression (AP) is a list of numbers in which each term is obtained by adding a fixed number to the preceding term except the first term. This fixed number is called:", o: ["Common difference", "First term", "Last term", "Sum"], a: 0 },
+            { q: "The general form of an AP is:", o: ["a, a+d, a+2d, ...", "a, ar, ar², ...", "a, a-d, a-2d, ...", "None of these"], a: 0 },
+            { q: "The common difference 'd' of an AP can be:", o: ["Positive", "Negative", "Zero", "Any of these"], a: 3 },
+            { q: "The nth term of an AP with first term 'a' and common difference 'd' is given by:", o: ["a + (n-1)d", "a + nd", "a + (n+1)d", "n/2 [2a + (n-1)d]"], a: 0 },
+            { q: "Find the 10th term of the AP: 2, 7, 12, ...", o: ["47", "52", "50", "45"], a: 0 },
+            { q: "In the AP: 21, 18, 15, ..., which term is -81?", o: ["35th", "36th", "34th", "33rd"], a: 0 },
+            { q: "The sum of the first n terms of an AP is given by:", o: ["n/2 [2a + (n-1)d]", "n/2 [a + (n-1)d]", "n/2 [a + l]", "Both A and C"], a: 3 },
+            { q: "The first term of an AP is 4 and the common difference is -3. The 5th term is:", o: ["-8", "-10", "-5", "10"], a: 0 },
+            { q: "Which of the following is an AP?", o: ["2, 4, 8, 16", "1, 3, 9, 27", "a, a², a³, a⁴", "1, 3, 5, 7"], a: 3 },
+            { q: "If the common difference of an AP is 5, then a₁₈ - a₁₃ is:", o: ["5", "20", "25", "30"], a: 2 },
+            { q: "The sum of the first 20 odd natural numbers is:", o: ["400", "210", "420", "200"], a: 0 },
+            { q: "If the sum of n terms of an AP is given by Sₙ = 3n² + n, then its first term is:", o: ["3", "4", "2", "1"], a: 1 },
+            { q: "The 4th term from the end of the AP: -11, -8, -5, ..., 49 is:", o: ["37", "40", "43", "58"], a: 1 },
+            { q: "If a, b, c are in AP, then:", o: ["2b = a + c", "b = a + c", "b = ac", "b² = ac"], a: 0 },
+            { q: "Find the sum of the first 22 terms of the AP: 8, 3, -2, ...", o: ["-979", "-970", "979", "-900"], a: 0 },
+            { q: "The sum of the first n positive integers is:", o: ["n(n+1)/2", "n(n-1)/2", "n²", "n(n+1)"], a: 0 },
+            { q: "If the nth term of an AP is 2n + 1, then the sum of first three terms is:", o: ["15", "12", "18", "21"], a: 0 },
+            { q: "The sum of the first 15 multiples of 8 is:", o: ["960", "840", "1000", "900"], a: 0 },
+            { q: "If 7 times the 7th term of an AP is equal to 11 times its 11th term, then its 18th term will be:", o: ["0", "7", "11", "18"], a: 0 },
+            { q: "How many two-digit numbers are divisible by 3?", o: ["30", "31", "29", "28"], a: 0 },
+            { q: "The sum of first 100 natural numbers is:", o: ["5050", "5005", "5500", "5000"], a: 0 },
+            { q: "The 30th term of the AP: 10, 7, 4, ... is:", o: ["-77", "77", "-87", "87"], a: 0 },
+            { q: "11th term of the AP: -3, -1/2, 2, ... is:", o: ["22", "28", "38", "48"], a: 0 },
+            { q: "Which term of the AP: 3, 8, 13, 18, ... is 78?", o: ["16th", "15th", "14th", "13th"], a: 0 },
+            { q: "Find the number of terms in the AP: 7, 13, 19, ..., 205.", o: ["34", "33", "35", "36"], a: 0 },
+            { q: "Check whether -150 is a term of the AP: 11, 8, 5, 2, ...", o: ["No", "Yes", "Maybe", "Cannot determine"], a: 0 },
+            { q: "Find the 31st term of an AP whose 11th term is 38 and the 16th term is 73.", o: ["178", "170", "150", "200"], a: 0 },
+            { q: "If the 3rd and the 9th terms of an AP are 4 and -8 respectively, which term of this AP is zero?", o: ["5th", "4th", "6th", "7th"], a: 0 },
+            { q: "If k, 2k-1 and 2k+1 are three consecutive terms of an AP, the value of k is:", o: ["3", "2", "-3", "6"], a: 0 },
+            { q: "The value of x for which 2x, x+10 and 3x+2 are the three consecutive terms of an AP is:", o: ["6", "-6", "18", "-18"], a: 0 },
+            { q: "The first term of an AP is p and the common difference is q, then its 10th term is:", o: ["p + 9q", "p + 10q", "p - 9q", "9p + q"], a: 0 },
+            { q: "In an AP, if d = -4, n = 7, aₙ = 4, then a is:", o: ["28", "6", "7", "24"], a: 0 },
+            { q: "In an AP, if a = 3.5, d = 0, n = 101, then aₙ will be:", o: ["3.5", "0", "103.5", "104.5"], a: 0 },
+            { q: "The list of numbers -10, -6, -2, 2, ... is:", o: ["An AP with d = 4", "An AP with d = -4", "An AP with d = 8", "Not an AP"], a: 0 },
+            { q: "The sum of first 5 multiples of 3 is:", o: ["45", "55", "65", "75"], a: 0 },
+            { q: "If the sum of first n terms of an AP is An + Bn², where A and B are constants, the common difference is:", o: ["2B", "2A", "A+B", "A-B"], a: 0 },
+            { q: "Two APs have the same common difference. The difference between their 100th terms is 100, what is the difference between their 1000th terms?", o: ["100", "1000", "10000", "0"], a: 0 },
+            { q: "Find the sum of odd numbers between 0 and 50.", o: ["625", "600", "650", "2500"], a: 0 },
+            { q: "If the sum of first 14 terms of an AP is 1050 and its first term is 10, find the 20th term.", o: ["200", "180", "210", "190"], a: 0 },
+            { q: "Which term of the AP: 121, 117, 113, ... is its first negative term?", o: ["32nd", "31st", "33rd", "30th"], a: 0 },
+            { q: "The sum of the 4th and 8th terms of an AP is 24 and the sum of the 6th and 10th terms is 44. Find the first term.", o: ["-13", "13", "5", "-5"], a: 0 },
+            { q: "The sum of first n terms of the AP: a, 3a, 5a, ... is:", o: ["n²a", "n(n+1)a", "na", "2na"], a: 0 },
+            { q: "If the sum of the first p terms of an AP is q and the sum of the first q terms is p, then sum of (p+q) terms is:", o: ["-(p+q)", "p+q", "0", "p-q"], a: 0 },
+            { q: "If the nth term of an AP is (2n+1), then the sum of its first three terms is:", o: ["15", "6", "12", "21"], a: 0 },
+            { q: "The 10th term from the end of the AP: 4, 9, 14, ..., 254 is:", o: ["209", "205", "214", "210"], a: 0 },
+            { q: "If 18, a, b, -3 are in AP, then a + b =", o: ["15", "19", "7", "11"], a: 0 },
+            { q: "If the first term of an AP is -5 and the common difference is 2, then the sum of the first 6 terms is:", o: ["0", "5", "6", "15"], a: 0 },
+            { q: "The sum of the first n terms of the series √2 + √8 + √18 + ... is:", o: ["n(n+1)/√2", "n(n+1)√2", "n(n+1)2", "1"], a: 0 },
+            { q: "If the ratio of sum of n terms of two AP's is (7n+1):(4n+27), then the ratio of their 11th terms is:", o: ["4:3", "3:4", "2:3", "3:2"], a: 0 },
+            { q: "How many terms of the AP: 24, 21, 18, ... must be taken so that their sum is 78?", o: ["4 or 13", "13 only", "4 only", "12"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Arithmetic Master! You are a genius! 🧮";
+            else if(accuracy >= 70) feedback.innerText = "Well done! Keep adding up the success. 📈";
+            else if(accuracy >= 50) feedback.innerText = "Good effort. Watch out for calculation errors. ✍️";
+            else feedback.innerText = "Don't give up! AP needs practice. 🔄";
+        }
+    </script>
+</body>
+</html>

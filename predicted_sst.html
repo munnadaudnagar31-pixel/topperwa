@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Science Predicted Selection 2026</title>
+    <style>
+        :root {
+            /* Distinct Color Palette for Social Science (Earth Tones/History Red) */
+            --primary: #ff9966;
+            --secondary: #ff5e62;
+            --accent: #00f260;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
+            --bg-dark: #1e130c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-dark);
+            /* Textured Background */
+            background-image: 
+                linear-gradient(135deg, #1e130c, #3a1c1c, #191654),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            background-blend-mode: overlay;
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(30, 19, 12, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            margin-left: 15px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Analysis Stats Banner */
+        .stats-banner {
+            margin: 20px;
+            padding: 15px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ddd;
+        }
+        .stats-highlight {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Question Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px 15px;
+        }
+
+        /* Accordion Item */
+        .q-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .q-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            opacity: 0.7;
+        }
+
+        .q-header {
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .q-title {
+            font-weight: 600;
+            font-size: 1rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .prob-badge {
+            background: rgba(0, 242, 96, 0.15);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: 1px solid rgba(0, 242, 96, 0.3);
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(0, 242, 96, 0.1);
+        }
+
+        .icon-toggle {
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        /* Answer Section */
+        .q-answer {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            transition: max-height 0.5s ease-out, opacity 0.4s ease;
+            padding: 0 15px;
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.7;
+        }
+
+        .q-card.active .q-answer {
+            max-height: 1200px;
+            opacity: 1;
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .q-card.active .icon-toggle {
+            transform: rotate(180deg);
+            color: var(--secondary);
+        }
+
+        .q-card.active {
+            box-shadow: 0 10px 30px rgba(255, 94, 98, 0.15);
+            border-color: rgba(255, 153, 102, 0.3);
+        }
+
+        /* Formatting for Answers */
+        .q-answer ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        .q-answer b {
+            color: var(--primary);
+        }
+        .tag {
+            font-family: 'Segoe UI', sans-serif;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            color: #aaa;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="model_paper_2026.html" class="back-btn" onclick="playSound('click')">
+            &#8592; Back
+        </a>
+        <h1>Social Science Predictions</h1>
+    </header>
+
+    <div class="stats-banner">
+        Based on <span class="stats-highlight">8 Year Trend Analysis</span>.<br>
+        Selection for: <span class="stats-highlight">2026 Matric Exam (Bihar Board)</span>.
+    </div>
+
+    <div class="container" id="questionList">
+        </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // DATA: Simulated Analysis for BSEB 2026 (Social Science)
+        // ---------------------------------------------------------
+        const questions = [
+            // HISTORY (इतिहास)
+            {
+                q: "इटली के एकीकरण में मेजिनी, कावूर और गैरीबाल्डी के योगदानों का वर्णन करें।",
+                a: "<b>1. मेजिनी (Mazzini):</b> इन्हें इटली के एकीकरण का 'पैगंबर' कहा जाता है। उन्होंने 'यंग इटली' नामक संस्था बनाई और युवाओं में राष्ट्रीयता की भावना भरी।<br><b>2. कावूर (Cavour):</b> ये एक महान कूटनीतिज्ञ थे। उन्होंने अपनी कूटनीति से इटली की समस्या को पूरे यूरोप की समस्या बना दिया।<br><b>3. गैरीबाल्डी (Garibaldi):</b> इन्हें 'इटली की तलवार' कहा जाता है। इन्होंने 'लाल कुर्ती' सेना बनाकर सिसिली और नेपल्स पर अधिकार किया।",
+                prob: "96%",
+                tag: "History"
+            },
+            {
+                q: "असहयोग आंदोलन (Non-Cooperation Movement) के कारण और परिणाम क्या थे?",
+                a: "<b>कारण:</b><br>- रॉलेट एक्ट का विरोध।<br>- जलियांवाला बाग हत्याकांड।<br>- खिलाफत का मुद्दा।<br><b>परिणाम:</b><br>- राष्ट्रीयता की भावना का विकास।<br>- कांग्रेस एक जन-आंदोलन की पार्टी बनी।<br>- चरखा और खादी का प्रचार हुआ।",
+                prob: "94%",
+                tag: "History"
+            },
+            {
+                q: "रूसी क्रांति (1917) के किन्हीं दो कारणों का वर्णन करें।",
+                a: "<b>1. जार की निरंकुशता:</b> रूस का राजा (जार निकोलस द्वितीय) अयोग्य और विलासी था। वह जनता की समस्याओं पर ध्यान नहीं देता था।<br><b>2. मजदूरों की दयनीय स्थिति:</b> मजदूरों को कम वेतन मिलता था और काम के घंटे बहुत ज्यादा थे। उनके पास कोई राजनीतिक अधिकार नहीं थे।",
+                prob: "92%",
+                tag: "History"
+            },
+            {
+                q: "जर्मनी के एकीकरण में बिस्मार्क की क्या भूमिका थी?",
+                a: "<br>बिस्मार्क का मानना था कि जर्मनी का एकीकरण भाषणों से नहीं, बल्कि <b>'रक्त और लौह' (Blood and Iron)</b> की नीति से होगा। उन्होंने डेनमार्क, ऑस्ट्रिया और फ्रांस के साथ तीन युद्ध किए और प्रशिया के नेतृत्व में जर्मनी का एकीकरण पूरा किया।",
+                prob: "90%",
+                tag: "History"
+            },
+            {
+                q: "वियतनाम के स्वतंत्रता संग्राम में 'हो ची मिन्ह' (Ho Chi Minh) का क्या योगदान था?",
+                a: "हो ची मिन्ह वियतनामी राष्ट्रवाद के जनक थे। उन्होंने 1925 में 'वियतनामी क्रांतिकारी दल' का गठन किया और बाद में कम्युनिस्ट पार्टी की स्थापना की। उन्होंने फ्रांस और अमेरिका जैसी महाशक्तियों के खिलाफ गुरिल्ला युद्ध का नेतृत्व किया।",
+                prob: "88%",
+                tag: "History"
+            },
+            {
+                q: "सविनय अवज्ञा आंदोलन (Civil Disobedience Movement) का क्या अर्थ है?",
+                a: "इसका अर्थ है विनम्रतापूर्वक सरकार के कानूनों को मानने से इनकार करना। गांधीजी ने 1930 में <b>दांडी यात्रा</b> करके नमक कानून तोड़ा और इस आंदोलन की शुरुआत की। इसमें महिलाओं और छात्रों ने भी भारी संख्या में भाग लिया।",
+                prob: "85%",
+                tag: "History"
+            },
+            {
+                q: "भूमंडलीकरण (Globalization) ने भारत पर क्या प्रभाव डाला?",
+                a: "भूमंडलीकरण का अर्थ है देश की अर्थव्यवस्था को विश्व की अर्थव्यवस्था से जोड़ना।<br><b>प्रभाव:</b><br>- विदेशी निवेश में वृद्धि।<br>- रोजगार के नए अवसर (जैसे कॉल सेंटर)।<br>- उपभोक्ताओं को सस्ती और अच्छी वस्तुएं मिलना।<br>- छोटे उद्योगों को नुकसान।",
+                prob: "87%",
+                tag: "History/Eco"
+            },
+
+            // GEOGRAPHY (भूगोल)
+            {
+                q: "संसाधन संरक्षण (Conservation of Resources) क्यों आवश्यक है?",
+                a: "संसाधन सीमित हैं (जैसे कोयला, पेट्रोल)। यदि इनका अंधाधुंध उपयोग हुआ, तो आने वाली पीढ़ियों के लिए कुछ नहीं बचेगा। गांधीजी ने कहा था, <i>'हमारे पास पेट भरने के लिए बहुत कुछ है, लेकिन पेटी भरने के लिए नहीं।'</i> इसलिए सतत विकास के लिए संरक्षण जरूरी है।",
+                prob: "93%",
+                tag: "Geography"
+            },
+            {
+                q: "भारतीय कृषि की किन्हीं पाँच विशेषताओं का उल्लेख करें।",
+                a: "[attachment_0](attachment)<br>1. <b>मानसून पर निर्भरता:</b> सिंचाई के अभाव में खेती बारिश पर निर्भर है।<br>2. <b>श्रम प्रधान:</b> खेती में मशीनों से ज्यादा इंसानों का उपयोग होता है।<br>3. <b>खाद्यान्न प्रमुखता:</b> किसान मुख्य रूप से अनाज (गेहूं, चावल) उगाते हैं।<br>4. <b>ज्योत का छोटा आकार:</b> खेत छोटे और बिखरे हुए हैं।<br>5. <b>पुरानी तकनीक:</b> अभी भी पारंपरिक औजारों का प्रयोग होता है।",
+                prob: "91%",
+                tag: "Geography"
+            },
+            {
+                q: "बिहार में बाढ़ की स्थिति का वर्णन करें और इसके नियंत्रण के उपाय बताएं।",
+                a: "बिहार का उत्तरी भाग कोसी, गंडक जैसी नदियों के कारण हर साल बाढ़ से ग्रस्त रहता है। इसे 'बिहार का शोक' भी कहा जाता है।<br><b>उपाय:</b><br>- नदियों पर तटबंध (Embankments) बनाना।<br>- वृक्षारोपण करना।<br>- जलाशयों का निर्माण।<br>- पूर्व सूचना प्रणाली को मजबूत करना।",
+                prob: "95%",
+                tag: "Geo/Disaster"
+            },
+            {
+                q: "खनिज क्या हैं? धात्विक और अधात्विक खनिजों में अंतर स्पष्ट करें।",
+                a: "खनिज प्राकृतिक रूप से पाए जाने वाले पदार्थ हैं जिनका निश्चित रासायनिक संगठन होता है।<br><b>धात्विक (Metallic):</b> गलाने पर धातु प्राप्त होती है, ये कठोर और चमकीले होते हैं (जैसे लोहा, सोना)।<br><b>अधात्विक (Non-Metallic):</b> इनसे धातु नहीं मिलती (जैसे चूना पत्थर, अभ्रक)।",
+                prob: "89%",
+                tag: "Geography"
+            },
+            {
+                q: "चाय की खेती के लिए उपयुक्त भौगोलिक दशाओं का वर्णन करें।",
+                a: "<b>तापमान:</b> 20°C से 30°C।<br><b>वर्षा:</b> 150-200 सेमी (वर्ष भर)।<br><b>मिट्टी:</b> ढालुआं जमीन ताकि पानी जड़ों में न रुके।<br><b>श्रम:</b> पत्तियों को तोड़ने के लिए सस्ते और कुशल श्रमिकों की आवश्यकता होती है। असम और दार्जिलिंग प्रमुख उत्पादक हैं।",
+                prob: "86%",
+                tag: "Geography"
+            },
+            {
+                q: "परिवहन और संचार को देश की 'जीवन रेखा' (Lifeline) क्यों कहा जाता है?",
+                a: "जिस तरह शरीर में नसें रक्त पहुँचाती हैं, वैसे ही परिवहन (सड़क, रेल) और संचार (इंटरनेट, मोबाइल) वस्तुओं, सेवाओं और विचारों को एक जगह से दूसरी जगह पहुँचाते हैं। इनके बिना व्यापार और विकास संभव नहीं है, इसलिए इन्हें अर्थव्यवस्था की जीवन रेखा कहते हैं।",
+                prob: "84%",
+                tag: "Geography"
+            },
+
+            // POLITICAL SCIENCE (राजनीति विज्ञान)
+            {
+                q: "लोकतंत्र से आप क्या समझते हैं? इसकी सफलता की शर्तें क्या हैं?",
+                a: "लोकतंत्र जनता का, जनता के लिए और जनता द्वारा शासन है (अब्राहम लिंकन)।<br><b>सफलता की शर्तें:</b><br>1. शिक्षित नागरिक।<br>2. आर्थिक समानता।<br>3. स्वतंत्र प्रेस (मीडिया)।<br>4. शांति और सुरक्षा।",
+                prob: "97%",
+                tag: "Civics"
+            },
+            {
+                q: "सत्ता की साझेदारी (Power Sharing) क्यों जरूरी है?",
+                a: "सत्ता की साझेदारी लोकतंत्र की आत्मा है। इससे विभिन्न सामाजिक समूहों के बीच टकराव कम होता है। उदाहरण के लिए, बेल्जियम ने सत्ता की साझेदारी करके गृहयुद्ध को रोका, जबकि श्रीलंका में ऐसा न होने से गृहयुद्ध हुआ।",
+                prob: "92%",
+                tag: "Civics"
+            },
+            {
+                q: "राजनीतिक दलों को 'लोकतंत्र का प्राण' क्यों कहा जाता है?",
+                a: "राजनीतिक दल ही चुनाव लड़ते हैं, सरकार बनाते हैं और विपक्ष की भूमिका निभाते हैं। वे जनता की समस्याओं को संसद तक पहुँचाते हैं। इनके बिना लोकतंत्र गूंगा और बहरा हो जाएगा।",
+                prob: "90%",
+                tag: "Civics"
+            },
+            {
+                q: "बिहार में पंचायती राज व्यवस्था (Panchayati Raj) पर एक टिप्पणी लिखें।",
+                a: "बिहार में त्रि-स्तरीय पंचायती राज व्यवस्था है:<br>1. <b>ग्राम स्तर:</b> ग्राम पंचायत (मुखिया)।<br>2. <b>प्रखंड स्तर:</b> पंचायत समिति।<br>3. <b>जिला स्तर:</b> जिला परिषद।<br>बिहार ने महिलाओं को इसमें 50% आरक्षण देकर एक मिसाल कायम की है।",
+                prob: "94%",
+                tag: "Civics"
+            },
+            {
+                q: "संघीय शासन व्यवस्था (Federalism) की दो मुख्य विशेषताएं बताएं।",
+                a: "1. <b>दोहरी सरकार:</b> केंद्र सरकार और राज्य सरकारें अलग-अलग काम करती हैं।<br>2. <b>शक्तियों का बंटवारा:</b> संविधान द्वारा शक्तियों को तीन सूचियों (संघ, राज्य, समवर्ती) में बांटा गया है।",
+                prob: "85%",
+                tag: "Civics"
+            },
+            {
+                q: "चिपको आंदोलन (Chipko Movement) क्या था?",
+                a: "यह उत्तराखंड में पेड़ों की कटाई रोकने के लिए चलाया गया पर्यावरण रक्षा आंदोलन था। इसका नेतृत्व सुंदरलाल बहुगुणा ने किया। इसमें महिलाएं पेड़ों से चिपक कर उन्हें कटने से बचाती थीं।",
+                prob: "82%",
+                tag: "Civics"
+            },
+
+            // ECONOMICS (अर्थशास्त्र)
+            {
+                q: "मिश्रित अर्थव्यवस्था (Mixed Economy) क्या है?",
+                a: "ऐसी अर्थव्यवस्था जहाँ उत्पादन के साधनों पर सरकार (सार्वजनिक) और निजी व्यक्तियों (प्राइवेट) दोनों का अधिकार होता है। भारत एक मिश्रित अर्थव्यवस्था का सबसे अच्छा उदाहरण है।",
+                prob: "93%",
+                tag: "Economics"
+            },
+            {
+                q: "मुद्रा (Money) के कार्यों का वर्णन करें।",
+                a: "[attachment_1](attachment)<br>मुद्रा के चार मुख्य कार्य हैं:<br>1. <b>विनिमय का माध्यम:</b> लेन-देन आसान बनाना।<br>2. <b>मूल्य का मापक:</b> किसी वस्तु की कीमत तय करना।<br>3. <b>मूल्य का संचय:</b> धन को जमा करके रखना।<br>4. <b>भुगतान का आधार:</b> भविष्य में भुगतान करना।",
+                prob: "91%",
+                tag: "Economics"
+            },
+            {
+                q: "स्वयं सहायता समूह (Self Help Group) से आप क्या समझते हैं?",
+                a: "यह ग्रामीण क्षेत्रों (विशेषकर महिलाओं) का 15-20 लोगों का एक छोटा समूह होता है जो अपनी बचत को इकट्ठा करते हैं और जरूरतमंद सदस्यों को कम ब्याज पर ऋण देते हैं। यह गरीबी दूर करने और महिलाओं को आत्मनिर्भर बनाने में मदद करता है।",
+                prob: "95%",
+                tag: "Economics"
+            },
+            {
+                q: "वैश्वीकरण (Globalization) के पक्ष में दो तर्क दें।",
+                a: "1. <b>प्रौद्योगिकी का प्रवाह:</b> नई तकनीक आसानी से देशों के बीच आती-जाती है।<br>2. <b>उपभोक्ता को लाभ:</b> बाजार में प्रतिस्पर्धा बढ़ने से वस्तुओं की कीमतें कम और गुणवत्ता बेहतर होती है।",
+                prob: "88%",
+                tag: "Economics"
+            },
+            {
+                q: "प्रति व्यक्ति आय (Per Capita Income) क्या है?",
+                a: "जब देश की कुल राष्ट्रीय आय (National Income) को कुल जनसंख्या से भाग दिया जाता है, तो जो औसत आय प्राप्त होती है, उसे प्रति व्यक्ति आय कहते हैं।<br><b>सूत्र:</b> प्रति व्यक्ति आय = राष्ट्रीय आय / कुल जनसंख्या।",
+                prob: "89%",
+                tag: "Economics"
+            },
+            {
+                q: "उपभोक्ता के कौन-कौन से अधिकार हैं?",
+                a: "1. सुरक्षा का अधिकार।<br>2. सूचना पाने का अधिकार (RTI)।<br>3. चुनने का अधिकार।<br>4. सुनवाई का अधिकार।<br>5. उपभोक्ता शिक्षा का अधिकार।",
+                prob: "86%",
+                tag: "Economics"
+            },
+
+            // DISASTER MANAGEMENT (आपदा प्रबंधन)
+            {
+                q: "भूकंप (Earthquake) और सुनामी (Tsunami) में अंतर स्पष्ट करें।",
+                a: "<b>भूकंप:</b> जब पृथ्वी की सतह (स्थल) पर कंपन होता है, तो उसे भूकंप कहते हैं।<br><b>सुनामी:</b> जब समुद्र की तलहटी में भूकंप आता है, तो उससे उठने वाली विशाल विनाशकारी लहरों को सुनामी कहते हैं।",
+                prob: "90%",
+                tag: "Disaster"
+            },
+            {
+                q: "आग लगने की स्थिति में क्या प्रबंधन करना चाहिए?",
+                a: "1. अग्निशमन दस्ता (Fire Brigade) को बुलाना।<br>2. आग में फंसे लोगों को बाहर निकालना।<br>3. ठंडे पानी का प्रयोग करना (यदि बिजली की आग न हो)।<br>4. बालू या मिट्टी का उपयोग करना।",
+                prob: "87%",
+                tag: "Disaster"
+            },
+            {
+                q: "सुखाड़ (Drought) के कुप्रभावों को कम करने के उपाय बताएं।",
+                a: "1. वर्षा जल संचयन (Rainwater Harvesting)।<br>2. नदियों को आपस में जोड़ना।<br>3. अधिक वृक्षारोपण करना।<br>4. ड्रिप सिंचाई (Drip Irrigation) का प्रयोग करना।",
+                prob: "85%",
+                tag: "Disaster"
+            },
+            {
+                q: "प्राकृतिक आपदा और मानव जनित आपदा में क्या अंतर है?",
+                a: "<b>प्राकृतिक आपदा:</b> जो प्रकृति द्वारा होती है, जिस पर मनुष्य का वश नहीं। (उदा: बाढ़, भूकंप, तूफान)।<br><b>मानव जनित आपदा:</b> जो मानवीय भूल या लापरवाही से होती है। (उदा: आतंकवाद, सांप्रदायिक दंगे, रेल दुर्घटना)।",
+                prob: "92%",
+                tag: "Disaster"
+            }
+        ];
+
+        // ---------------------------------------------------------
+        // RENDER LOGIC
+        // ---------------------------------------------------------
+        const list = document.getElementById('questionList');
+
+        questions.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'q-card';
+            card.innerHTML = `
+                <div class="q-header" onclick="toggleAnswer(this)">
+                    <div class="q-title">
+                        <span class="tag">${item.tag}</span>
+                        <br>
+                        <span style="color:var(--primary)">Q${index + 1}.</span> ${item.q}
+                    </div>
+                    <div style="text-align:right">
+                        <span class="prob-badge">${item.prob} Chance</span>
+                        <br>
+                        <div class="icon-toggle" style="margin-top:10px; text-align:right">▼</div>
+                    </div>
+                </div>
+                <div class="q-answer">
+                    <p style="margin-bottom:10px; color:#aaa; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">उत्तर (Answer):</p>
+                    ${item.a}
+                </div>
+            `;
+            list.appendChild(card);
+        });
+
+        // ---------------------------------------------------------
+        // INTERACTION LOGIC
+        // ---------------------------------------------------------
+        function toggleAnswer(header) {
+            playSound('click');
+            const card = header.parentElement;
+            const isOpen = card.classList.contains('active');
+
+            // Optional: Close others (Accordion effect)
+            document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+
+            if (!isOpen) {
+                card.classList.add('active');
+            }
+        }
+
+        function playSound(type) {
+            // Sound logic placeholder
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Master Pro - Class 10</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Ultra Premium Dark Theme */
+            --bg-deep: #050505;
+            --bg-surface: #121212;
+            --primary-accent: #2979FF; /* Electric Blue */
+            --secondary-accent: #00E5FF; /* Cyan */
+            --text-main: #FFFFFF;
+            --text-muted: #B0BEC5;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --card-grad: linear-gradient(145deg, #1A1A1A, #0D0D0D);
+            --shadow-glow: 0 0 20px rgba(41, 121, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(41, 121, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 229, 255, 0.05) 0%, transparent 20%);
+        }
+
+        /* --- Geometric Background Shapes --- */
+        .geo-shape {
+            position: fixed; z-index: -1; opacity: 0.1; pointer-events: none;
+        }
+        .circle-bg {
+            top: -100px; right: -100px; width: 500px; height: 500px;
+            border: 2px solid var(--secondary-accent); border-radius: 50%;
+            animation: spin 60s linear infinite;
+        }
+        .triangle-bg {
+            bottom: 50px; left: -50px; width: 0; height: 0;
+            border-left: 200px solid transparent;
+            border-right: 200px solid transparent;
+            border-bottom: 350px solid rgba(41, 121, 255, 0.2);
+            transform: rotate(15deg);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Navbar --- */
+        .navbar {
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 15px 24px;
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+
+        .btn-back {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); text-decoration: none; transition: 0.3s;
+        }
+        .btn-back:hover { background: var(--primary-accent); border-color: var(--primary-accent); }
+
+        .logo h1 { font-size: 1.3rem; font-weight: 700; background: linear-gradient(to right, #FFF, #AAA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo span { font-size: 0.75rem; color: var(--secondary-accent); display: block; letter-spacing: 1px; text-transform: uppercase; }
+
+        .controls button {
+            background: linear-gradient(135deg, var(--primary-accent), #1565C0);
+            border: none; color: white; padding: 8px 18px; border-radius: 50px;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(41, 121, 255, 0.3); transition: 0.3s;
+        }
+        .controls button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(41, 121, 255, 0.5); }
+
+        /* --- Container --- */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+
+        .section-header {
+            margin: 50px 0 25px; display: flex; align-items: center; gap: 15px;
+        }
+        .section-title {
+            font-size: 1.2rem; font-weight: 700; color: var(--secondary-accent);
+            text-transform: uppercase; letter-spacing: 1.5px;
+        }
+        .section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--secondary-accent), transparent); }
+
+        /* --- Question Card --- */
+        .card {
+            background: var(--card-grad);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px; margin-bottom: 20px;
+            overflow: hidden; position: relative;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-accent);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .card-header {
+            padding: 20px 24px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: flex-start;
+        }
+
+        .q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .badge {
+            background: rgba(41, 121, 255, 0.15); color: var(--primary-accent);
+            font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 4px;
+            text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(41, 121, 255, 0.3);
+        }
+        
+        .q-text {
+            font-size: 1.1rem; font-weight: 600; line-height: 1.5; color: var(--text-main);
+        }
+
+        .icon-toggle {
+            width: 32px; height: 32px; background: rgba(255,255,255,0.05); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); transition: 0.4s;
+        }
+        .card.active .icon-toggle { transform: rotate(180deg); background: var(--secondary-accent); color: #000; }
+
+        /* --- Answer Body --- */
+        .card-body {
+            max-height: 0; overflow: hidden; transition: max-height 0.6s ease-in-out;
+            background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-glass);
+        }
+        .card.active .card-body { max-height: 2000px; }
+
+        .answer-content {
+            padding: 25px; font-size: 1.05rem; line-height: 1.8; color: #E0E0E0; text-align: justify;
+        }
+        
+        .text-hi { font-family: 'Tiro Devanagari Hindi', serif; }
+
+        /* Step-by-Step Box */
+        .step-box {
+            background: rgba(41, 121, 255, 0.08); border-left: 3px solid var(--primary-accent);
+            padding: 15px 20px; margin: 15px 0; border-radius: 0 8px 8px 0;
+            font-family: 'Courier New', monospace; font-size: 1rem; color: #FFF;
+        }
+        
+        .highlight { color: var(--secondary-accent); font-weight: 700; }
+        .final-ans { 
+            display: inline-block; background: rgba(0, 229, 255, 0.1); 
+            padding: 5px 15px; border-radius: 4px; border: 1px solid var(--secondary-accent);
+            color: var(--secondary-accent); font-weight: 700; margin-top: 10px;
+        }
+
+        /* Language Logic */
+        .text-en { display: none; }
+        body.lang-en .text-hi { display: none; }
+        body.lang-en .text-en { display: block; }
+
+    </style>
+</head>
+<body>
+
+    <div class="geo-shape circle-bg"></div>
+    <div class="geo-shape triangle-bg"></div>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="subjective_qna.html" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div class="logo">
+                <h1>Math Master Pro</h1>
+                <span>Class 10 BSEB</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button onclick="toggleLanguage()">
+                <i class="fa-solid fa-language"></i> <span id="lang-txt" style="margin-left:5px;">HINDI</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="section-header">
+            <div class="section-title">
+                <span class="text-hi">खंड 1: मूलभूत प्रश्न (Basic Important)</span>
+                <span class="text-en">Section 1: Basic Important</span>
+            </div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Real Numbers</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q1. सिद्ध करें कि 3 + √2 एक अपरिमेय संख्या है।</span>
+                        <span class="text-en">Q1. Prove that 3 + √2 is an irrational number.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        चरण 1: माना कि <span class="highlight">3 + √2</span> एक परिमेय संख्या है।<br>
+                        चरण 2: तब हम इसे p/q के रूप में लिख सकते हैं (जहाँ p, q पूर्णांक हैं और q ≠ 0)।
+                        <div class="step-box">
+                            3 + √2 = p/q <br>
+                            √2 = p/q - 3 <br>
+                            √2 = (p - 3q) / q
+                        </div>
+                        चरण 3: चूँकि p और q पूर्णांक हैं, इसलिए RHS <span class="highlight">(p - 3q)/q</span> एक परिमेय संख्या है।<br>
+                        चरण 4: इसका अर्थ है कि LHS (√2) भी परिमेय होनी चाहिए।<br>
+                        चरण 5: परंतु यह एक विरोधाभास है क्योंकि हम जानते हैं कि √2 एक अपरिमेय संख्या है।<br>
+                        <div class="final-ans">अतः, 3 + √2 एक अपरिमेय संख्या है।</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Step 1: Let <span class="highlight">3 + √2</span> be a rational number.<br>
+                        Step 2: So we can write it as p/q (where p, q are integers and q ≠ 0).
+                        <div class="step-box">
+                            3 + √2 = p/q <br>
+                            √2 = p/q - 3 <br>
+                            √2 = (p - 3q) / q
+                        </div>
+                        Step 3: Since p and q are integers, RHS <span class="highlight">(p - 3q)/q</span> is rational.<br>
+                        Step 4: This implies LHS (√2) must also be rational.<br>
+                        Step 5: But this contradicts the fact that √2 is irrational.<br>
+                        <div class="final-ans">Hence, 3 + √2 is an irrational number.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Polynomials</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q2. द्विघात बहुपद x² - 2x - 8 के शून्यक ज्ञात करें।</span>
+                        <span class="text-en">Q2. Find zeroes of polynomial x² - 2x - 8.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        <div class="step-box">
+                            x² - 2x - 8 = 0 <br>
+                            x² - 4x + 2x - 8 = 0 <br>
+                            x(x - 4) + 2(x - 4) = 0 <br>
+                            (x - 4)(x + 2) = 0
+                        </div>
+                        यदि x - 4 = 0, तो x = 4<br>
+                        यदि x + 2 = 0, तो x = -2<br>
+                        <div class="final-ans">शून्यक: 4 और -2</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        <div class="step-box">
+                            x² - 2x - 8 = 0 <br>
+                            x² - 4x + 2x - 8 = 0 <br>
+                            x(x - 4) + 2(x - 4) = 0 <br>
+                            (x - 4)(x + 2) = 0
+                        </div>
+                        If x - 4 = 0, then x = 4<br>
+                        If x + 2 = 0, then x = -2<br>
+                        <div class="final-ans">Zeroes: 4 and -2</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <div class="section-title">
+                <span class="text-hi">खंड 2: दीर्घ उत्तरीय प्रश्न (5 अंक)</span>
+                <span class="text-en">Section 2: Long Answer (5 Marks)</span>
+            </div>
+            <div class="section-line"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Theorem (Geometry)</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q3. पाइथागोरस प्रमेय (Pythagoras Theorem) को सिद्ध करें।</span>
+                        <span class="text-en">Q3. State and Prove Pythagoras Theorem.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>कथन:</strong> एक समकोण त्रिभुज में, कर्ण का वर्ग शेष दो भुजाओं के वर्गों के योग के बराबर होता है।<br>
+                        <strong>सिद्ध करना है:</strong> AC² = AB² + BC²<br>
+                        <strong>रचना:</strong> BD ⊥ AC खींचें।<br>
+                        <strong>प्रमाण:</strong><br>
+                        1. ΔADB और ΔABC में:<br>
+                           <div class="step-box">
+                               AD/AB = AB/AC <br>
+                               ⇒ AB² = AD × AC   .....(i)
+                           </div>
+                        2. इसी प्रकार, ΔBDC ~ ΔABC:<br>
+                           <div class="step-box">
+                               CD/BC = BC/AC <br>
+                               ⇒ BC² = CD × AC   .....(ii)
+                           </div>
+                        3. समीकरण (i) और (ii) को जोड़ने पर:<br>
+                           <div class="step-box">
+                               AB² + BC² = AC (AD + CD) <br>
+                               AB² + BC² = AC × AC
+                           </div>
+                        <div class="final-ans">अतः AC² = AB² + BC² (सिद्ध हुआ)</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Statement:</strong> In a right-angled triangle, the square of the hypotenuse is equal to the sum of squares of the other two sides.<br>
+                        <strong>To Prove:</strong> AC² = AB² + BC²<br>
+                        <strong>Construction:</strong> Draw BD ⊥ AC.<br>
+                        <strong>Proof:</strong><br>
+                        1. In ΔADB and ΔABC:<br>
+                           <div class="step-box">
+                               AD/AB = AB/AC <br>
+                               ⇒ AB² = AD × AC   .....(i)
+                           </div>
+                        2. Similarly, In ΔBDC and ΔABC:<br>
+                           <div class="step-box">
+                               CD/BC = BC/AC <br>
+                               ⇒ BC² = CD × AC   .....(ii)
+                           </div>
+                        3. Adding (i) and (ii):<br>
+                           <div class="step-box">
+                               AB² + BC² = AC (AD + CD) <br>
+                               AB² + BC² = AC × AC
+                           </div>
+                        <div class="final-ans">Hence AC² = AB² + BC² (Proven)</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Height & Distance</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q4. एक मीनार के पाद से भवन के शिखर का उन्नयन कोण 30° है और भवन के पाद से मीनार के शिखर का उन्नयन कोण 60° है। यदि मीनार 50m ऊँची हो, तो भवन की ऊँचाई ज्ञात करें।</span>
+                        <span class="text-en">Q4. Angle of elevation of building top from tower foot is 30° and tower top from building foot is 60°. Tower height is 50m. Find building height.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        माना मीनार CD = 50m और भवन AB = h मीटर। दूरी BD = x मीटर।<br>
+                        चरण 1: समकोण ΔCDB में:
+                        <div class="step-box">
+                            tan 60° = 50 / x <br>
+                            x = 50 / √3   .....(i)
+                        </div>
+                        चरण 2: समकोण ΔABD में:
+                        <div class="step-box">
+                            tan 30° = h / x <br>
+                            h = x / √3
+                        </div>
+                        चरण 3: x का मान रखने पर:
+                        <div class="step-box">h = 50 / 3</div>
+                        <div class="final-ans">भवन की ऊँचाई = 16.66 मीटर</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Let Tower CD = 50m, Building AB = h. Distance BD = x.<br>
+                        Step 1: In ΔCDB:
+                        <div class="step-box">
+                            tan 60° = 50 / x <br>
+                            x = 50 / √3   .....(i)
+                        </div>
+                        Step 2: In ΔABD:
+                        <div class="step-box">
+                            tan 30° = h / x <br>
+                            h = x / √3
+                        </div>
+                        Step 3: Putting value of x:
+                        <div class="step-box">h = 50 / 3</div>
+                        <div class="final-ans">Building Height = 16.66 m</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Mensuration</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q5. पानी पीने वाला एक गिलास 14 cm ऊँचाई वाले एक शंकु के छिन्नक (Frustum) के आकार का है। दोनों वृत्ताकार सिरों के व्यास 4 cm और 2 cm हैं। धारिता ज्ञात करें।</span>
+                        <span class="text-en">Q5. A glass is in shape of frustum of cone of height 14cm. Diameters are 4cm and 2cm. Find capacity.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        h = 14 cm, R = 2 cm, r = 1 cm.<br>
+                        आयतन V = (1/3)πh (R² + r² + Rr)
+                        <div class="step-box">
+                            V = (1/3) × (22/7) × 14 × [4 + 1 + 2] <br>
+                            V = (44/3) × 7 <br>
+                            V = 308 / 3
+                        </div>
+                        <div class="final-ans">धारिता = 102.66 cm³</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        h = 14 cm, R = 2 cm, r = 1 cm.<br>
+                        Volume V = (1/3)πh (R² + r² + Rr)
+                        <div class="step-box">
+                            V = (1/3) × (22/7) × 14 × [4 + 1 + 2] <br>
+                            V = (44/3) × 7 <br>
+                            V = 308 / 3
+                        </div>
+                        <div class="final-ans">Capacity = 102.66 cm³</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Quadratic Equations</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q6. एक रेलगाड़ी 360 km की दूरी तय करती है। यदि चाल 5 km/h अधिक होती, तो वह 1 घंटा कम समय लेती। चाल ज्ञात करें।</span>
+                        <span class="text-en">Q6. A train travels 360 km. If speed was 5 km/h more, it would take 1 hour less. Find speed.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        माना चाल = x km/h.<br>
+                        समय अंतर: 360/x - 360/(x+5) = 1
+                        <div class="step-box">
+                            360 [ (x+5-x) / (x(x+5)) ] = 1 <br>
+                            1800 = x² + 5x <br>
+                            x² + 5x - 1800 = 0 <br>
+                            (x + 45)(x - 40) = 0
+                        </div>
+                        x = 40 (धनात्मक)<br>
+                        <div class="final-ans">चाल = 40 km/h</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Let speed = x km/h.<br>
+                        Time Diff: 360/x - 360/(x+5) = 1
+                        <div class="step-box">
+                            360 [ 5 / (x²+5x) ] = 1 <br>
+                            x² + 5x - 1800 = 0 <br>
+                            (x + 45)(x - 40) = 0
+                        </div>
+                        x = 40 (Positive)<br>
+                        <div class="final-ans">Speed = 40 km/h</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Statistics</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q7. माध्यक (Median) ज्ञात करें: वर्ग (0-10, ...), बारंबारता (4, 5, 13, 20, 14, 8, 4)</span>
+                        <span class="text-en">Q7. Find Median: Class (0-10, ...), Freq (4, 5, 13, 20, 14, 8, 4)</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        CF निकालें। N = 68, N/2 = 34.<br>
+                        माध्यक वर्ग = 30-40 (CF 42 है)।<br>
+                        l=30, f=20, cf=22, h=10.
+                        <div class="step-box">
+                            Median = 30 + [ (34 - 22)/20 ] × 10 <br>
+                            = 30 + 6
+                        </div>
+                        <div class="final-ans">माध्यक = 36</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Calc CF. N = 68, N/2 = 34.<br>
+                        Median Class = 30-40.<br>
+                        l=30, f=20, cf=22, h=10.
+                        <div class="step-box">
+                            Median = 30 + [ (34 - 22)/20 ] × 10 <br>
+                            = 30 + 12/2
+                        </div>
+                        <div class="final-ans">Median = 36</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Trigonometry</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q8. सिद्ध करें: (tan A / 1 - cot A) + (cot A / 1 - tan A) = 1 + sec A cosec A</span>
+                        <span class="text-en">Q8. Prove: (tan A / 1 - cot A) + (cot A / 1 - tan A) = 1 + sec A cosec A</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        sin/cos में बदलने पर:
+                        <div class="step-box">
+                            = [ sin²A / cosA(sinA - cosA) ] - [ cos²A / sinA(sinA - cosA) ] <br>
+                            = (sin³A - cos³A) / sinA cosA (sinA - cosA)
+                        </div>
+                        a³-b³ सूत्र से:
+                        <div class="step-box">
+                            = (sin²A + cos²A + sinA cosA) / sinA cosA <br>
+                            = (1 + sinA cosA) / sinA cosA
+                        </div>
+                        <div class="final-ans">= 1 + sec A cosec A</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Convert to sin/cos:
+                        <div class="step-box">
+                            = [ sin²A / cosA(sinA - cosA) ] - [ cos²A / sinA(sinA - cosA) ] <br>
+                            = (sin³A - cos³A) / sinA cosA (sinA - cosA)
+                        </div>
+                        Using a³-b³:
+                        <div class="step-box">
+                            = (1 + sinA cosA) / sinA cosA <br>
+                            = (1 / sinA cosA) + 1
+                        </div>
+                        <div class="final-ans">= 1 + sec A cosec A</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Construction</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q9. 4, 5, 6 cm भुजाओं वाले त्रिभुज के समरूप 2/3 गुनी भुजाओं वाला त्रिभुज बनाएँ।</span>
+                        <span class="text-en">Q9. Construct a triangle similar to sides 4, 5, 6 cm with scale factor 2/3.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>रचना:</strong><br>
+                        1. BC=6cm खींचें। B से 4cm, C से 5cm चाप काटकर A मिलाएँ।<br>
+                        2. B से न्यूनकोण किरण खींचें, 3 बराबर चाप लगाएँ (B₁, B₂, B₃)।<br>
+                        3. B₃ को C से मिलाएँ।<br>
+                        4. B₂ से समांतर रेखा खींचें जो C' पर मिले।<br>
+                        5. C' से समांतर रेखा खींचें जो A' पर मिले।<br>
+                        <div class="final-ans">ΔA'BC' अभीष्ट त्रिभुज है।</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Construction:</strong><br>
+                        1. Draw BC=6cm. Construct ΔABC with 4cm, 5cm.<br>
+                        2. Draw ray from B, mark 3 arcs (B₁, B₂, B₃).<br>
+                        3. Join B₃C.<br>
+                        4. Draw parallel from B₂ to meet BC at C'.<br>
+                        5. Draw parallel from C' to meet AB at A'.<br>
+                        <div class="final-ans">ΔA'BC' is the required triangle.</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Coordinate Geometry</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q10. चतुर्भुज का क्षेत्रफल ज्ञात करें: (-4, -2), (-3, -5), (3, -2), (2, 3)।</span>
+                        <span class="text-en">Q10. Find Area of Quadrilateral: (-4, -2), (-3, -5), (3, -2), (2, 3).</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        विकर्ण AC द्वारा दो त्रिभुज बनाएँ: ΔABC और ΔADC.<br>
+                        Area(ΔABC) = 1/2 [ -4(-3) -3(0) + 3(3) ] = 21/2<br>
+                        Area(ΔADC) = 1/2 [ -4(-5) + 3(5) + 2(0) ] = 35/2<br>
+                        Total = 21/2 + 35/2 = 56/2<br>
+                        <div class="final-ans">क्षेत्रफल = 28 वर्ग इकाई</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Split into ΔABC and ΔADC.<br>
+                        Area(ΔABC) = 21/2<br>
+                        Area(ΔADC) = 35/2<br>
+                        Total = 56/2<br>
+                        <div class="final-ans">Area = 28 sq units</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">AP</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q11. AP के प्रथम 14 पदों का योग 1050 है, प्रथम पद 10 है। 20वाँ पद ज्ञात करें।</span>
+                        <span class="text-en">Q11. Sum of first 14 terms of AP is 1050, first term is 10. Find 20th term.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        S₁₄ = 1050 ⇒ 7[20 + 13d] = 1050 ⇒ 20+13d = 150 ⇒ d=10.<br>
+                        a₂₀ = a + 19d = 10 + 190<br>
+                        <div class="final-ans">20वाँ पद = 200</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        S₁₄ = 1050 ⇒ 7[20 + 13d] = 1050 ⇒ d=10.<br>
+                        a₂₀ = 10 + 19(10)<br>
+                        <div class="final-ans">20th Term = 200</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Theorem</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q12. सिद्ध करें कि बाहरी बिंदु से वृत्त पर स्पर्श रेखाएँ बराबर होती हैं।</span>
+                        <span class="text-en">Q12. Prove tangents from external point to circle are equal.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>प्रमाण:</strong><br>
+                        ΔOQP और ΔORP में:<br>
+                        1. ∠OQP = ∠ORP = 90°<br>
+                        2. OQ = OR (त्रिज्या)<br>
+                        3. OP = OP (उभयनिष्ठ)<br>
+                        RHS से ΔOQP ≅ ΔORP.<br>
+                        <div class="final-ans">अतः PQ = PR (CPCT)</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Proof:</strong><br>
+                        In ΔOQP and ΔORP:<br>
+                        1. ∠90° each.<br>
+                        2. Radii equal.<br>
+                        3. Common hypotenuse.<br>
+                        By RHS, triangles congruent.<br>
+                        <div class="final-ans">So PQ = PR</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Mensuration</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q13. 6, 8, 10 cm त्रिज्या के गोलों को पिघलाकर बड़ा गोला बनाया गया। त्रिज्या ज्ञात करें।</span>
+                        <span class="text-en">Q13. Melt spheres of radii 6, 8, 10 cm to form a large sphere. Find radius.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        R³ = 6³ + 8³ + 10³ = 216 + 512 + 1000 = 1728<br>
+                        <div class="final-ans">R = 12 cm</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        R³ = 6³ + 8³ + 10³ = 1728<br>
+                        <div class="final-ans">R = 12 cm</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Height & Distance</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q14. 7m ऊँचे भवन के शिखर से केबल टॉवर का उन्नयन कोण 60° और पाद का अवनमन कोण 45° है। टॉवर की ऊँचाई ज्ञात करें।</span>
+                        <span class="text-en">Q14. From 7m building top, angle of elevation of tower is 60° and depression of foot is 45°. Find tower height.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        निचला Δ: tan 45 = 7/Base ⇒ Base = 7m.<br>
+                        ऊपरी Δ: tan 60 = h/7 ⇒ h = 7√3.<br>
+                        Total Height = 7 + 7√3.<br>
+                        <div class="final-ans">H = 7(√3 + 1) m</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Lower Δ: Base = 7m.<br>
+                        Upper Δ: h = 7√3.<br>
+                        Total = 7 + 7√3.<br>
+                        <div class="final-ans">H = 7(√3 + 1) m</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Circle Area</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q15. वृत्ताकार खेत की बाड़ का व्यय 5280 रु (24 रु/मी)। जुताई (0.50 रु/मी²) का खर्च ज्ञात करें।</span>
+                        <span class="text-en">Q15. Fencing cost Rs 5280 (Rs 24/m). Find ploughing cost (Rs 0.50/m²).</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        परिधि = 5280/24 = 220m. ⇒ 2πr=220 ⇒ r=35m.<br>
+                        Area = πr² = 3850 m².<br>
+                        Cost = 3850 × 0.50<br>
+                        <div class="final-ans">Cost = 1925 रु</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Circumference = 220m ⇒ r=35m.<br>
+                        Area = 3850 m².<br>
+                        <div class="final-ans">Cost = Rs 1925</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Probability</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q16. 52 पत्तों में से: (i) लाल बादशाह, (ii) फेस कार्ड की प्रायिकता।</span>
+                        <span class="text-en">Q16. From 52 cards, find prob of: (i) Red King, (ii) Face Card.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        (i) लाल बादशाह (2) ⇒ P = 2/52 = 1/26.<br>
+                        (ii) फेस कार्ड (12) ⇒ P = 12/52 = 3/13.<br>
+                        <div class="final-ans">1/26, 3/13</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        (i) Red Kings (2) ⇒ P = 1/26.<br>
+                        (ii) Face Cards (12) ⇒ P = 3/13.<br>
+                        <div class="final-ans">1/26, 3/13</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Linear Eq</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q17. वह भिन्न ज्ञात करें जो अंश से 1 घटाने पर 1/3 और हर में 8 जोड़ने पर 1/4 हो जाती है।</span>
+                        <span class="text-en">Q17. Find fraction which becomes 1/3 when 1 subtracted from numerator and 1/4 when 8 added to denominator.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        3x - y = 3 और 4x - y = 8.<br>
+                        हल करने पर: x = 5, y = 12.<br>
+                        <div class="final-ans">भिन्न = 5/12</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Eqs: 3x - y = 3 and 4x - y = 8.<br>
+                        Solving: x = 5, y = 12.<br>
+                        <div class="final-ans">Fraction = 5/12</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Construction</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q18. 3cm वृत्त के व्यास को बढ़ाकर केंद्र से 7cm दूर दो बिंदुओं से स्पर्श रेखाएँ खींचें।</span>
+                        <span class="text-en">Q18. Tangents from two points 7cm away from center on extended diameter of 3cm circle.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        केंद्र O से 7cm दायें और 7cm बायें बिंदु लें। लम्ब समद्विभाजक खींचें और सहायक वृत्त बनाकर स्पर्श रेखाएँ खींचें।<br>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Take points 7cm left/right. Draw bisectors, auxiliary circles and then tangents.<br>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Statistics</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q19. बहुलक ज्ञात करें: 40-60 वर्ग की बारंबारता 15 (अधिकतम) है।</span>
+                        <span class="text-en">Q19. Find Mode: Max freq 15 is for class 40-60.</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        Mode = 40 + [ (15-8)/(30-20) ] × 20<br>
+                        = 40 + 14<br>
+                        <div class="final-ans">बहुलक = 54</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        Mode = 40 + 14 = 54.<br>
+                        <div class="final-ans">Mode = 54</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" onclick="toggleCard(this)">
+                <div style="flex:1">
+                    <div class="q-meta"><span class="badge">Trigonometry</span></div>
+                    <div class="q-text">
+                        <span class="text-hi">Q20. मान निकालें: 5cos²60 + 4sec²30 - tan²45 / (sin²30 + cos²30)</span>
+                        <span class="text-en">Q20. Evaluate: 5cos²60 + 4sec²30 - tan²45 / (sin²30 + cos²30)</span>
+                    </div>
+                </div>
+                <div class="icon-toggle"><i class="fa-solid fa-chevron-down"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="answer-content">
+                    <span class="text-hi">
+                        <strong>हल:</strong><br>
+                        = (5/4 + 16/3 - 1) / 1<br>
+                        = (15 + 64 - 12) / 12<br>
+                        <div class="final-ans">उत्तर = 67/12</div>
+                    </span>
+                    <span class="text-en">
+                        <strong>Solution:</strong><br>
+                        = 5/4 + 16/3 - 1<br>
+                        <div class="final-ans">Answer = 67/12</div>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Accordion
+        function toggleCard(header) {
+            header.parentElement.classList.toggle('active');
+        }
+
+        // Language Toggle
+        function toggleLanguage() {
+            const body = document.body;
+            const label = document.getElementById('lang-txt');
+            
+            if (body.classList.contains('lang-en')) {
+                body.classList.remove('lang-en');
+                label.innerText = 'HINDI';
+            } else {
+                body.classList.add('lang-en');
+                label.innerText = 'ENGLISH';
+            }
+        }
+    </script>
+</body>
+</html>

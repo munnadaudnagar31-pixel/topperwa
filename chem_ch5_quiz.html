@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Chemistry Ch-5 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (CHEMISTRY - TEAL) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #E0F7FA 0%, #B2DFDB 100%);
+            --header-gradient: linear-gradient(135deg, #00695C 0%, #004D40 100%);
+            --card-bg: #ffffff;
+            --text-main: #004D40;
+            --text-sub: #00796B;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00C853; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 77, 64, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 77, 64, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #009688;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #004D40; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="chemistry_chapters.html" class="close-btn">✕</a>
+        <span>Ch-5: Periodic Classification</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #004D40; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are now a Periodic Table Expert!</p>
+        <a href="chemistry_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#009688; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Periodic Classification) ---
+        const questions = [
+            { q: "Who was the first scientist to attempt the classification of elements?", o: ["Mendeleev", "Dobereiner", "Newlands", "Moseley"], a: 1 },
+            { q: "Dobereiner classified elements into groups of three called:", o: ["Octaves", "Triads", "Periods", "Groups"], a: 1 },
+            { q: "In Newlands' Law of Octaves, properties of every ___ element were similar to the first.", o: ["7th", "8th", "9th", "10th"], a: 1 },
+            { q: "Newlands' Law of Octaves was applicable only up to which element?", o: ["Calcium", "Potassium", "Oxygen", "Iron"], a: 0 },
+            { q: "Mendeleev's Periodic Table was based on:", o: ["Atomic Number", "Atomic Mass", "Number of Neutrons", "Electronic Configuration"], a: 1 },
+            { q: "The Modern Periodic Table is based on:", o: ["Atomic Mass", "Atomic Number", "Isotopes", "Atomic Size"], a: 1 },
+            { q: "Who proposed the Modern Periodic Law?", o: ["Bohr", "Moseley", "Mendeleev", "Newlands"], a: 1 },
+            { q: "The vertical columns in the periodic table are called:", o: ["Periods", "Rows", "Groups", "Series"], a: 2 },
+            { q: "The horizontal rows in the periodic table are called:", o: ["Groups", "Periods", "Columns", "Families"], a: 1 },
+            { q: "How many groups are there in the Modern Periodic Table?", o: ["7", "8", "18", "10"], a: 2 },
+            { q: "How many periods are there in the Modern Periodic Table?", o: ["7", "8", "18", "10"], a: 0 },
+            { q: "Elements belonging to Group 1 are called:", o: ["Alkaline Earth Metals", "Alkali Metals", "Halogens", "Noble Gases"], a: 1 },
+            { q: "Elements belonging to Group 17 are called:", o: ["Alkali Metals", "Halogens", "Inert Gases", "Transition Metals"], a: 1 },
+            { q: "Elements belonging to Group 18 are called:", o: ["Halogens", "Noble Gases", "Chalcogens", "Alkali Metals"], a: 1 },
+            { q: "Eka-Boron predicted by Mendeleev is actually:", o: ["Scandium", "Gallium", "Germanium", "Silicon"], a: 0 },
+            { q: "Eka-Aluminium predicted by Mendeleev is actually:", o: ["Scandium", "Gallium", "Germanium", "Titanium"], a: 1 },
+            { q: "Eka-Silicon predicted by Mendeleev is actually:", o: ["Scandium", "Gallium", "Germanium", "Arsenic"], a: 2 },
+            { q: "Which of the following is the most electronegative element?", o: ["Oxygen", "Chlorine", "Fluorine", "Nitrogen"], a: 2 },
+            { q: "Atomic size ____ as we move from left to right in a period.", o: ["Increases", "Decreases", "Remains same", "First increases then decreases"], a: 1 },
+            { q: "Atomic size ____ as we move down a group.", o: ["Increases", "Decreases", "Remains same", "First decreases then increases"], a: 0 },
+            { q: "Metallic character ____ as we move from left to right in a period.", o: ["Increases", "Decreases", "Remains same", "None of these"], a: 1 },
+            { q: "Non-metallic character ____ as we move from left to right in a period.", o: ["Increases", "Decreases", "Remains same", "None of these"], a: 0 },
+            { q: "Which element has the electronic configuration 2, 8, 2?", o: ["Sodium", "Magnesium", "Aluminium", "Silicon"], a: 1 },
+            { q: "Valency of Group 1 elements is:", o: ["1", "2", "3", "0"], a: 0 },
+            { q: "Valency of Group 18 elements is:", o: ["1", "2", "8", "0"], a: 3 },
+            { q: "Silicon is a:", o: ["Metal", "Non-metal", "Metalloid", "Noble Gas"], a: 2 },
+            { q: "Which of the following is a metalloid?", o: ["Boron", "Carbon", "Aluminium", "Oxygen"], a: 0 },
+            { q: "The element with atomic number 17 is:", o: ["Oxygen", "Chlorine", "Sulphur", "Argon"], a: 1 },
+            { q: "Which of the following elements has the largest atomic radius?", o: ["Na", "Mg", "K", "Ca"], a: 2 },
+            { q: "Which of the following elements has the smallest atomic radius?", o: ["Li", "Be", "B", "C"], a: 3 },
+            { q: "Isotopes of an element have:", o: ["Same atomic mass", "Same atomic number", "Different chemical properties", "Different electronic configuration"], a: 1 },
+            { q: "Mendeleev could not assign a fixed position to:", o: ["Oxygen", "Carbon", "Hydrogen", "Nitrogen"], a: 2 },
+            { q: "The zig-zag line in the periodic table separates:", o: ["Metals from Non-metals", "Solids from Liquids", "Gases from Liquids", "Metals from Metalloids"], a: 0 },
+            { q: "Up to which element, the Law of Octaves was found to be applicable?", o: ["Oxygen", "Calcium", "Cobalt", "Potassium"], a: 1 },
+            { q: "Elements of the second period are called:", o: ["Bridge elements", "Typical elements", "Transition elements", "Normal elements"], a: 0 },
+            { q: "Which group elements are known as 'Coinage metals'?", o: ["Group 1", "Group 2", "Group 11", "Group 17"], a: 2 },
+            { q: "The most metallic element in the periodic table is:", o: ["Sodium", "Francium", "Fluorine", "Calcium"], a: 1 },
+            { q: "Which shell can accommodate a maximum of 18 electrons?", o: ["K shell", "L shell", "M shell", "N shell"], a: 2 },
+            { q: "How many elements are in the 1st period?", o: ["2", "8", "18", "32"], a: 0 },
+            { q: "How many elements are in the 2nd and 3rd periods?", o: ["2", "8", "18", "32"], a: 1 },
+            { q: "Which element has a total of two shells, with three electrons in its valence shell?", o: ["Boron", "Aluminium", "Lithium", "Carbon"], a: 0 },
+            { q: "Which element has twice as many electrons in its second shell as in its first shell?", o: ["Carbon", "Oxygen", "Nitrogen", "Neon"], a: 0 },
+            { q: "Elements in the same group have similar:", o: ["Atomic mass", "Atomic radii", "Chemical properties", "Melting points"], a: 2 },
+            { q: "An atom has electronic configuration 2, 8, 7. To which group does it belong?", o: ["7", "17", "18", "2"], a: 1 },
+            { q: "Transition elements are placed in groups:", o: ["1 and 2", "13 to 18", "3 to 12", "17 and 18"], a: 2 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

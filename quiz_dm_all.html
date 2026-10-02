@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Management - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Alert Red - Disaster Mgmt) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #ffebee; color: #b71c1c; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #eb3349; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #ffcdd2; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #eb3349; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #c62828; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #eb3349; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #eb3349; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ DISASTER MANAGEMENT QUESTIONS (आपदा प्रबंधन) ▼▼▼
+    const questions = [
+        { question: "1. इनमें से कौन प्राकृतिक आपदा नहीं है?", answers: [ { text: "सुनामी", correct: false }, { text: "बाढ़", correct: false }, { text: "आतंकवाद", correct: true }, { text: "भूकंप", correct: false } ] },
+        { question: "2. इनमें से कौन मानव जनित आपदा है?", answers: [ { text: "सांप्रदायिक दंगे", correct: false }, { text: "आतंकवाद", correct: false }, { text: "महामारी", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "3. सुनामी का प्रमुख कारण क्या है?", answers: [ { text: "समुद्र में भूकंप आना", correct: true }, { text: "द्वीप पर भूकंप आना", correct: false }, { text: "स्थलीय क्षेत्र पर भूकंप आना", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "4. नदियों में बाढ़ आने का प्रमुख कारण क्या है?", answers: [ { text: "जल की अधिकता", correct: false }, { text: "नदी की तली में अवसाद का जमाव", correct: false }, { text: "वर्षा की अधिकता", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "5. बिहार का कौन-सा क्षेत्र बाढ़ ग्रस्त क्षेत्र है?", answers: [ { text: "पूर्वी बिहार", correct: false }, { text: "दक्षिणी बिहार", correct: false }, { text: "पश्चिमी बिहार", correct: false }, { text: "उत्तरी बिहार", correct: true } ] },
+        { question: "6. निम्नलिखित में से किस नदी को 'बिहार का शोक' कहा जाता है?", answers: [ { text: "गंगा", correct: false }, { text: "गंडक", correct: false }, { text: "कोसी", correct: true }, { text: "पुनपुन", correct: false } ] },
+        { question: "7. बाढ़ के समय निम्नलिखित में से किस स्थान पर जाना चाहिए?", answers: [ { text: "गाँव के बाहर", correct: false }, { text: "ऊँची भूमि वाले स्थान पर", correct: true }, { text: "जहाँ हैं उसी स्थान पर", correct: false }, { text: "खेतों में", correct: false } ] },
+        { question: "8. मलवे के नीचे दबे हुए लोगों का पता लगाने के लिए किस यंत्र की मदद ली जाती है?", answers: [ { text: "दूरबीन", correct: false }, { text: "इन्फ्रारेड कैमरा", correct: true }, { text: "हेलीकॉप्टर", correct: false }, { text: "टेलीस्कोप", correct: false } ] },
+        { question: "9. आग से जलने की स्थिति में जले हुए स्थान पर क्या प्राथमिक उपचार करना चाहिए?", answers: [ { text: "ठंडा पानी डालना", correct: true }, { text: "गर्म पानी डालना", correct: false }, { text: "अस्पताल पहुँचाना", correct: false }, { text: "तेल लगाना", correct: false } ] },
+        { question: "10. बस्ती/मकान में आग लगने की स्थिति में क्या करना चाहिए?", answers: [ { text: "अग्निशामक यंत्र को बुलाना", correct: true }, { text: "दरवाजे-खिड़कियाँ लगाना", correct: false }, { text: "आग बुझने का इंतजार करना", correct: false }, { text: "भाग जाना", correct: false } ] },
+        { question: "11. सुनामी किस स्थान पर आता है?", answers: [ { text: "स्थल", correct: false }, { text: "समुद्र", correct: true }, { text: "आसमान", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "12. सामान्य संचार व्यवस्था के बाधित होने का मुख्य कारण है?", answers: [ { text: "केबुल का टूट जाना", correct: true }, { text: "संचार टावरों की दूरी", correct: false }, { text: "टावरों की ऊँचाई में कमी", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "13. संचार का सबसे लोकप्रिय साधन है?", answers: [ { text: "सार्वजनिक टेलीफोन", correct: false }, { text: "मोबाइल", correct: true }, { text: "वाकी-टॉकी", correct: false }, { text: "रेडियो", correct: false } ] },
+        { question: "14. सुदूर संवेदी उपग्रह (Remote Sensing Satellite) का प्रयोग किसलिए होता है?", answers: [ { text: "दूरसंचार के लिए", correct: false }, { text: "मौसम विज्ञान के लिए", correct: false }, { text: "संसाधनों की खोज के लिए", correct: true }, { text: "सभी के लिए", correct: false } ] },
+        { question: "15. बिहार में भूकंप कब आया था?", answers: [ { text: "1934", correct: true }, { text: "1904", correct: false }, { text: "2008", correct: false }, { text: "1997", correct: false } ] },
+        { question: "16. भूकंप के मापन किसके द्वारा होता है?", answers: [ { text: "मल्टीमीटर", correct: false }, { text: "फोकस", correct: false }, { text: "रिक्टर स्केल", correct: true }, { text: "सुनामी", correct: false } ] },
+        { question: "17. निम्न में से कौन भूकंप का सर्वाधिक संवेदनशील नगर है?", answers: [ { text: "देहरादून", correct: true }, { text: "राँची", correct: false }, { text: "हैदराबाद", correct: false }, { text: "चेन्नई", correct: false } ] },
+        { question: "18. भूस्खलन वाले क्षेत्र में ढलान पर मकानों का निर्माण क्या है?", answers: [ { text: "उचित", correct: false }, { text: "अनुचित", correct: true }, { text: "लाभकारी", correct: false }, { text: "उपयोगी", correct: false } ] },
+        { question: "19. रिंग बांध किसके लिए उपयोगी होता है?", answers: [ { text: "सूखा", correct: false }, { text: "चक्रवात", correct: false }, { text: "बाढ़", correct: true }, { text: "सुनामी", correct: false } ] },
+        { question: "20. 'भूकंप संभावित क्षेत्रों' में भवनों की आकृति कैसी होनी चाहिए?", answers: [ { text: "अंडाकार", correct: false }, { text: "त्रिभुजाकार", correct: false }, { text: "चौकोर", correct: false }, { text: "आयताकार", correct: true } ] },
+        { question: "21. सूखा (Drought) किस प्रकार की आपदा है?", answers: [ { text: "प्राकृतिक आपदा", correct: true }, { text: "मानवीय आपदा", correct: false }, { text: "सामान्य आपदा", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "22. सूखे के लिए जिम्मेदार कारक है?", answers: [ { text: "बाढ़", correct: false }, { text: "भूकंप", correct: false }, { text: "वर्षा की कमी", correct: true }, { text: "ज्वालामुखी विस्फोट", correct: false } ] },
+        { question: "23. महासागर के तली में होने वाले कंपन को किस नाम से जाना जाता है?", answers: [ { text: "भूकंप", correct: false }, { text: "चक्रवात", correct: false }, { text: "सुनामी", correct: true }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "24. 26 दिसंबर 2004 को विश्व के किस हिस्से में भयंकर सुनामी आया था?", answers: [ { text: "पश्चिम एशिया", correct: false }, { text: "प्रशांत महासागर", correct: false }, { text: "अटलांटिक महासागर", correct: false }, { text: "बंगाल की खाड़ी", correct: true } ] },
+        { question: "25. भारत में विनाशकारी चक्रवात किस वर्ष आया था?", answers: [ { text: "29 अक्टूबर 1999", correct: true }, { text: "2001", correct: false }, { text: "2004", correct: false }, { text: "2008", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🚨 बहुत बढ़िया! आप सुरक्षित हैं और तैयार भी!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर थोड़ा और ध्यान दें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "⚠️ आपदा प्रबंधन को हल्के में न लें, पढ़ें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

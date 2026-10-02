@@ -1,0 +1,59 @@
+{
+  "name": "EduBzz: Bihar Board & CBSE Study App",
+  "short_name": "EduBzz",
+  "description": "India's No.1 study app for BSEB and CBSE. Get Class 9-12 handwritten notes, AI doubt solver, and live quizzes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eaf6fc",
+  "theme_color": "#4196c8",
+  "orientation": "portrait-primary",
+  "dir": "ltr",
+  "lang": "en-IN",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "edubzz.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "edubzz.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "AI Doubt Solver",
+      "short_name": "AI Solver",
+      "description": "Solve your study doubts instantly using AI",
+      "url": "/ai-solver.html",
+      "icons": [
+        {
+          "src": "edubzz.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Live Science Battle",
+      "short_name": "Play Battle",
+      "description": "Challenge friends in live quizzes",
+      "url": "/battle.html",
+      "icons": [
+        {
+          "src": "edubzz.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}

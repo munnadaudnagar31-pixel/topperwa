@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Kavya Ch-1: राम नाम बिनु बिरथे..</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL HINDI THEME (Saffron) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            --header-gradient: linear-gradient(135deg, #e65100 0%, #ff6f00 100%);
+            --card-bg: #ffffff;
+            --text-main: #3e2723;
+            --text-sub: #e65100;
+            --option-bg: #fff8e1;
+            --correct-color: #2e7d32; /* Green */
+            --wrong-color: #c62828;   /* Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            background: var(--header-gradient);
+            padding: 20px 25px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10; box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%; transition: 0.2s;
+        }
+        .close-btn:active { transform: scale(0.9); }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 18px; border-radius: 30px;
+            font-family: 'Poppins', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: #ffe0b2; }
+        .progress-bar { height: 100%; background: #ef6c00; width: 0%; transition: width 0.3s ease; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 650px;
+            padding: 30px; border-radius: 24px; box-shadow: 0 15px 40px rgba(230, 81, 0, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px; position: relative;
+            border-top: 5px solid #ff6f00;
+        }
+
+        /* Literature Decoration */
+        .question-card::before {
+            content: '“'; position: absolute; top: 10px; left: 20px; font-size: 60px;
+            color: #fff3e0; font-family: 'Lora', serif; z-index: 0;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+        .q-count { font-size: 13px; font-weight: 700; color: #fff; background: #e65100; padding: 4px 12px; border-radius: 20px; }
+        .q-subject { font-size: 13px; font-weight: 700; color: #e65100; letter-spacing: 1px; }
+
+        .question-text { 
+            font-size: 19px; font-weight: 600; margin-bottom: 25px; line-height: 1.6; 
+            color: #3e2723; position: relative; z-index: 1;
+        }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 16px; color: #4e342e; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .option-circle {
+            width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffcc80;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; 
+            font-size: 14px; color: #ff9800; font-weight: 700; transition: 0.2s;
+        }
+
+        .option-btn:active { transform: scale(0.98); background: #ffe0b2; }
+        
+        /* Correct State */
+        .option-btn.correct { background: #e8f5e9; border-color: var(--correct-color); color: #1b5e20; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); color: white; content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #ffebee; border-color: var(--wrong-color); color: var(--wrong-color); animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); color: white; }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: var(--header-gradient);
+            color: white; border: none; width: 100%; max-width: 650px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(230, 81, 0, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px; background: #fff3e0;
+            border-radius: 30px; padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(230, 81, 0, 0.15);
+        }
+
+        .score-circle {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: white; border: 8px solid #e65100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .score-num { font-size: 38px; font-weight: 800; color: #e65100; line-height: 1; }
+        .score-label { font-size: 11px; color: #ef6c00; font-weight: 700; margin-top: 5px; letter-spacing: 1px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .stat-val { font-size: 18px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 10px; color: #5d4037; font-weight: 600; text-transform: uppercase; }
+
+        .green-text { color: #2e7d32; }
+        .red-text { color: #c62828; }
+        .blue-text { color: #1565c0; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 16px; border-radius: 16px;
+            font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #e65100; color: white; box-shadow: 0 5px 15px rgba(230, 81, 0, 0.3); }
+        .btn-secondary { background: #ffe0b2; color: #e65100; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="hindi_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box">
+            <span>⏳</span> <span id="time-left">15:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">1 / 50</span>
+                <span class="q-subject">राम नाम बिनु बिरथे..</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#e65100; margin-bottom: 10px;">Quiz Complete!</h2>
+            <p style="color:#ef6c00; font-size:14px; margin-bottom: 25px;">गुरु नानक</p>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#5d4037; font-size:14px; margin-bottom:25px; line-height:1.4;">बहुत अच्छा!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='hindi_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MCQs from 'Ram Naam Binu Birthe...' ---
+        const questions = [
+            { q: "'राम नाम बिनु बिरथे जगी जनमा' कविता के कवि कौन हैं?", o: ["गुरु नानक", "रसखान", "घनानंद", "प्रेमघन"], a: 0 },
+            { q: "गुरु नानक का जन्म कब हुआ था?", o: ["1469 ई०", "1470 ई०", "1468 ई०", "1475 ई०"], a: 0 },
+            { q: "गुरु नानक का जन्म स्थान कहाँ है?", o: ["तलवंडी (ननकाना साहब)", "लाहौर", "अमृतसर", "पटना"], a: 0 },
+            { q: "तलवंडी वर्तमान में कहाँ स्थित है?", o: ["पाकिस्तान में", "भारत में", "नेपाल में", "अफगानिस्तान में"], a: 0 },
+            { q: "सिख धर्म का प्रवर्तन किसने किया?", o: ["गुरु नानक ने", "गुरु गोबिंद सिंह ने", "गुरु अर्जुन देव ने", "गुरु तेग बहादुर ने"], a: 0 },
+            { q: "गुरु नानक के पिता का क्या नाम था?", o: ["कालूचंद खत्री", "मूलचंद", "लालचंद", "दयाचंद"], a: 0 },
+            { q: "गुरु नानक की माता का क्या नाम था?", o: ["तृप्ता", "सुलक्षणी", "पुतलीबाई", "शांति"], a: 0 },
+            { q: "गुरु नानक की पत्नी का क्या नाम था?", o: ["सुलक्षणी", "तृप्ता", "लक्ष्मी", "मीरा"], a: 0 },
+            { q: "गुरु नानक ने किस भक्ति का प्रचार किया?", o: ["निर्गुण ब्रह्म की भक्ति", "सगुण भक्ति", "सूफी मत", "कृष्ण भक्ति"], a: 0 },
+            { q: "गुरु नानक की रचनाओं का संग्रह किस नाम से प्रसिद्ध है?", o: ["गुरु ग्रंथ साहिब", "बीजक", "साखी", "पद"], a: 0 },
+            { q: "गुरु ग्रंथ साहिब का संपादन किसने किया?", o: ["गुरु अर्जुन देव ने", "गुरु गोबिंद सिंह ने", "गुरु नानक ने", "गुरु तेग बहादुर ने"], a: 0 },
+            { q: "गुरु ग्रंथ साहिब का संपादन कब हुआ?", o: ["1604 ई०", "1605 ई०", "1600 ई०", "1610 ई०"], a: 0 },
+            { q: "कवि के अनुसार, किसके बिना जगत में जन्म लेना व्यर्थ है?", o: ["राम नाम के बिना", "धन के बिना", "पुत्र के बिना", "गुरु के बिना"], a: 0 },
+            { q: "राम नाम के बिना व्यक्ति क्या खाता है?", o: ["बिख (विष)", "अमृत", "फल", "अन्न"], a: 0 },
+            { q: "राम नाम के बिना व्यक्ति की वाणी कैसी हो जाती है?", o: ["विष के समान", "अमृत के समान", "कठोर", "मधुर"], a: 0 },
+            { q: "'बिख' का अर्थ क्या है?", o: ["विष (जहर)", "अमृत", "भोजन", "पानी"], a: 0 },
+            { q: "कवि के अनुसार, सच्चा सुख कहाँ है?", o: ["हरि रस (ईश्वर भक्ति) में", "महलों में", "धन में", "तीर्थ में"], a: 0 },
+            { q: "गुरु नानक ने किसे व्यर्थ माना है?", o: ["बाह्य आडंबर और कर्मकांड को", "सत्य को", "प्रेम को", "भक्ति को"], a: 0 },
+            { q: "'जपुजी', 'आसादीवार' और 'रहिरास' किसकी रचनाएँ हैं?", o: ["गुरु नानक की", "कबीर की", "रसखान की", "घनानंद की"], a: 0 },
+            { q: "गुरु नानक की मृत्यु कब हुई?", o: ["1539 ई०", "1540 ई०", "1538 ई०", "1545 ई०"], a: 0 },
+            { q: "मरते समय गुरु नानक ने क्या कहा था?", o: ["वाह गुरु", "हे राम", "अल्लाह", "हरि ओम"], a: 0 },
+            { q: "जो नर दुख में दुख नहिं मानै - यह पंक्ति किस पाठ की है?", o: ["राम नाम बिनु बिरथे जगी जनमा", "स्वदेशी", "भारतमाता", "जनतंत्र का जन्म"], a: 0 },
+            { q: "किसके बिना प्राणी को मुक्ति नहीं मिलती?", o: ["गुरु ज्ञान के बिना", "तीर्थ यात्रा के बिना", "दान के बिना", "पूजा के बिना"], a: 0 },
+            { q: "ब्रह्म (ईश्वर) का निवास कहाँ होता है?", o: ["जो नर दुख में दुख नहीं मानता (सच्चे हृदय में)", "मंदिर में", "मस्जिद में", "तीर्थ में"], a: 0 },
+            { q: "गुरु नानक किस मुगल बादशाह से मिले थे?", o: ["बाबर", "हुमायूँ", "अकबर", "जहाँगीर"], a: 0 },
+            { q: "हरिरस से कवि का क्या अभिप्राय है?", o: ["ईश्वर की भक्ति", "कड़वा रस", "नारियल पानी", "सोमरस"], a: 0 },
+            { q: "गुरु नानक की दृष्टि में ब्रह्म का निवास कहाँ है?", o: ["अंतःकरण (हृदय) में", "आकाश में", "पाताल में", "पर्वत पर"], a: 0 },
+            { q: "गुरु नानक ने किस भाषा में कविताएँ लिखीं?", o: ["पंजाबी और हिंदी (ब्रजभाषा)", "केवल पंजाबी", "केवल हिंदी", "संस्कृत"], a: 0 },
+            { q: "गुरु नानक की हिंदी में किसका मेल है?", o: ["ब्रजभाषा और खड़ी बोली", "अवधी", "मैथिली", "भोजपुरी"], a: 0 },
+            { q: "'सिख' शब्द का अर्थ क्या है?", o: ["शिष्य", "सैनिक", "गुरु", "राजा"], a: 0 },
+            { q: "गुरु नानक ने जगत का सार किसे कहा है?", o: ["हरि कीर्तन (नाम) को", "धन को", "पूजा को", "कर्म को"], a: 0 },
+            { q: "'सुलक्षणी' कौन थी?", o: ["गुरु नानक की पत्नी", "गुरु नानक की माँ", "गुरु नानक की शिष्या", "पड़ोसिन"], a: 0 },
+            { q: "गुरु कृपा की महत्ता का वर्णन किस कवि ने किया है?", o: ["गुरु नानक", "प्रेमघन", "रसखान", "सुमित्रानंदन पंत"], a: 0 },
+            { q: "जो नर दुख में दुख नहिं मानै, सुख सनेह अरु भय नहिं जाकै, कंचन माटी जानै। इसमें 'कंचन' का अर्थ क्या है?", o: ["सोना (Gold)", "काँच", "चाँदी", "हीरा"], a: 0 },
+            { q: "नानक लीन भयो गोविंद सों, ज्यों पानी संग _____।", o: ["पानी", "तेल", "दूध", "रंग"], a: 0 },
+            { q: "वाणी कब विष के समान हो जाती है?", o: ["राम नाम के बिना", "क्रोध में", "झूठ बोलने पर", "चुप रहने पर"], a: 0 },
+            { q: "कौन से कर्मकांड व्यर्थ हैं?", o: ["शिखा बढ़ाना, जनेऊ पहनना, तीर्थ करना", "सत्य बोलना", "सेवा करना", "ध्यान करना"], a: 0 },
+            { q: "गुरु नानक ने प्रचार किया:", o: ["निर्गुण ब्रह्म का", "सगुण ब्रह्म का", "मूर्तियों का", "हिंसा का"], a: 0 },
+            { q: "गुरु नानक के पद किस भाषा में हैं?", o: ["पंजाबी मिश्रित ब्रजभाषा", "तमिल", "मराठी", "उर्दू"], a: 0 },
+            { q: "'रहिरास' किसकी रचना है?", o: ["गुरु नानक", "गुरु गोबिंद सिंह", "नामदेव", "कबीर"], a: 0 },
+            { q: "किस कवि ने वर्णाश्रम व्यवस्था और कर्मकांड का विरोध किया?", o: ["गुरु नानक", "घनानंद", "रसखान", "दिनकर"], a: 0 },
+            { q: "राम नाम बिनु अरुझि मरै - इसका अर्थ है?", o: ["राम नाम के बिना संसार में उलझकर मर जाता है", "राम नाम से मर जाता है", "संसार अच्छा है", "राम नाम कठिन है"], a: 0 },
+            { q: "गुरु नानक देव ने क्या कहते हुए प्राण त्यागे?", o: ["वाह गुरु", "हे राम", "जय हिंद", "सत श्री अकाल"], a: 0 },
+            { q: "गुरु नानक की रचनाओं का संग्रह सिखों के कौन से गुरु ने किया?", o: ["पाँचवें गुरु (अर्जुन देव)", "पहले गुरु", "दसवें गुरु", "दूसरे गुरु"], a: 0 },
+            { q: "'सोहिला' किसकी रचना है?", o: ["गुरु नानक", "सूरदास", "तुलसीदास", "कबीर"], a: 0 },
+            { q: "गुरु नानक के अनुसार, शांति किसे मिलती है?", o: ["जो राम नाम का जप करता है", "जो धन कमाता है", "जो सोता है", "जो लड़ता है"], a: 0 },
+            { q: "गुरु नानक ने मानव जीवन का सही उद्देश्य क्या बताया है?", o: ["ईश्वर प्राप्ति", "धन प्राप्ति", "यश प्राप्ति", "सत्ता प्राप्ति"], a: 0 },
+            { q: "डंड कमंडल सिखा सूत धोती, तीरथ गवनु अति भ्रमनु करै - यह पंक्ति किस पाठ से है?", o: ["राम नाम बिनु बिरथे...", "प्रेम अयनि श्री राधिका", "अति सूधो सनेह...", "स्वदेशी"], a: 0 },
+            { q: "गुरु नानक ने किसे 'ब्रह्म' के समान माना है?", o: ["सच्चे गुरु को", "राजा को", "पिता को", "मित्र को"], a: 0 },
+            { q: "गुरु नानक किस काल के कवि हैं?", o: ["भक्तिकाल", "आदिकाल", "रीतिकाल", "आधुनिक काल"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer
+        let timeLeft = 900; // 15 Minutes
+        let timerInterval;
+
+        // Elements
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 60) {
+                        timerDisplay.style.color = '#c62828';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index);
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                // VIBRATION (Android)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "राम नाम के प्रेमी! आप सच्चे भक्त हैं! 🙏";
+            else if(accuracy >= 70) feedback.innerText = "बहुत बढ़िया! गुरु नानक की वाणी आपको याद है। 👍";
+            else if(accuracy >= 50) feedback.innerText = "अच्छा प्रयास। हरि रस का पान करें (पढ़ें)। 📖";
+            else feedback.innerText = "व्यर्थ न गवाएं जीवन! फिर से पढ़ें। 🔥";
+        }
+    </script>
+</body>
+</html>

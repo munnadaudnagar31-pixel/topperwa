@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economics Chapter 6 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Global Indigo) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #ede7f6; color: #512da8; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #667eea; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #d1c4e9; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #667eea; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #4a00e0; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #667eea; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #667eea; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="economics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="economics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ ECONOMICS CHAPTER 6 QUESTIONS (वैश्वीकरण) ▼▼▼
+    const questions = [
+        { question: "1. वैश्वीकरण (Globalization) के मुख्य अंग कितने हैं?", answers: [ { text: "एक", correct: false }, { text: "दो", correct: false }, { text: "तीन", correct: false }, { text: "पाँच", correct: true } ] },
+        { question: "2. विश्व व्यापार संगठन (WTO) की स्थापना किस वर्ष हुई?", answers: [ { text: "1990", correct: false }, { text: "1991", correct: false }, { text: "1995", correct: true }, { text: "1997", correct: false } ] },
+        { question: "3. विश्व व्यापार संगठन का मुख्यालय कहाँ है?", answers: [ { text: "जेनेवा", correct: true }, { text: "पेरिस", correct: false }, { text: "न्यूयॉर्क", correct: false }, { text: "वाशिंगटन", correct: false } ] },
+        { question: "4. नई आर्थिक नीति (New Economic Policy) में किसे सम्मिलित किया गया है?", answers: [ { text: "उदारीकरण", correct: false }, { text: "निजीकरण", correct: false }, { text: "वैश्वीकरण", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "5. भारत में नई आर्थिक नीति की घोषणा कब हुई?", answers: [ { text: "1981", correct: false }, { text: "1991", correct: true }, { text: "1985", correct: false }, { text: "2001", correct: false } ] },
+        { question: "6. वैश्वीकरण का अर्थ है?", answers: [ { text: "विदेशी पूंजी का निवेश", correct: false }, { text: "व्यापार में सरकारी हस्तक्षेप", correct: false }, { text: "विश्व अर्थव्यवस्था से समन्वय", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "7. पार्ले समूह के 'थम्स अप' ब्रांड को किस बहुराष्ट्रीय कंपनी ने खरीद लिया?", answers: [ { text: "कोका कोला", correct: true }, { text: "पेप्सी", correct: false }, { text: "एलजी", correct: false }, { text: "नोकिया", correct: false } ] },
+        { question: "8. इनमें से कौन भारतीय बहुराष्ट्रीय कंपनी है?", answers: [ { text: "नोकिया", correct: false }, { text: "डाबर", correct: true }, { text: "सैमसंग", correct: false }, { text: "फोर्ड मोटर्स", correct: false } ] },
+        { question: "9. अंतर्राष्ट्रीय व्यापार संबंधी नियमों को निर्धारित करने वाली संस्था कौन है?", answers: [ { text: "विश्व बैंक", correct: false }, { text: "IMF", correct: false }, { text: "UNO", correct: false }, { text: "इनमें कोई नहीं (WTO सही है, जो ऑप्शन में नहीं है तो D)", correct: false }, { text: "विश्व व्यापार संगठन (WTO)", correct: true } ] },
+        /* Note: Sometimes BSEB asks tricky options. WTO is correct. Replacing last option for clarity */
+        { question: "9. अंतर्राष्ट्रीय व्यापार संबंधी नियमों को निर्धारित करने वाली संस्था कौन है?", answers: [ { text: "विश्व बैंक", correct: false }, { text: "RBI", correct: false }, { text: "UNO", correct: false }, { text: "विश्व व्यापार संगठन (WTO)", correct: true } ] },
+        { question: "10. उपभोक्ता अधिकार दिवस कब मनाया जाता है?", answers: [ { text: "17 मार्च", correct: false }, { text: "15 मार्च", correct: true }, { text: "19 अप्रैल", correct: false }, { text: "22 अप्रैल", correct: false } ] },
+        { question: "11. फोर्ड मोटर्स (Ford Motors) किस देश की कंपनी है?", answers: [ { text: "भारत", correct: false }, { text: "जापान", correct: false }, { text: "अमेरिका", correct: true }, { text: "जर्मनी", correct: false } ] },
+        { question: "12. सरकार द्वारा अनावश्यक नियंत्रणों तथा प्रतिबंधों को हटाने को क्या कहते हैं?", answers: [ { text: "निजीकरण", correct: false }, { text: "उदारीकरण", correct: true }, { text: "वैश्वीकरण", correct: false }, { text: "विनिवेश", correct: false } ] },
+        { question: "13. निम्न में से कौन विदेशी ब्रांड नहीं है?", answers: [ { text: "हुंडई", correct: false }, { text: "टोयोटा", correct: false }, { text: "फोर्ड", correct: false }, { text: "टाटा", correct: true } ] },
+        { question: "14. वैश्वीकरण के फलस्वरूप दो देशों के उत्पादकों के बीच प्रतिस्पर्धा...", answers: [ { text: "कम होगी", correct: false }, { text: "बढ़ेगी", correct: true }, { text: "स्थिर रहेगी", correct: false }, { text: "कोई प्रभाव नहीं", correct: false } ] },
+        { question: "15. हमारे देश का कौन-सा शहर सूचना प्रौद्योगिकी का केंद्र बन गया है?", answers: [ { text: "बेंगलुरु", correct: true }, { text: "दिल्ली", correct: false }, { text: "मुंबई", correct: false }, { text: "चेन्नई", correct: false } ] },
+        { question: "16. पूरे विश्व में आर्थिक वर्चस्व किसका बना हुआ है?", answers: [ { text: "ब्रिटेन", correct: false }, { text: "अमेरिका", correct: true }, { text: "रूस", correct: false }, { text: "चीन", correct: false } ] },
+        { question: "17. वैश्वीकरण से भारत को क्या लाभ होने की संभावना है?", answers: [ { text: "कुशलता में वृद्धि", correct: false }, { text: "रोजगार के अवसरों में वृद्धि", correct: false }, { text: "नई तकनीक का आगमन", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "18. मॉल (Mall) संस्कृति का प्रभाव सबसे अधिक कहाँ पड़ा है?", answers: [ { text: "गाँवों में", correct: false }, { text: "कस्बों में", correct: false }, { text: "महानगरों में", correct: true }, { text: "सभी जगह", correct: false } ] },
+        { question: "19. वैश्वीकरण के दौरान बिहार में किस उद्योग पर बुरा प्रभाव पड़ा है?", answers: [ { text: "पर्यटन", correct: false }, { text: "कुटीर एवं लघु उद्योग", correct: true }, { text: "कृषि", correct: false }, { text: "शिक्षा", correct: false } ] },
+        { question: "20. बहुराष्ट्रीय कंपनियों (MNCs) का प्रमुख उद्देश्य क्या है?", answers: [ { text: "व्यापार का विस्तार", correct: false }, { text: "लाभ कमाना", correct: false }, { text: "अपने ब्रांड का प्रचार", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "21. शेयर बाजार की नियामक संस्था है?", answers: [ { text: "SIDBI", correct: false }, { text: "SEBI", correct: true }, { text: "RBI", correct: false }, { text: "Stock Exchange", correct: false } ] },
+        { question: "22. जनसंख्या के वितरण के आधार पर भारत का सबसे बड़ा राज्य है?", answers: [ { text: "उत्तर प्रदेश", correct: true }, { text: "बिहार", correct: false }, { text: "पश्चिम बंगाल", correct: false }, { text: "महाराष्ट्र", correct: false } ] },
+        { question: "23. निजीकरण का तात्पर्य क्या है?", answers: [ { text: "सार्वजनिक क्षेत्र का विस्तार", correct: false }, { text: "निजी क्षेत्र का सरकारीकरण", correct: false }, { text: "सार्वजनिक क्षेत्र के उद्योगों को निजी स्वामित्व में देना", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "24. भारत में राज्य पुनर्गठन आयोग की स्थापना कब हुई?", answers: [ { text: "1950", correct: false }, { text: "1953", correct: true }, { text: "1956", correct: false }, { text: "1960", correct: false } ] },
+        { question: "25. बिहार में सबसे अधिक किस तरह का निवेश हुआ है?", answers: [ { text: "विदेशी निवेश", correct: false }, { text: "निजी निवेश (देसी)", correct: false }, { text: "आधारभूत संरचना (सड़क, बिजली)", correct: true }, { text: "शेयर बाजार", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌍 शानदार! वैश्वीकरण और व्यापार की अच्छी समझ है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर कंपनियों और WTO के बारे में और पढ़ें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

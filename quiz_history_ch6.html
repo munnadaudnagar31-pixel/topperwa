@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 6 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Urban City Blue) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e3f2fd; color: #1565c0; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #3498db; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #d6eaf8; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #2980b9; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #3498db; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #3498db; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 6 QUESTIONS (शहरीकरण एवं शहरी जीवन) ▼▼▼
+    const questions = [
+        { question: "1. 'गार्डेन सिटी' की अवधारणा किसने विकसित की थी?", answers: [ { text: "एबेनेजर हावर्ड ने", correct: true }, { text: "विलियम ने", correct: false }, { text: "नेपोलियन तृतीय ने", correct: false }, { text: "हॉस्मान ने", correct: false } ] },
+        { question: "2. स्थायी कृषि के प्रभाव से कैसा जमाव संभव हुआ?", answers: [ { text: "संपत्ति", correct: true }, { text: "ज्ञान", correct: false }, { text: "शांति", correct: false }, { text: "बहुमूल्य धातु", correct: false } ] },
+        { question: "3. लंदन में अनिवार्य प्राथमिक शिक्षा कब लागू हुई?", answers: [ { text: "1850", correct: false }, { text: "1855", correct: false }, { text: "1860", correct: false }, { text: "1870", correct: true } ] },
+        { question: "4. पूँजीपति वर्ग के द्वारा किस वर्ग का शोषण हुआ?", answers: [ { text: "श्रमिक वर्ग", correct: false }, { text: "मध्यम वर्ग", correct: false }, { text: "कृषक वर्ग", correct: false }, { text: "सभी वर्ग", correct: true } ] },
+        { question: "5. जनसंख्या का घनत्व सबसे अधिक कहाँ होता है?", answers: [ { text: "ग्राम", correct: false }, { text: "कस्बा", correct: false }, { text: "नगर", correct: false }, { text: "महानगर", correct: true } ] },
+        { question: "6. कौन-सा सामाजिक वर्ग बुद्धिजीवी वर्ग के रूप में उभर कर आया?", answers: [ { text: "उद्योगपति वर्ग", correct: false }, { text: "पूँजीपति वर्ग", correct: false }, { text: "श्रमिक वर्ग", correct: false }, { text: "मध्यम वर्ग", correct: true } ] },
+        { question: "7. सामंती व्यवस्था से हटकर किस प्रकार की शहरी व्यवस्था की प्रवृत्ति बढ़ी?", answers: [ { text: "प्रगतिशील प्रवृत्ति", correct: true }, { text: "आक्रामक प्रवृत्ति", correct: false }, { text: "रुढ़िवादी प्रवृत्ति", correct: false }, { text: "शोषणकारी प्रवृत्ति", correct: false } ] },
+        { question: "8. पटना में गोलघर किस उद्देश्य से बनाया गया था?", answers: [ { text: "सैनिक रखने के लिए", correct: false }, { text: "अस्त्र-शस्त्र रखने के लिए", correct: false }, { text: "अनाज रखने के लिए", correct: true }, { text: "पूजा करने के लिए", correct: false } ] },
+        { question: "9. सिखों के दसवें और अंतिम गुरु गोविंद सिंह का जन्म बिहार के किस नगर में हुआ था?", answers: [ { text: "मुंगेर", correct: false }, { text: "खगड़िया", correct: false }, { text: "पटना", correct: true }, { text: "गया", correct: false } ] },
+        { question: "10. इंडिका किसकी रचना है?", answers: [ { text: "चंद्रगुप्त मौर्य", correct: false }, { text: "मेगास्थनीज", correct: true }, { text: "चाणक्य", correct: false }, { text: "अशोक", correct: false } ] },
+        { question: "11. पटना में गोलघर का निर्माण किस वर्ष किया गया?", answers: [ { text: "1757", correct: false }, { text: "1764", correct: false }, { text: "1786", correct: true }, { text: "1857", correct: false } ] },
+        { question: "12. अंग्रेज यात्री रॉल्फ फिच (Ralph Fitch) ने पटना की यात्रा किस वर्ष की थी?", answers: [ { text: "1856", correct: true }, { text: "1857", correct: false }, { text: "1858", correct: false }, { text: "1859", correct: false } ] },
+        { question: "13. विश्व में सबसे पहले भूमिगत रेल (Underground Railway) कब बनी?", answers: [ { text: "1853", correct: false }, { text: "1863", correct: true }, { text: "1914", correct: false }, { text: "1925", correct: false } ] },
+        { question: "14. विश्व में सबसे पहली भूमिगत रेल कहाँ बनी?", answers: [ { text: "लंदन में", correct: true }, { text: "पेरिस में", correct: false }, { text: "न्यूयॉर्क में", correct: false }, { text: "दिल्ली में", correct: false } ] },
+        { question: "15. 'द बिटर क्राई ऑफ आउटकास्ट लंदन' के लेखक थे?", answers: [ { text: "गैरेथ स्टेडमैन जोन्स", correct: false }, { text: "हेनरी मेह्यू", correct: false }, { text: "एंड्र्यू मियर्स", correct: true }, { text: "चार्ल्स डिकेंस", correct: false } ] },
+        { question: "16. लंदन में 'रैनबसेरे' (Night Shelters) किनके लिए बनाए गए?", answers: [ { text: "धनी लोगों के लिए", correct: false }, { text: "बेसहारा लोगों के लिए", correct: true }, { text: "पर्यटकों के लिए", correct: false }, { text: "व्यापारियों के लिए", correct: false } ] },
+        { question: "17. 'टेनेमेंट्स' (Tenements) क्या थे?", answers: [ { text: "कामचलाऊ मकान", correct: true }, { text: "पक्के मकान", correct: false }, { text: "महल", correct: false }, { text: "होटल", correct: false } ] },
+        { question: "18. सबसे पहले भूमिगत रेल किन दो स्टेशनों के बीच चली?", answers: [ { text: "पैडिंगटन और फैरिंगटन", correct: true }, { text: "लंदन और पेरिस", correct: false }, { text: "पेरिस और रोम", correct: false }, { text: "न्यूयॉर्क और वाशिंगटन", correct: false } ] },
+        { question: "19. सिटी ऑफ बॉम्बे इम्प्रूवमेंट ट्रस्ट की स्थापना कब हुई?", answers: [ { text: "1898", correct: true }, { text: "1899", correct: false }, { text: "1905", correct: false }, { text: "1911", correct: false } ] },
+        { question: "20. पटना का प्राचीन नाम क्या था?", answers: [ { text: "राजगृह", correct: false }, { text: "पाटलिपुत्र", correct: true }, { text: "पावापुरी", correct: false }, { text: "नालंदा", correct: false } ] },
+        { question: "21. बिहार को बंगाल से कब अलग किया गया?", answers: [ { text: "1911", correct: false }, { text: "1912", correct: true }, { text: "1936", correct: false }, { text: "1947", correct: false } ] },
+        { question: "22. विशाल स्नानागार कहाँ बना है?", answers: [ { text: "मोहनजोदड़ो", correct: true }, { text: "हड़प्पा", correct: false }, { text: "लोथल", correct: false }, { text: "धौलावीरा", correct: false } ] },
+        { question: "23. पेरिस के पुनर्निर्माण का उद्देश्य क्या था?", answers: [ { text: "पर्यटन बढ़ाना", correct: false }, { text: "भव्य नगर बनाना", correct: true }, { text: "गरीबों को बसाना", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "24. बैरॉन हॉस्मान कौन था?", answers: [ { text: "इंग्लैंड का इंजीनियर", correct: false }, { text: "सियों का प्रीफेक्ट", correct: true }, { text: "अमेरिका का वास्तुकार", correct: false }, { text: "भारत का वायसराय", correct: false } ] },
+        { question: "25. आधुनिक काल में औद्योगीकरण ने किसके स्वरूप को गहन रूप से प्रभावित किया?", answers: [ { text: "गाँव", correct: false }, { text: "कस्बा", correct: false }, { text: "शहर", correct: true }, { text: "बंदरगाह", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🏙️ बेहतरीन! आपको शहरों के इतिहास की अच्छी जानकारी है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर तारीखें (Dates) याद रखें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 इस चैप्टर को और पढ़ने की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economics Chapter 1 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Wealth Teal) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e0f2f1; color: #00695c; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #11998e; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #b2dfdb; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #11998e; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #00695c; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #11998e; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #11998e; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="economics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="economics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ ECONOMICS CHAPTER 1 QUESTIONS (अर्थव्यवस्था एवं इसके विकास का इतिहास) ▼▼▼
+    const questions = [
+        { question: "1. मानव विकास की दृष्टि से भारत के पड़ोसी देशों में किस देश की आर्थिक स्थिति इससे बेहतर है?", answers: [ { text: "बांग्लादेश", correct: false }, { text: "नेपाल", correct: false }, { text: "म्यांमार", correct: false }, { text: "श्रीलंका", correct: true } ] },
+        { question: "2. निम्नलिखित में किस राज्य को एक 'पिछड़ा राज्य' कहा जाता है?", answers: [ { text: "पंजाब", correct: false }, { text: "हरियाणा", correct: false }, { text: "गुजरात", correct: false }, { text: "बिहार", correct: true } ] },
+        { question: "3. अर्थव्यवस्था के मुख्यत: कितने प्रकार होते हैं?", answers: [ { text: "दो", correct: false }, { text: "तीन (पूंजीवादी, समाजवादी, मिश्रित)", correct: true }, { text: "चार", correct: false }, { text: "अनेक", correct: false } ] },
+        { question: "4. भारत में नीति आयोग (योजना आयोग) की स्थापना कब हुई?", answers: [ { text: "1948", correct: false }, { text: "1950", correct: true }, { text: "1951", correct: false }, { text: "2015", correct: false } ] },
+        /* Note: Planning Commission 1950, NITI Aayog 2015. Question refers to the original establishment generally asked in Bihar Board */
+        { question: "5. जिस देश की राष्ट्रीय आय अधिक होती है, वह देश कहलाता है?", answers: [ { text: "अविकसित", correct: false }, { text: "विकसित", correct: true }, { text: "अर्द्ध-विकसित", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "6. इनमें से किसे 'प्राथमिक क्षेत्र' भी कहा जाता है?", answers: [ { text: "सेवा क्षेत्र", correct: false }, { text: "कृषि क्षेत्र", correct: true }, { text: "औद्योगिक क्षेत्र", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "7. भारत में किस राज्य की प्रति व्यक्ति आय सर्वाधिक है?", answers: [ { text: "बिहार", correct: false }, { text: "पंजाब", correct: false }, { text: "गोवा", correct: true }, { text: "हरियाणा", correct: false } ] },
+        { question: "8. बिहार के किस जिले की प्रति व्यक्ति आय सर्वाधिक है?", answers: [ { text: "पटना", correct: true }, { text: "गया", correct: false }, { text: "शिवहर", correct: false }, { text: "नालंदा", correct: false } ] },
+        { question: "9. उत्पादन एवं आय गणना विधि आर्थिक दृष्टिकोण से है?", answers: [ { text: "सहज", correct: false }, { text: "वैज्ञानिक", correct: false }, { text: "व्यावहारिक", correct: false }, { text: "उपर्युक्त तीनों", correct: true } ] },
+        { question: "10. 'बिहार के विकास के बिना भारत का विकास संभव नहीं है' - यह कथन किसका है?", answers: [ { text: "डॉ० एपीजे अब्दुल कलाम", correct: true }, { text: "नरेन्द्र मोदी", correct: false }, { text: "डॉ० राजेन्द्र प्रसाद", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "11. कृषि जनित उद्योगों के विकास से किस राज्य का विकास संभव है?", answers: [ { text: "बिहार", correct: true }, { text: "केरल", correct: false }, { text: "गुजरात", correct: false }, { text: "पंजाब", correct: false } ] },
+        { question: "12. भारत में 'योजना आयोग' का गठन कब किया गया था?", answers: [ { text: "15 मार्च 1950", correct: true }, { text: "15 सितंबर 1950", correct: false }, { text: "15 अक्टूबर 1951", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "13. भारत की आर्थिक व्यवस्था है?", answers: [ { text: "समाजवादी", correct: false }, { text: "पूंजीवादी", correct: false }, { text: "मिश्रित", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "14. किस क्षेत्र को 'द्वितीयक क्षेत्र' कहा जाता है?", answers: [ { text: "सेवा", correct: false }, { text: "कृषि", correct: false }, { text: "उद्योग", correct: true }, { text: "बैंकिंग", correct: false } ] },
+        { question: "15. किस क्षेत्र को 'तृतीयक क्षेत्र' कहा जाता है?", answers: [ { text: "सेवा", correct: true }, { text: "कृषि", correct: false }, { text: "उद्योग", correct: false }, { text: "खनन", correct: false } ] },
+        { question: "16. भारत में नीति आयोग का अध्यक्ष कौन होता है?", answers: [ { text: "राष्ट्रपति", correct: false }, { text: "उपराष्ट्रपति", correct: false }, { text: "प्रधानमंत्री", correct: true }, { text: "वित्त मंत्री", correct: false } ] },
+        { question: "17. 'गरीबी कैंसर रोग की तरह है' - यह किसने कहा था?", answers: [ { text: "अर्थशास्त्री कुजनेट", correct: true }, { text: "अर्थशास्त्री मेडिसन", correct: false }, { text: "प्रो० लेविस", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "18. राष्ट्रीय विकास परिषद (NDC) का गठन कब हुआ था?", answers: [ { text: "1950", correct: false }, { text: "1951", correct: false }, { text: "1952", correct: true }, { text: "1953", correct: false } ] },
+        { question: "19. मानव विकास सूचकांक (HDI) में भारत का क्या स्थान है (पुरानी किताब के अनुसार)?", answers: [ { text: "126", correct: false }, { text: "127", correct: false }, { text: "129", correct: false }, { text: "लगभग 130 (समय के साथ बदलता है)", correct: true } ] },
+        { question: "20. एक समाजवादी अर्थव्यवस्था में सर्वाधिक बल किस पर दिया जाता है?", answers: [ { text: "आर्थिक स्वतंत्रता", correct: false }, { text: "उत्पादन कुशलता", correct: false }, { text: "लोक कल्याण", correct: true }, { text: "अधिकतम लाभ", correct: false } ] },
+        { question: "21. भारत में प्रथम पंचवर्षीय योजना की शुरुआत कब हुई?", answers: [ { text: "1950", correct: false }, { text: "1951", correct: true }, { text: "1952", correct: false }, { text: "1953", correct: false } ] },
+        { question: "22. नरेगा (NREGA) कार्यक्रम के नाम के साथ किस व्यक्ति का नाम जोड़ा गया है?", answers: [ { text: "मनमोहन सिंह", correct: false }, { text: "मुरली मनोहर जोशी", correct: false }, { text: "महात्मा गाँधी (मनरेगा)", correct: true }, { text: "जयप्रकाश नारायण", correct: false } ] },
+        { question: "23. नरेगा के अंतर्गत ग्रामीण मजदूरों को साल में कम से कम कितने दिनों के लिए रोजगार देने की व्यवस्था है?", answers: [ { text: "100 दिनों के लिए", correct: true }, { text: "125 दिनों के लिए", correct: false }, { text: "150 दिनों के लिए", correct: false }, { text: "200 दिनों के लिए", correct: false } ] },
+        { question: "24. बिहार में जीवन-यापन का मुख्य साधन क्या है?", answers: [ { text: "कृषि", correct: true }, { text: "उद्योग", correct: false }, { text: "व्यापार", correct: false }, { text: "खनिज", correct: false } ] },
+        { question: "25. डेबिट कार्ड संबंधित है?", answers: [ { text: "एटीएम प्रणाली से", correct: true }, { text: "कोर बैंकिंग प्रणाली से", correct: false }, { text: "बैंकिंग प्रणाली से", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "26. योजना आयोग के सदस्यों की संख्या कितनी होती थी?", answers: [ { text: "7", correct: false }, { text: "8", correct: true }, { text: "10", correct: false }, { text: "12", correct: false } ] },
+        { question: "27. एटीएम (ATM) का अर्थ क्या है?", answers: [ { text: "स्वचालित टेलर मशीन", correct: true }, { text: "स्वचालित टॉकिंग मशीन", correct: false }, { text: "स्वचालित टेकिंग मशीन", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "28. 'सस्टेनेबल डेवलपमेंट' (सतत विकास) का उद्देश्य है?", answers: [ { text: "केवल अपने लिए", correct: false }, { text: "केवल दूसरों के लिए", correct: false }, { text: "अपने और आने वाली संतति के लिए", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "29. पशुपालन एवं मत्स्य पालन किस क्षेत्र का अंग है?", answers: [ { text: "प्राथमिक क्षेत्र", correct: true }, { text: "द्वितीयक क्षेत्र", correct: false }, { text: "तृतीयक क्षेत्र", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "30. निम्नांकित में कौन नवीकरणीय प्राकृतिक संसाधन है?", answers: [ { text: "कोयला", correct: false }, { text: "पेट्रोलियम", correct: false }, { text: "भूमिगत जल", correct: true }, { text: "गैस", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "💰 बेहतरीन! अर्थव्यवस्था की बेसिक जानकारी अच्छी है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर प्राथमिक/द्वितीयक/तृतीयक क्षेत्र को समझें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

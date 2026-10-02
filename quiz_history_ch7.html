@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 7 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Global Trade Blue) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e0f7fa; color: #006064; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #2C5364; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #b2ebf2; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #2C5364; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #1b3b4a; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #2C5364; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(44, 83, 100, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #2C5364; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 7 QUESTIONS (व्यापार और भूमंडलीकरण) ▼▼▼
+    const questions = [
+        { question: "1. प्राचीन काल में किस स्थल मार्ग से एशिया और यूरोप का व्यापार होता था?", answers: [ { text: "सूती मार्ग", correct: false }, { text: "रेशम मार्ग (Silk Route)", correct: true }, { text: "उत्तरा पथ", correct: false }, { text: "दक्षिणा पथ", correct: false } ] },
+        { question: "2. गिरमिटिया मजदूर बिहार के किस क्षेत्र से भेजे जाते थे?", answers: [ { text: "पूर्वी क्षेत्र", correct: false }, { text: "पश्चिमी क्षेत्र", correct: true }, { text: "उत्तरी क्षेत्र", correct: false }, { text: "दक्षिणी क्षेत्र", correct: false } ] },
+        { question: "3. विश्व बाजार का विस्तार आधुनिक काल में किस समय से आरंभ हुआ?", answers: [ { text: "15वीं शताब्दी", correct: false }, { text: "18वीं शताब्दी", correct: true }, { text: "19वीं शताब्दी", correct: false }, { text: "20वीं शताब्दी", correct: false } ] },
+        { question: "4. विश्वव्यापी आर्थिक संकट (मंदी) किस वर्ष आरंभ हुआ?", answers: [ { text: "1914", correct: false }, { text: "1922", correct: false }, { text: "1929", correct: true }, { text: "1927", correct: false } ] },
+        { question: "5. आर्थिक संकट (मंदी) के कारण यूरोप में कौन-सी नई शासन प्रणाली का उदय हुआ?", answers: [ { text: "साम्यवादी शासन प्रणाली", correct: false }, { text: "लोकतांत्रिक शासन प्रणाली", correct: false }, { text: "फासीवादी-नाजीवादी शासन", correct: true }, { text: "पूंजीवादी शासन प्रणाली", correct: false } ] },
+        { question: "6. ब्रेटन वुड्स (Bretton Woods) सम्मेलन किस वर्ष हुआ?", answers: [ { text: "1947", correct: false }, { text: "1948", correct: false }, { text: "1944", correct: true }, { text: "1952", correct: false } ] },
+        { question: "7. गिरमिटिया किसे कहा जाता है?", answers: [ { text: "अनुबंधित मजदूर को", correct: true }, { text: "रोगियों को", correct: false }, { text: "छिपकली को", correct: false }, { text: "अंग्रेजों को", correct: false } ] },
+        { question: "8. आधुनिक युग में अर्थव्यवस्था के क्षेत्र में होने वाली सबसे बड़ी क्रांति कौन-सी थी?", answers: [ { text: "वाणिज्यिक क्रांति", correct: false }, { text: "औद्योगिक क्रांति", correct: true }, { text: "साम्यवादी क्रांति", correct: false }, { text: "भौगोलिक खोज", correct: false } ] },
+        { question: "9. भूमंडलीकरण (Globalization) की शुरुआत किस दशक में हुई?", answers: [ { text: "1990 के दशक में", correct: true }, { text: "1970 के दशक में", correct: false }, { text: "1960 के दशक में", correct: false }, { text: "1980 के दशक में", correct: false } ] },
+        { question: "10. रेशम मार्ग (Silk Route) कहाँ से आरंभ होता था?", answers: [ { text: "भारत", correct: false }, { text: "चीन", correct: true }, { text: "इराक", correct: false }, { text: "अफगानिस्तान", correct: false } ] },
+        { question: "11. 'न्यू डील' (New Deal) को किस अमेरिकी राष्ट्रपति ने लागू किया?", answers: [ { text: "वुडरो विल्सन", correct: false }, { text: "एफ० डी० रूजवेल्ट", correct: true }, { text: "अब्राहम लिंकन", correct: false }, { text: "जॉन एफ कैनेडी", correct: false } ] },
+        { question: "12. पेरिस शांति समझौता कब हुआ?", answers: [ { text: "1918", correct: false }, { text: "1919", correct: true }, { text: "1920", correct: false }, { text: "1921", correct: false } ] },
+        { question: "13. ईस्ट इंडिया कंपनी अफीम किस देश में भेजती थी?", answers: [ { text: "अफगानिस्तान", correct: false }, { text: "अमेरिका", correct: false }, { text: "जापान", correct: false }, { text: "चीन", correct: true } ] },
+        { question: "14. वह देश जिस पर आर्थिक मंदी का प्रभाव बिल्कुल नहीं पड़ा?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "अमेरिका", correct: false }, { text: "जर्मनी", correct: false }, { text: "रूस", correct: true } ] },
+        { question: "15. आलू अकाल किस देश में हुआ था?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "आयरलैंड", correct: true }, { text: "स्पेन", correct: false }, { text: "अमेरिका", correct: false } ] },
+        { question: "16. भारत में आर्थिक महामंदी का सबसे बुरा प्रभाव किस पर पड़ा?", answers: [ { text: "व्यापारियों पर", correct: false }, { text: "किसानों पर", correct: true }, { text: "उद्योगपतियों पर", correct: false }, { text: "नौकरीपेशा लोगों पर", correct: false } ] },
+        { question: "17. कॉर्न लॉ (Corn Law) किस देश में पारित किया गया था?", answers: [ { text: "फ्रांस", correct: false }, { text: "जर्मनी", correct: false }, { text: "रूस", correct: false }, { text: "ब्रिटेन", correct: true } ] },
+        { question: "18. भारत के किस राज्य से सबसे अधिक गिरमिटिया मजदूर विदेश भेजे गए?", answers: [ { text: "राजस्थान", correct: false }, { text: "पंजाब", correct: false }, { text: "उत्तर प्रदेश", correct: true }, { text: "मध्य प्रदेश", correct: false } ] },
+        { question: "19. द्वितीय महायुद्ध के बाद यूरोप में कौन-सी संस्था का उदय आर्थिक दुष्प्रभावों को समाप्त करने के लिए हुआ?", answers: [ { text: "सार्क", correct: false }, { text: "नाटो", correct: false }, { text: "ओपेक", correct: false }, { text: "यूरोपीय संघ", correct: true } ] },
+        { question: "20. बाजार का स्वरूप विश्वव्यापी किस क्रांति के बाद हुआ?", answers: [ { text: "औद्योगिक क्रांति", correct: true }, { text: "अमेरिकी क्रांति", correct: false }, { text: "फ्रांसीसी क्रांति", correct: false }, { text: "चीनी क्रांति", correct: false } ] },
+        { question: "21. 'ओटावा समझौता' किस वर्ष हुआ था?", answers: [ { text: "1929", correct: false }, { text: "1930", correct: false }, { text: "1932", correct: true }, { text: "1935", correct: false } ] },
+        { question: "22. विश्व बैंक (World Bank) की स्थापना कब हुई?", answers: [ { text: "1944", correct: true }, { text: "1945", correct: false }, { text: "1947", correct: false }, { text: "1948", correct: false } ] },
+        { question: "23. पास्ता सिसली (इटली) में किनके द्वारा ले जाया गया?", answers: [ { text: "चीनियों द्वारा", correct: false }, { text: "अरबों द्वारा", correct: true }, { text: " भारतीयों द्वारा", correct: false }, { text: "पुर्तगालियों द्वारा", correct: false } ] },
+        { question: "24. धन निष्कासन के सिद्धांत का प्रतिपादन किसने किया था?", answers: [ { text: "फिरोजशाह मेहता", correct: false }, { text: "बाल गंगाधर तिलक", correct: false }, { text: "दादाभाई नौरोजी", correct: true }, { text: "गाँधीजी", correct: false } ] },
+        { question: "25. आर्थिक महामंदी के कारण अमेरिका में कौन-सा बैंक बंद हो गया?", answers: [ { text: "अमेरिकन बैंक", correct: true }, { text: "लंदन बैंक", correct: false }, { text: "जर्मन बैंक", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌍 बहुत बढ़िया! विश्व इतिहास पर आपकी पकड़ मजबूत है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर 1929 की मंदी वाला टॉपिक फिर से पढ़ें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 अभी बहुत रिवीजन की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

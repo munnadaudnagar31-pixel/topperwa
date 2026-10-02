@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-2: Polynomials</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Polynomials</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Polynomials) ---
+        const questions = [
+            { q: "The degree of the polynomial 5x³ - 4x² + 7x is:", o: ["1", "2", "3", "0"], a: 2 },
+            { q: "A polynomial of degree 1 is called a:", o: ["Quadratic polynomial", "Cubic polynomial", "Linear polynomial", "Zero polynomial"], a: 2 },
+            { q: "A quadratic polynomial has at most how many zeroes?", o: ["1", "2", "3", "0"], a: 1 },
+            { q: "If α and β are the zeroes of the quadratic polynomial ax² + bx + c, then α + β is:", o: ["b/a", "-b/a", "c/a", "-c/a"], a: 1 },
+            { q: "The zeroes of the polynomial x² - 3 are:", o: ["√3, -√3", "3, -3", "√3, √3", "3, 3"], a: 0 },
+            { q: "If the product of zeroes of the polynomial ax² - 6x - 6 is 4, find the value of a.", o: ["-3/2", "3/2", "-2/3", "2/3"], a: 0 },
+            { q: "The graph of y = p(x) for a linear polynomial is a:", o: ["Parabola", "Straight line", "Circle", "Hyperbola"], a: 1 },
+            { q: "If one zero of the quadratic polynomial x² + 3x + k is 2, then the value of k is:", o: ["10", "-10", "5", "-5"], a: 1 },
+            { q: "Which of the following is not a polynomial?", o: ["√3x² - 2x", "x² + 3x + 4", "1/(x-1)", "x³ - 5"], a: 2 },
+            { q: "If α and β are zeroes of x² - 5x + 6, then αβ is:", o: ["5", "-5", "6", "-6"], a: 2 },
+            { q: "The quadratic polynomial whose sum of zeroes is 3 and product of zeroes is -2 is:", o: ["x² + 3x - 2", "x² - 3x - 2", "x² - 3x + 2", "x² + 3x + 2"], a: 1 },
+            { q: "If the graph of a polynomial intersects the x-axis at 3 points, then the number of zeroes is:", o: ["0", "1", "2", "3"], a: 3 },
+            { q: "A cubic polynomial can have at most how many zeroes?", o: ["1", "2", "3", "4"], a: 2 },
+            { q: "If p(x) = 2x + 5, then p(-2) is:", o: ["1", "-1", "9", "-9"], a: 0 },
+            { q: "The degree of a constant polynomial is:", o: ["1", "0", "Not defined", "2"], a: 1 },
+            { q: "If the zeroes of the quadratic polynomial x² + (a + 1)x + b are 2 and -3, then:", o: ["a = -7, b = -1", "a = 5, b = -1", "a = 2, b = -6", "a = 0, b = -6"], a: 3 },
+            { q: "The number of polynomials having zeroes as -2 and 5 is:", o: ["1", "2", "3", "More than 3"], a: 3 },
+            { q: "Given that one of the zeroes of the cubic polynomial ax³ + bx² + cx + d is zero, the product of the other two zeroes is:", o: ["-c/a", "c/a", "0", "-b/a"], a: 1 },
+            { q: "If one of the zeroes of the quadratic polynomial (k-1)x² + kx + 1 is -3, then the value of k is:", o: ["4/3", "-4/3", "2/3", "-2/3"], a: 0 },
+            { q: "The zeroes of the quadratic polynomial x² + 99x + 127 are:", o: ["Both positive", "Both negative", "One positive one negative", "Both equal"], a: 1 },
+            { q: "If the zeroes of the quadratic polynomial x² + bx + c, c ≠ 0 are equal, then:", o: ["c and a have opposite signs", "c and b have opposite signs", "c and a have same sign", "c and b have same sign"], a: 2 },
+            { q: "The degree of the zero polynomial is:", o: ["0", "1", "Any real number", "Not defined"], a: 3 },
+            { q: "If α, β, γ are the zeroes of the cubic polynomial ax³ + bx² + cx + d = 0, then α + β + γ is:", o: ["-b/a", "b/a", "c/a", "-d/a"], a: 0 },
+            { q: "Which of the following is a polynomial?", o: ["x² - 3x + √x", "x + 1/x", "x³ - 2x + 1", "x^3/2 + 2"], a: 2 },
+            { q: "The graph of y = ax² + bx + c is a parabola open upward if:", o: ["a > 0", "a < 0", "a = 0", "a = 1"], a: 0 },
+            { q: "If x + 2 is a factor of x² + ax + 2b and a + b = 4, then:", o: ["a = 1, b = 3", "a = 3, b = 1", "a = -1, b = 5", "a = 5, b = -1"], a: 1 },
+            { q: "If zeroes of p(x) = 2x² - 7x + k are reciprocal of each other, then value of k is:", o: ["1", "2", "7", "-7"], a: 1 },
+            { q: "The value of p(x) = x² - 3x - 4 at x = -1 is:", o: ["-2", "0", "1", "-6"], a: 1 },
+            { q: "If sum of zeroes of 2x² + kx - 5 is 2, then k is:", o: ["4", "-4", "2", "-2"], a: 1 },
+            { q: "If α and β are the zeroes of x² - x - 4, then value of 1/α + 1/β is:", o: ["4", "-4", "1/4", "-1/4"], a: 3 },
+            { q: "If (x+1) is a factor of x² - 3ax + 3a - 7, then the value of a is:", o: ["1", "-1", "2", "-2"], a: 0 },
+            { q: "Zeroes of a polynomial can be expressed graphically. Number of zeroes of polynomial is equal to number of points where the graph of polynomial intersects:", o: ["x-axis", "y-axis", "y-axis or x-axis", "Origin"], a: 0 },
+            { q: "A polynomial of degree n has:", o: ["Only one zero", "Exactly n zeroes", "At most n zeroes", "More than n zeroes"], a: 2 },
+            { q: "If p(x) is a polynomial of degree at least 1 and p(k) = 0, then k is known as:", o: ["Value of p(x)", "Zero of p(x)", "Constant term of p(x)", "None of these"], a: 1 },
+            { q: "If the sum of the squares of zeroes of the polynomial 6x² + x + k is 25/36, find the value of k.", o: ["2", "-2", "4", "-4"], a: 1 },
+            { q: "If α and β are the zeroes of the polynomial f(x) = x² - 5x + k such that α - β = 1, the value of k is:", o: ["12", "6", "4", "1"], a: 1 },
+            { q: "If the product of two zeroes of the polynomial p(x) = 2x³ + 6x² - 4x + 9 is 3, then its third zero is:", o: ["3/2", "-3/2", "9/2", "-9/2"], a: 1 },
+            { q: "The value of k for which the polynomial x⁴ + 10x³ + 25x² + 15x + k is exactly divisible by x + 7 is:", o: ["-91", "91", "1", "-1"], a: 0 },
+            { q: "If sum of the zeroes of the polynomial p(x) = (k²+k)x² + 68x + 6k is zero, then k =", o: ["2", "0", "-1", "None"], a: 3 },
+            { q: "If α and β are the zeroes of quadratic polynomial x² - 6x + a; find the value of 'a' if 3α + 2β = 20.", o: ["-12", "-16", "16", "12"], a: 1 },
+            { q: "If one zero of the polynomial (a² + 9)x² + 13x + 6a is reciprocal of the other, then a =", o: ["1", "3", "1/3", "±3"], a: 1 },
+            { q: "The graph of the polynomial p(x) cuts the x-axis at 3 points and touches it at 2 other points. The number of zeroes of p(x) is:", o: ["1", "2", "3", "5"], a: 3 },
+            { q: "Which of the following is not a graph of a quadratic polynomial?", o: ["Parabola opening up", "Parabola opening down", "A line", "Curve crossing x-axis at 2 points"], a: 2 },
+            { q: "Find a quadratic polynomial, the sum and product of whose zeroes are 0 and √5 respectively.", o: ["x² - 5", "x² + √5", "x² - √5", "x² + 5"], a: 1 },
+            { q: "If the zeroes of the polynomial x³ - 3x² + x + 1 are a-b, a, a+b, then find a and b.", o: ["a=1, b=±√2", "a=1, b=±2", "a=1, b=±1", "a=2, b=±1"], a: 0 },
+            { q: "Dividing 2x² + 3x + 1 by x + 2, the remainder is:", o: ["1", "2", "3", "4"], a: 2 },
+            { q: "If polynomial p(x) is divided by x-a, then remainder is:", o: ["p(0)", "p(a)", "p(-a)", "a"], a: 1 },
+            { q: "Which of the following is a binomial?", o: ["x² + x + 1", "x + 2", "x²", "5"], a: 1 },
+            { q: "The coefficient of x in the polynomial 5x³ - 4x² + 3x - 2 is:", o: ["5", "-4", "3", "-2"], a: 2 },
+            { q: "If the lines represented by 3x + 2ky = 2 and 2x + 5y = 1 are parallel, then value of k is:", o: ["15/4", "3/2", "2/5", "5/4"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Fantastic! You nailed Polynomials! 🎭";
+            else if(accuracy >= 70) feedback.innerText = "Good job! Keep revising. 📘";
+            else if(accuracy >= 50) feedback.innerText = "Not bad, but watch out for signs! ➕➖";
+            else feedback.innerText = "Polynomials need practice. Try again! 🔥";
+        }
+    </script>
+</body>
+</html>

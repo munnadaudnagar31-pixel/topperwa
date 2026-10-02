@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English VVI 100 Questions 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* English Theme: Royal Blue/Indigo */
+            --primary: #3f51b5; 
+            --secondary: #5c6bc0;
+            --accent: #7986cb;
+            --text: #1a237e;
+            --bg: #e8eaf6;
+            --card: #ffffff;
+            --success: #00c853;
+            --error: #d50000;
+        }
+
+        .dark-mode {
+            --primary: #5c6bc0;
+            --secondary: #3f51b5;
+            --text: #ffffff;
+            --bg: #121212;
+            --card: #1e1e1e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
+
+        /* --- Header --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 15px 20px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        .timer {
+            font-family: 'Roboto Mono', monospace; font-size: 18px; font-weight: 700;
+            color: white; background: linear-gradient(90deg, var(--primary), var(--secondary)); 
+            padding: 8px 15px; border-radius: 12px;
+        }
+        .back-btn { text-decoration: none; font-size: 20px; color: var(--text); font-weight: 700; }
+
+        /* --- Layout --- */
+        .quiz-layout {
+            display: grid; grid-template-columns: 1fr 300px; gap: 20px;
+            max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+
+        /* --- Question Card --- */
+        .q-card {
+            background: var(--card); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative;
+            min-height: 400px; display: flex; flex-direction: column;
+            border-top: 5px solid var(--primary);
+        }
+        
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .q-badge { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .q-text { font-size: 19px; font-weight: 600; margin-bottom: 30px; line-height: 1.6; }
+        
+        /* Options */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn {
+            background: var(--bg); border: 2px solid transparent; padding: 15px;
+            border-radius: 15px; text-align: left; font-size: 16px; color: var(--text);
+            cursor: pointer; transition: 0.2s; font-weight: 500; position: relative;
+        }
+        .option-btn:hover { border-color: var(--primary); background: rgba(63, 81, 181, 0.1); }
+        
+        .option-btn.selected { border-color: var(--primary); background: rgba(63, 81, 181, 0.2); }
+        .option-btn.correct { background: rgba(0, 200, 83, 0.2); border-color: var(--success); color: var(--success); }
+        .option-btn.wrong { background: rgba(213, 0, 0, 0.2); border-color: var(--error); color: var(--error); }
+
+        /* --- Navigator (Right Side) --- */
+        .navigator {
+            background: var(--card); border-radius: 25px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: fit-content;
+        }
+        .nav-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+            max-height: 500px; overflow-y: auto; padding-right: 5px;
+        }
+        .nav-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: none;
+            background: var(--bg); color: var(--text); font-weight: 600;
+            cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(63, 81, 181, 0.3); }
+        .nav-btn.solved { background: var(--success); color: white; }
+        .nav-btn.wrong-mark { background: var(--error); color: white; }
+
+        /* --- Footer Controls --- */
+        .controls {
+            margin-top: auto; display: flex; gap: 15px; justify-content: flex-end; padding-top: 20px;
+        }
+        .ctrl-btn {
+            padding: 12px 30px; border-radius: 15px; border: none;
+            font-weight: 700; cursor: pointer; font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-next { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 8px 20px rgba(63, 81, 181, 0.25); }
+        .btn-prev { background: transparent; border: 2px solid var(--bg); color: var(--text); }
+
+        /* --- Result Modal --- */
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .result-box {
+            background: var(--card); padding: 40px; border-radius: 30px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .quiz-layout { grid-template-columns: 1fr; }
+            .navigator { display: none; }
+            .options-grid { grid-template-columns: 1fr; }
+            .q-text { font-size: 18px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="most_expected_questions.html" class="back-btn">❮ English Hub</a>
+        <div class="timer" id="timer">00:00</div>
+        <button onclick="submitQuiz()" class="ctrl-btn btn-next" style="padding: 8px 20px; background: var(--error);">Finish</button>
+    </div>
+
+    <div class="quiz-layout">
+        <div class="q-card">
+            <div class="q-header">
+                <span class="q-badge" id="subjectTag">Topic</span>
+                <span style="font-weight:600; opacity:0.6;">Q: <span id="currentQNum">1</span>/100</span>
+            </div>
+            
+            <div class="q-text" id="questionText">Loading...</div>
+            
+            <div class="options-grid" id="optionsContainer">
+                </div>
+
+            <div class="controls">
+                <button class="ctrl-btn btn-prev" onclick="prevQ()">Previous</button>
+                <button class="ctrl-btn btn-next" onclick="nextQ()">Next ➜</button>
+            </div>
+        </div>
+
+        <div class="navigator">
+            <h4 style="margin-bottom:15px; opacity:0.7;">Question Palette</h4>
+            <div class="nav-grid" id="navGrid">
+                </div>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultScreen">
+        <div class="result-box">
+            <div style="font-size:50px; margin-bottom:10px;">🇬🇧</div>
+            <h2 style="color:var(--text);">Test Completed!</h2>
+            <p style="color:var(--text); opacity:0.7; margin-bottom:20px;">100 Questions (English)</p>
+            
+            <div style="background:var(--bg); padding:15px; border-radius:15px; margin-bottom:25px;">
+                <h1 style="color:var(--primary); font-size:40px; margin:0;" id="finalScore">0%</h1>
+                <span style="font-size:12px; font-weight:600; letter-spacing:1px;">SCORE</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="location.reload()" class="ctrl-btn btn-next" style="width:100%">Replay</button>
+                <a href="index.html" class="ctrl-btn btn-prev" style="width:100%; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 100 ANALYZED ENGLISH QUESTIONS ---
+        const questions = [
+            // --- Prose & Poetry (Textbook) ---
+            { q: "Walter de la Mare is a ______ poet.", options: ["Modern", "Augustan", "Classical", "Romantic"], ans: 0, topic: "Literature" },
+            { q: "The author Joan Lexau has written:", options: ["The Pace for Living", "Gillu", "Me and the Ecology Bit", "Acceptance Speech"], ans: 2, topic: "Literature" },
+            { q: "Halku is a character in:", options: ["Sun and Moon", "Two Horizons", "January Night", "Quality"], ans: 2, topic: "Literature" },
+            { q: "Compost is used as:", options: ["Cloth", "Food", "Manure", "Medicine"], ans: 2, topic: "Literature" },
+            { q: "The first invaders of the land were:", options: ["Aryans", "British", "Greeks", "Sakas"], ans: 0, topic: "Literature" },
+            { q: "The writer in 'The Pace for Living' saw a play in:", options: ["Dublin", "Sweden", "Africa", "London"], ans: 0, topic: "Literature" },
+            { q: "Premchand is the pen name of:", options: ["Ganpat Rai", "Shyam Rai", "Dhanpat Rai", "Bhojraj Rai"], ans: 2, topic: "Literature" },
+            { q: "Humayun Kabir delivered his lecture at ______ University.", options: ["Delhi", "Baroda", "Mumbai", "Patna"], ans: 1, topic: "Literature" },
+            { q: "Jim asked Mr. Johnson to minimize:", options: ["Use of electricity", "Use of dustbins", "Use of car (Pollution)", "Use of paper"], ans: 2, topic: "Literature" },
+            { q: "The young girls in 'Little Girls Wiser Than Men' were:", options: ["Wise", "Poor", "Clever", "Intelligent"], ans: 0, topic: "Literature" },
+            { q: "Gillu's favourite place to lie down was:", options: ["Surahi", "Table", "Bed", "Roof"], ans: 0, topic: "Literature" },
+            { q: "Which slogan is associated with 'Me and the Ecology Bit'?", options: ["Save Earth", "Save Water", "Save Trees", "Save Mountain"], ans: 2, topic: "Literature" },
+            { q: "Jim found ______ burning leaves.", options: ["Mr. Smith", "Miss Greene", "Mr. Johnson", "Mr. Williams"], ans: 3, topic: "Literature" },
+            { q: "Indian films are not shown abroad because of:", options: ["Weak content", "Technical inferiority", "Language barrier", "Length"], ans: 1, topic: "Literature" },
+            { q: "The old woman in 'Once Upon a Time' is the daughter of:", options: ["Jews", "Tribals", "Slaves", "Farmers"], ans: 2, topic: "Literature" },
+            { q: "Aris says the eventual victory will be of:", options: ["Burmese people", "British", "Indians", "Americans"], ans: 0, topic: "Literature" },
+            { q: "'The moonbeam, sliding softly in between' is from:", options: ["Koel", "Polythene Bag", "God Made the Country", "The Sleeping Porter"], ans: 3, topic: "Literature" },
+            { q: "Vidyapati's poems mostly centre around:", options: ["Nature", "Mythology", "Radha and Krishna", "Science"], ans: 2, topic: "Literature" },
+            { q: "Mr. Gessler was a ______ shoemaker.", options: ["German", "French", "Spanish", "English"], ans: 0, topic: "Literature" },
+            { q: "Who discovered Immunoglobulin E?", options: ["Uppsala and Baltimore", "Einstein", "Newton", "Pasteur"], ans: 0, topic: "Literature" },
+            { q: "Malasha was ______ to see Akoulya's frock splashed with mud.", options: ["Angry", "Frightened", "Happy", "Sad"], ans: 1, topic: "Literature" },
+            { q: "Radha's friend is ______ about her.", options: ["Happy", "Concerned", "Angry", "Sad"], ans: 1, topic: "Literature" },
+            { q: "Aung San Suu Kyi was jailed in:", options: ["Bangkok", "Singapore", "Rangoon", "London"], ans: 2, topic: "Literature" },
+            { q: "'Greed is endless, but life is not' is from:", options: ["The Empty Heart", "Koel", "Polythene Bag", "Martha"], ans: 0, topic: "Literature" },
+            { q: "The Polythene bag makes a ______ noise.", options: ["Squeaky", "Melodious", "Loud", "Soft"], ans: 0, topic: "Literature" },
+            { q: "Dr. Rana S.P. Singh was a specialist in:", options: ["Cancer", "Allergy", "TB", "Heart"], ans: 1, topic: "Literature" },
+            { q: "India is ______ only to Hollywood in film production.", options: ["First", "Second", "Third", "Fourth"], ans: 1, topic: "Literature" },
+            { q: "______ was applied to Gillu's wounds.", options: ["Penicillin", "Dettol", "Cream", "Water"], ans: 0, topic: "Literature" },
+            { q: "Humanity can no longer be bound to:", options: ["Racism", "Religions", "Walls", "Truth"], ans: 0, topic: "Literature" },
+            { q: "The high-pitched strains of the Koel wake up:", options: ["Memories", "Trees", "Birds", "Souls"], ans: 0, topic: "Literature" },
+            { q: "Mr. Gessler made shoes only on:", options: ["Demand", "Order", "Credit", "Sale"], ans: 1, topic: "Literature" },
+            { q: "Halku was ______ in spite of the ruined field.", options: ["Sad", "Happy", "Angry", "Content"], ans: 3, topic: "Literature" },
+            { q: "Who said, 'Your books gave me wisdom' in 'The Bet'?", options: ["Lawyer", "Banker", "Watchman", "Guest"], ans: 0, topic: "Literature" },
+            { q: "Compost creates ______ pollution according to Mr. Williams.", options: ["Noise", "Nose (Smell)", "Air", "Water"], ans: 1, topic: "Literature" },
+            { q: "The porter climbed the:", options: ["Road", "Platform", "Cliff", "Mountain"], ans: 2, topic: "Literature" },
+            { q: "______ has charred the Koel's wings.", options: ["Fire of Love", "Fire of Hatred", "Sun", "Lightning"], ans: 0, topic: "Literature" },
+            { q: "The banker felt ______ after reading the lawyer's letter.", options: ["Happy", "Relief", "Contempt", "Remorse"], ans: 2, topic: "Literature" }, // Often Contempt for himself or Remorse
+            { q: "Radha looked ______ than the crescent.", options: ["Wider", "Thinner", "Sharper", "Darker"], ans: 1, topic: "Literature" },
+            { q: "Martha had a grave, small and lovely:", options: ["Head", "Face", "Hand", "Voice"], ans: 0, topic: "Literature" },
+            { q: "The ancient world threw up fine flowers of:", options: ["Civilization", "Culture", "War", "Art"], ans: 0, topic: "Literature" },
+            { q: "The rich man was given ______ pots of gold.", options: ["Six", "Seven", "Eight", "Nine"], ans: 1, topic: "Literature" },
+            { q: "The porter's son is shivering with cold and woes of:", options: ["Anger", "Hunger", "Fever", "Fear"], ans: 1, topic: "Literature" },
+            { q: "The mother tells the daughter that her ______ will disappear.", options: ["Dreams", "Grief/Discontent", "Joy", "Beauty"], ans: 1, topic: "Literature" },
+            { q: "There are ______ general approaches to treat allergy.", options: ["Two", "Three", "Four", "Five"], ans: 0, topic: "Literature" },
+            { q: "The banker had given a party ______ years ago.", options: ["Ten", "Fifteen", "Twenty", "Five"], ans: 1, topic: "Literature" },
+            { q: "The ice pudding was in the shape of a ______ house.", options: ["Blue", "Pink", "Red", "White"], ans: 1, topic: "Literature" },
+            { q: "While jumping over the fire, Halku ______ his legs.", options: ["Singed", "Burned", "Broke", "Cut"], ans: 0, topic: "Literature" },
+            { q: "Sun and Moon are:", options: ["Brothers", "Friends", "Brother and Sister", "Neighbors"], ans: 2, topic: "Literature" },
+            { q: "The author of 'Quality' is:", options: ["John Galsworthy", "Anton Chekhov", "Leo Tolstoy", "Katherine Mansfield"], ans: 0, topic: "Literature" },
+            { q: "Who wrote 'God Made the Country'?", options: ["William Cowper", "Alexander Pope", "William Wordsworth", "Durga Prasad Panda"], ans: 0, topic: "Literature" },
+
+            // --- Grammar: Prepositions ---
+            { q: "Sushila came ______ bus.", options: ["in", "by", "of", "to"], ans: 1, topic: "Grammar" },
+            { q: "It has been raining ______ Monday.", options: ["since", "for", "from", "to"], ans: 0, topic: "Grammar" },
+            { q: "The house is made ______ marble.", options: ["of", "from", "with", "in"], ans: 0, topic: "Grammar" },
+            { q: "Wait here ______ I return.", options: ["until", "unless", "to", "by"], ans: 0, topic: "Grammar" },
+            { q: "Don't befriend ______ criminals.", options: ["with", "to", "of", "No Preposition"], ans: 3, topic: "Grammar" }, // "befriend criminals" is correct usage
+            { q: "We make curd ______ milk.", options: ["of", "from", "with", "by"], ans: 1, topic: "Grammar" },
+            { q: "Rakshita goes to school ______ foot.", options: ["by", "on", "in", "with"], ans: 1, topic: "Grammar" },
+            { q: "He is fond ______ music.", options: ["in", "of", "at", "with"], ans: 1, topic: "Grammar" },
+            { q: "She jumped ______ the river.", options: ["in", "into", "at", "on"], ans: 1, topic: "Grammar" },
+            { q: "He died ______ cancer.", options: ["of", "from", "by", "with"], ans: 0, topic: "Grammar" },
+
+            // --- Grammar: Synonyms & Antonyms ---
+            { q: "Synonym of 'Blaze':", options: ["Cool", "Glow/Fire", "Dark", "Water"], ans: 1, topic: "Grammar" },
+            { q: "Antonym of 'Exclude':", options: ["Include", "Reject", "Remove", "Dismiss"], ans: 0, topic: "Grammar" },
+            { q: "Synonym of 'Glory':", options: ["Shame", "Prestige", "Disgrace", "Evil"], ans: 1, topic: "Grammar" },
+            { q: "Antonym of 'Steep':", options: ["High", "Flat", "Sharp", "Vertical"], ans: 1, topic: "Grammar" },
+            { q: "Synonym of 'Alert':", options: ["Sleepy", "Watchful", "Lazy", "Slow"], ans: 1, topic: "Grammar" },
+
+            // --- Grammar: Voice ---
+            { q: "Active voice: Problems might be created by her.", options: ["She might create problems.", "She may create problems.", "Problems she created.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Passive voice: Ask your questions.", options: ["Let your questions be asked.", "Questions asked.", "Ask questions.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Active voice: The food has been prepared by her.", options: ["She prepared food.", "She has prepared the food.", "She had prepared.", "None"], ans: 1, topic: "Grammar" },
+            { q: "Passive voice: He has sent me a present.", options: ["A present has been sent to me by him.", "I sent a present.", "Present sent by him.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Passive voice: People felt that the police were corrupt.", options: ["It was felt that the police were corrupt.", "Police were corrupt felt.", "None", "People feel police corrupt."], ans: 0, topic: "Grammar" },
+
+            // --- Grammar: Modals & Verbs ---
+            { q: "You ______ do it.", options: ["need", "ought", "should", "dare"], ans: 2, topic: "Grammar" },
+            { q: "I ______ waste my time.", options: ["must not", "ought", "dare", "need"], ans: 0, topic: "Grammar" },
+            { q: "We ______ go at once.", options: ["must", "dare", "could", "might"], ans: 0, topic: "Grammar" },
+            { q: "You ______ walk carefully. The floor is wet.", options: ["must", "can", "may", "dare"], ans: 0, topic: "Grammar" },
+            { q: "Truth always ______.", options: ["triumph", "triumphs", "triumphed", "winning"], ans: 1, topic: "Grammar" },
+            { q: "The clerks ______ on strike since Monday.", options: ["are", "were", "have been", "will be"], ans: 2, topic: "Grammar" },
+            { q: "I ______ to the cinema quite often.", options: ["go", "gone", "going", "goes"], ans: 0, topic: "Grammar" },
+
+            // --- Grammar: Translation ---
+            { q: "Translate: यह सड़क कहाँ जाती है?", options: ["Where does this road lead to?", "Where this road go?", "Road where goes?", "Where road leading?"], ans: 0, topic: "Grammar" },
+            { q: "Translate: Neither of the two boys was present.", options: ["दोनों लड़के मौजूद नहीं थे।", "दो लड़कों में से कोई भी मौजूद नहीं था।", "सब मौजूद थे।", "कोई नहीं आया।"], ans: 1, topic: "Grammar" },
+            { q: "Translate: May God bless you.", options: ["भगवान आपका भला करें।", "भगवान मदद करें।", "भगवान हैं।", "नमस्ते।"], ans: 0, topic: "Grammar" },
+            { q: "Translate: तैरना एक कला है।", options: ["Swimming is an art.", "To swim is art.", "Swimming art.", "Art is swimming."], ans: 0, topic: "Grammar" },
+            { q: "Translate: मेरे पास एक कलम है।", options: ["I have a pen.", "I had a pen.", "I am a pen.", "Me have pen."], ans: 0, topic: "Grammar" },
+
+            // --- Grammar: Spelling ---
+            { q: "Correct spelling:", options: ["Satellite", "Sattellite", "Satelite", "Sattelite"], ans: 0, topic: "Grammar" },
+            { q: "Correct spelling:", options: ["Possession", "Posesion", "Posession", "Possesion"], ans: 0, topic: "Grammar" },
+            { q: "Correct spelling:", options: ["Corrupt", "Coruppt", "Currupt", "Kurrupt"], ans: 0, topic: "Grammar" },
+            { q: "Correct spelling:", options: ["Coriander", "Coreander", "Coriandar", "Coreandor"], ans: 0, topic: "Grammar" },
+            { q: "Correct spelling:", options: ["Foreigner", "Foriegnor", "Foreiner", "Forrigner"], ans: 0, topic: "Grammar" },
+
+            // --- Grammar: Narration ---
+            { q: "Indirect: He said to her, 'What a cold night!'", options: ["He exclaimed that it was a very cold night.", "He said it is cold.", "He told her cold night.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Direct: The captain commanded his men to stand at ease.", options: ["The Captain said, 'Stand at ease.'", "Captain says stand.", "Stand ease said Captain.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Indirect: He told her, 'I want to meet your parents.'", options: ["He told her that he wanted to meet her parents.", "He said I want to meet parents.", "He wants to meet.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Direct: I told him that he was not working hard.", options: ["I said to him, 'You are not working hard.'", "I said he is not working.", "You not work hard.", "None"], ans: 0, topic: "Grammar" },
+            { q: "Indirect: She said to him, 'Why don't you go today?'", options: ["She asked him why he did not go that day.", "She asked why not go.", "She said go today.", "None"], ans: 0, topic: "Grammar" },
+
+            // --- Miscellaneous ---
+            { q: "In 'The Bet', the lawyer was to remain in the cell for ______ years.", options: ["15", "5", "10", "20"], ans: 0, topic: "Literature" },
+            { q: "According to 'The Unity of Indian Culture', Indian culture is:", options: ["Unique", "Dead", "New", "Borrowed"], ans: 0, topic: "Literature" },
+            { q: "Radha is crying because of:", options: ["Lord Krishna", "Hunger", "Pain", "Fear"], ans: 0, topic: "Literature" },
+            { q: "The happy man gets ______ from his cattle.", options: ["Milk", "Meat", "Wool", "Money"], ans: 0, topic: "Literature" },
+            { q: "Gillu was a:", options: ["Squirrel", "Cat", "Dog", "Rabbit"], ans: 0, topic: "Literature" },
+            { q: "Who wrote 'Little Girls Wiser Than Men'?", options: ["Leo Tolstoy", "Gorky", "Chekhov", "Pushkin"], ans: 0, topic: "Literature" },
+            { q: "'Thinner Than a Crescent' is a poem by:", options: ["Vidyapati", "Kalidasa", "Surdas", "Tulsidas"], ans: 0, topic: "Literature" },
+            { q: "The cinema combines the cold logic of ______ with the art.", options: ["Science", "Maths", "Music", "Drama"], ans: 0, topic: "Literature" }
+        ];
+
+        // --- STATE & LOGIC ---
+        let currentQ = 0;
+        let answers = new Array(questions.length).fill(null);
+        let time = 0;
+        let timerInterval;
+
+        window.onload = function() {
+            initNav();
+            loadQ(0);
+            startTimer();
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        };
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                time++;
+                let m = Math.floor(time / 60).toString().padStart(2, '0');
+                let s = (time % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function initNav() {
+            const grid = document.getElementById('navGrid');
+            questions.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.innerText = i + 1;
+                btn.onclick = () => loadQ(i);
+                btn.id = `nav-${i}`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQ(index) {
+            currentQ = index;
+            const q = questions[index];
+            
+            document.getElementById('currentQNum').innerText = index + 1;
+            document.getElementById('subjectTag').innerText = q.topic;
+            document.getElementById('questionText').innerText = q.q;
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${index}`).classList.add('active');
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                
+                if(answers[index] !== null) {
+                    if(i === questions[index].ans) btn.classList.add('correct');
+                    if(i === answers[index] && i !== questions[index].ans) btn.classList.add('wrong');
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => selectOption(i, btn);
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(optIndex, btn) {
+            answers[currentQ] = optIndex;
+            
+            const navBtn = document.getElementById(`nav-${currentQ}`);
+            if(optIndex === questions[currentQ].ans) {
+                navBtn.classList.add('solved');
+            } else {
+                navBtn.classList.add('wrong-mark');
+            }
+
+            loadQ(currentQ);
+        }
+
+        function nextQ() {
+            if(currentQ < questions.length - 1) loadQ(currentQ + 1);
+        }
+
+        function prevQ() {
+            if(currentQ > 0) loadQ(currentQ - 1);
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            let score = 0;
+            answers.forEach((ans, i) => {
+                if(ans === questions[i].ans) score++;
+            });
+
+            let percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').innerText = percentage + "%";
+            document.getElementById('resultScreen').style.display = 'flex';
+        }
+
+    </script>
+</body>
+</html>

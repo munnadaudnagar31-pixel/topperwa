@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Ch-1: श्रम विभाजन और जाति प्रथा</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL HINDI THEME (Saffron) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            --header-gradient: linear-gradient(135deg, #e65100 0%, #ff6f00 100%);
+            --card-bg: #ffffff;
+            --text-main: #3e2723;
+            --text-sub: #e65100;
+            --option-bg: #fff8e1;
+            --correct-color: #2e7d32; /* Green */
+            --wrong-color: #c62828;   /* Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            background: var(--header-gradient);
+            padding: 20px 25px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10; box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%; transition: 0.2s;
+        }
+        .close-btn:active { transform: scale(0.9); }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 18px; border-radius: 30px;
+            font-family: 'Poppins', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: #ffe0b2; }
+        .progress-bar { height: 100%; background: #ef6c00; width: 0%; transition: width 0.3s ease; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 650px;
+            padding: 30px; border-radius: 24px; box-shadow: 0 15px 40px rgba(230, 81, 0, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px; position: relative;
+            border-top: 5px solid #ff6f00;
+        }
+
+        /* Literature Decoration */
+        .question-card::before {
+            content: '“'; position: absolute; top: 10px; left: 20px; font-size: 60px;
+            color: #fff3e0; font-family: 'Lora', serif; z-index: 0;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+        .q-count { font-size: 13px; font-weight: 700; color: #fff; background: #e65100; padding: 4px 12px; border-radius: 20px; }
+        .q-subject { font-size: 13px; font-weight: 700; color: #e65100; letter-spacing: 1px; }
+
+        .question-text { 
+            font-size: 19px; font-weight: 600; margin-bottom: 25px; line-height: 1.6; 
+            color: #3e2723; position: relative; z-index: 1;
+        }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 16px; color: #4e342e; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .option-circle {
+            width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffcc80;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; 
+            font-size: 14px; color: #ff9800; font-weight: 700; transition: 0.2s;
+        }
+
+        .option-btn:active { transform: scale(0.98); background: #ffe0b2; }
+        
+        /* Correct State */
+        .option-btn.correct { background: #e8f5e9; border-color: var(--correct-color); color: #1b5e20; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); color: white; content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #ffebee; border-color: var(--wrong-color); color: var(--wrong-color); animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); color: white; }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: var(--header-gradient);
+            color: white; border: none; width: 100%; max-width: 650px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(230, 81, 0, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px; background: #fff3e0;
+            border-radius: 30px; padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(230, 81, 0, 0.15);
+        }
+
+        .score-circle {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: white; border: 8px solid #e65100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .score-num { font-size: 38px; font-weight: 800; color: #e65100; line-height: 1; }
+        .score-label { font-size: 11px; color: #ef6c00; font-weight: 700; margin-top: 5px; letter-spacing: 1px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .stat-val { font-size: 18px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 10px; color: #5d4037; font-weight: 600; text-transform: uppercase; }
+
+        .green-text { color: #2e7d32; }
+        .red-text { color: #c62828; }
+        .blue-text { color: #1565c0; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 16px; border-radius: 16px;
+            font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #e65100; color: white; box-shadow: 0 5px 15px rgba(230, 81, 0, 0.3); }
+        .btn-secondary { background: #ffe0b2; color: #e65100; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="hindi_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box">
+            <span>⏳</span> <span id="time-left">10:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">1 / 30</span>
+                <span class="q-subject">श्रम विभाजन और जाति प्रथा</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#e65100; margin-bottom: 10px;">Quiz Complete!</h2>
+            <p style="color:#ef6c00; font-size:14px; margin-bottom: 25px;">श्रम विभाजन और जाति प्रथा</p>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 30</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#5d4037; font-size:14px; margin-bottom:25px; line-height:1.4;">बहुत अच्छा!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='hindi_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 30 MCQs from 'Shram Vibhajan aur Jati Pratha' ---
+        const questions = [
+            { q: "'श्रम विभाजन और जाति प्रथा' पाठ के लेखक कौन हैं?", o: ["भीमराव अम्बेडकर", "रामविलास शर्मा", "गुणाकर मुले", "महात्मा गाँधी"], a: 0 },
+            { q: "डॉ. भीमराव अम्बेडकर का जन्म कब हुआ था?", o: ["14 अप्रैल 1891", "14 अप्रैल 1890", "14 अप्रैल 1892", "14 अप्रैल 1893"], a: 0 },
+            { q: "डॉ. अम्बेडकर का जन्म किस राज्य में हुआ था?", o: ["मध्य प्रदेश", "बिहार", "उत्तर प्रदेश", "महाराष्ट्र"], a: 0 },
+            { q: "अम्बेडकर के चिंतन और रचनात्मकता के प्रमुख प्रेरक व्यक्ति कौन थे?", o: ["बुद्ध, कबीर, ज्योतिबा फुले", "गाँधी, नेहरू, टैगोर", "बुद्ध, महावीर, अशोक", "कबीर, तुलसी, सूरदास"], a: 0 },
+            { q: "जाति प्रथा भारत में बेरोजगारी का एक _____ कारण बनी हुई है।", o: ["प्रत्यक्ष और प्रमुख", "अप्रत्यक्ष", "गौण", "इनमें से कोई नहीं"], a: 0 },
+            { q: "मानव-मुक्ति के पुरोधा किसे कहा गया है?", o: ["भीमराव अम्बेडकर", "नलिन विलोचन शर्मा", "यतीन्द्र मिश्र", "अमरकांत"], a: 0 },
+            { q: "'श्रम विभाजन और जाति प्रथा' क्या है?", o: ["निबंध", "कहानी", "भाषण", "साक्षात्कार"], a: 0 },
+            { q: "अम्बेडकर ने किस प्रथा को आर्थिक पहलू से भी खतरनाक माना है?", o: ["जाति प्रथा", "दहेज प्रथा", "सती प्रथा", "बाल विवाह"], a: 0 },
+            { q: "लेखक के अनुसार आदर्श समाज किस पर आधारित होना चाहिए?", o: ["स्वतंत्रता, समता, भ्रातृत्व", "धन, बल, सत्ता", "धर्म, जाति, गोत्र", "इनमें से कोई नहीं"], a: 0 },
+            { q: "जाति प्रथा श्रम विभाजन के साथ-साथ किसका रूप लिए हुए है?", o: ["श्रमिक विभाजन का", "स्वतंत्रता का", "समानता का", "भाईचारे का"], a: 0 },
+            { q: "भारत में जाति प्रथा का मुख्य कारण क्या है?", o: ["बेरोजगारी", "गरीबी", "उद्योग धंधों की कमी", "अमीरी"], a: 0 },
+            { q: "डॉ. अम्बेडकर की मृत्यु कब और कहाँ हुई?", o: ["1956, दिल्ली", "1957, मध्य प्रदेश", "1958, वाराणसी", "1959, बिहार"], a: 0 },
+            { q: "'द कास्ट्स इन इंडिया: देयर मैकेनिज्म' किसकी रचना है?", o: ["भीमराव अम्बेडकर", "सुखदेव", "भगत सिंह", "राम मनोहर लोहिया"], a: 0 },
+            { q: "जाति प्रथा पेशे का कैसा निर्धारण करती है?", o: ["दोषपूर्ण", "स्वतंत्र", "उचित", "कुशल"], a: 0 },
+            { q: "भाईचारे का दूसरा नाम क्या है?", o: ["लोकतंत्र", "राजतंत्र", "समूह", "श्रम"], a: 0 },
+            { q: "लेखक की दृष्टि में विडंबना की बात क्या है?", o: ["जातिवाद के पोषकों की कमी नहीं है", "जातिवाद के पोषक नगण्य हैं", "आर्थिक दृष्टि से जातिवाद उचित है", "लोकतंत्र के लिए जातिवाद हितकर है"], a: 0 },
+            { q: "अम्बेडकर के अनुसार, लोकतंत्र केवल शासन की एक पद्धति नहीं, बल्कि _____ है।", o: ["सामूहिक जीवनचर्या की एक रीति", "कानून की किताब", "संविधान", "चुनाव"], a: 0 },
+            { q: "सच्चे लोकतंत्र का पर्याय है:", o: ["भाईचारा", "जातिवाद", "सुशासन", "कानून व्यवस्था"], a: 0 },
+            { q: "जाति प्रथा मनुष्य की _____ पर निर्भर नहीं रहती।", o: ["रुचि", "जाति", "धर्म", "कार्य"], a: 0 },
+            { q: "अम्बेडकर के पिता का क्या नाम था?", o: ["रामजी सकपाल", "रामदेव सकपाल", "रामकिशुन सकपाल", "राधेराम सकपाल"], a: 0 },
+            { q: "अम्बेडकर की माता का क्या नाम था?", o: ["भीमाबाई", "रानीबाई", "कुंतीबाई", "शीलाबाई"], a: 0 },
+            { q: "यह पाठ अम्बेडकर के किस भाषण का हिंदी रूपांतरण है?", o: ["एनीहिलेशन ऑफ कास्ट", "दी बुद्धा एंड हिज धम्मा", "बुद्धा ऑर मार्क्स", "हु आर शूद्राज"], a: 0 },
+            { q: "'एनीहिलेशन ऑफ कास्ट' का हिंदी अनुवाद किसने किया?", o: ["ललई सिंह यादव", "रूपक सिंह यादव", "ललन सिंह यादव", "कंवर नारायण"], a: 0 },
+            { q: "आधुनिक सभ्य समाज कार्यकुशलता के लिए किसे आवश्यक मानता है?", o: ["श्रम विभाजन", "धन विभाजन", "जाति विभाजन", "जन विभाजन"], a: 0 },
+            { q: "जाति प्रथा के कारण मनुष्य जीवन भर के लिए किसमें बंध जाता है?", o: ["एक ही पेशे में", "स्वतंत्रता में", "भाईचारे में", "लोकतंत्र में"], a: 0 },
+            { q: "लेखक बेरोजगारी का प्रमुख और प्रत्यक्ष कारण किसे मानते हैं?", o: ["जाति प्रथा को", "अशिक्षा को", "जनसंख्या को", "उद्योगों की कमी को"], a: 0 },
+            { q: "डॉ. अम्बेडकर ने किस पत्रिका का संपादन किया?", o: ["बहिष्कृत भारत", "उज्ज्वल भारत", "उड़ता भारत", "पुरस्कृत भारत"], a: 0 },
+            { q: "भारतीय संविधान के निर्माता के रूप में हम किन्हें जानते हैं?", o: ["भीमराव अम्बेडकर", "महात्मा गाँधी", "जवाहरलाल नेहरू", "सुभाष चंद्र बोस"], a: 0 },
+            { q: "जाति प्रथा में व्यक्ति का पेशा कब निर्धारित हो जाता है?", o: ["गर्भधारण के समय ही", "जन्म के बाद", "किशोरावस्था में", "युवावस्था में"], a: 0 },
+            { q: "भीमराव अम्बेडकर ने वकालत की पढ़ाई कहाँ की?", o: ["इंग्लैंड", "अमेरिका", "रूस", "जापान"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer
+        let timeLeft = 600; // 10 Minutes
+        let timerInterval;
+
+        // Elements
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 60) {
+                        timerDisplay.style.color = '#c62828';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index);
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                // VIBRATION (Android)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "संविधान निर्माता! आपको सब कुछ याद है! 📜";
+            else if(accuracy >= 70) feedback.innerText = "बहुत अच्छा! आपने पाठ अच्छे से समझा है। 👍";
+            else if(accuracy >= 50) feedback.innerText = "ठीक है, लेकिन एक बार और पढ़ें। 📖";
+            else feedback.innerText = "बाबा साहेब के बारे में और जानिये! फिर कोशिश करें। 🔥";
+        }
+    </script>
+</body>
+</html>

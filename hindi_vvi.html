@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BSEB Hindi 500 Objective 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Hindi Sahitya Theme: Saffron & Maroon */
+            --primary: #E65100; 
+            --secondary: #BF360C;
+            --accent: #FFB300;
+            --text: #3E2723;
+            --bg: #FFF3E0;
+            --card: #ffffff;
+            --success: #2E7D32;
+            --error: #C62828;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 15px 20px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        .timer { font-family: monospace; font-size: 18px; font-weight: 700; color: white; background: var(--primary); padding: 8px 15px; border-radius: 12px; }
+
+        .quiz-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+        .q-card {
+            background: var(--card); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); min-height: 400px;
+            display: flex; flex-direction: column; border-top: 5px solid var(--primary);
+        }
+        
+        .q-badge { background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+        .q-text { font-size: 22px; font-weight: 600; margin: 30px 0; line-height: 1.6; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn {
+            background: var(--bg); border: 2px solid transparent; padding: 15px;
+            border-radius: 15px; text-align: left; font-size: 17px; cursor: pointer; transition: 0.2s;
+        }
+        .option-btn.correct { background: #C8E6C9; border-color: var(--success); color: var(--success); }
+        .option-btn.wrong { background: #FFCDD2; border-color: var(--error); color: var(--error); }
+
+        .navigator { background: var(--card); border-radius: 25px; padding: 20px; height: 600px; display: flex; flex-direction: column; }
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; padding-right: 5px; }
+        .nav-btn { width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--bg); cursor: pointer; font-size: 12px; }
+        .nav-btn.active { background: var(--primary); color: white; }
+        .nav-btn.solved { background: var(--success); color: white; }
+
+        .controls { margin-top: auto; display: flex; gap: 15px; justify-content: flex-end; padding-top: 20px; }
+        .ctrl-btn { padding: 12px 30px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; }
+        .btn-next { background: var(--primary); color: white; }
+
+        #resultScreen { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .result-box { background: white; padding: 40px; border-radius: 30px; text-align: center; width: 90%; max-width: 400px; }
+
+        @media (max-width: 768px) { .quiz-layout { grid-template-columns: 1fr; } .navigator { display: none; } .options-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="#" style="text-decoration:none; color:var(--text); font-weight:700;">❮ Topperwa Hindi</a>
+        <div class="timer" id="timer">00:00</div>
+        <button onclick="submitQuiz()" class="ctrl-btn" style="background:var(--error); color:white; padding:8px 15px;">Finish</button>
+    </div>
+
+    <div class="quiz-layout">
+        <div class="q-card">
+            <div class="q-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="q-badge" id="topicTag">विषय</span>
+                <span style="font-weight:700;">Q: <span id="qNum">1</span>/500</span>
+            </div>
+            <div class="q-text" id="qText">लोड हो रहा है...</div>
+            <div class="options-grid" id="optContainer"></div>
+            <div class="controls">
+                <button class="ctrl-btn" onclick="prev()">Previous</button>
+                <button class="ctrl-btn btn-next" onclick="next()">Next ➜</button>
+            </div>
+        </div>
+
+        <div class="navigator">
+            <h4 style="margin-bottom:15px;">Question Palette</h4>
+            <div class="nav-grid" id="navGrid"></div>
+        </div>
+    </div>
+
+    <div id="resultScreen">
+        <div class="result-box">
+            <h2>शानदार प्रयास!</h2>
+            <p>BSEB Hindi 500 Objective Results</p>
+            <h1 id="scoreDisp" style="font-size:50px; color:var(--primary); margin:20px 0;">0%</h1>
+            <button onclick="location.reload()" class="ctrl-btn btn-next" style="width:100%">फिर से शुरू करें</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 500 HINDI QUESTIONS DATABASE ---
+        const hindiDB = [
+            { q: "श्रम विभाजन और जाति प्रथा के लेखक कौन हैं?", o: ["भीमराव अंबेडकर", "रामविलास शर्मा", "गुणाकर मुले", "हजारी प्रसाद"], a: 0, t: "गद्य" },
+            { q: "मंगम्मा क्या बेचती थी?", o: ["मक्खन", "दूध", "दही", "घी"], a: 2, t: "वर्णिका" },
+            { q: "नाखून क्यों बढ़ते हैं, यह किस प्रकार का निबंध है?", o: ["वैचारिक", "ललित", "भावनात्मक", "विवरणात्मक"], a: 1, t: "गद्य" },
+            { q: "बिरजू महाराज का संबंध किस घराने से है?", o: ["डुमराँव", "बनारस", "लखनऊ", "जयपुर"], a: 2, t: "गद्य" },
+            { q: "बहादुर पर चोरी का इल्जाम किसने लगाया?", o: ["लेखक ने", "लेखक की पत्नी ने", "रिश्तेदार ने", "निर्मला ने"], a: 2, t: "गद्य" },
+            { q: "अति सूधो सनेह को मारग है, किसकी पंक्ति है?", o: ["गुरु नानक", "प्रेमघन", "रसखान", "घनानंद"], a: 3, t: "पद्य" },
+            { q: "मदन किसका पुत्र था?", o: ["सेन साहब का", "गिरधरलाल का", "सोफर का", "अखबारनवीस का"], a: 1, t: "गद्य" },
+            { q: "काल के कितने भेद होते हैं?", o: ["एक", "दो", "तीन", "चार"], a: 2, t: "व्याकरण" },
+            { q: "वर्णों के समूह को क्या कहते हैं?", o: ["वर्णमाला", "शब्द", "वाक्य", "संज्ञा"], a: 0, t: "व्याकरण" },
+            { q: "दही वाली मंगम्मा कहानी के लेखक कौन हैं?", o: ["सातकोड़ी होता", "सुजाता", "श्रीनिवास", "साँवर दइया"], a: 2, t: "वर्णिका" }
+        ];
+
+        // Filling dummy data for remaining 490 (Yahan aap real data paste kar sakte hain)
+        for(let i=11; i<=500; i++) {
+            hindiDB.push({
+                q: `BSEB हिंदी महत्वपूर्ण प्रश्न संख्या ${i}?`,
+                o: ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"],
+                a: Math.floor(Math.random()*4),
+                t: i % 2 == 0 ? "व्याकरण" : "साहित्य"
+            });
+        }
+
+        let current = 0;
+        let userAns = new Array(500).fill(null);
+        let time = 0;
+
+        function startTimer() {
+            setInterval(() => {
+                time++;
+                let m = Math.floor(time/60).toString().padStart(2,'0');
+                let s = (time%60).toString().padStart(2,'0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function init() {
+            const grid = document.getElementById('navGrid');
+            hindiDB.forEach((_, i) => {
+                const b = document.createElement('button');
+                b.className = 'nav-btn';
+                b.id = `nav-${i}`;
+                b.innerText = i + 1;
+                b.onclick = () => load(i);
+                grid.appendChild(b);
+            });
+            load(0);
+            startTimer();
+        }
+
+        function load(idx) {
+            current = idx;
+            const item = hindiDB[idx];
+            document.getElementById('qNum').innerText = idx + 1;
+            document.getElementById('topicTag').innerText = item.t;
+            document.getElementById('qText').innerText = item.q;
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${idx}`).classList.add('active');
+
+            const cont = document.getElementById('optContainer');
+            cont.innerHTML = '';
+            item.o.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                if(userAns[idx] !== null) {
+                    if(i === item.a) btn.classList.add('correct');
+                    if(i === userAns[idx] && i !== item.a) btn.classList.add('wrong');
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => {
+                        userAns[idx] = i;
+                        document.getElementById(`nav-${idx}`).classList.add('solved');
+                        load(idx);
+                    };
+                }
+                cont.appendChild(btn);
+            });
+        }
+
+        function next() { if(current < 499) load(current + 1); }
+        function prev() { if(current > 0) load(current - 1); }
+
+        function submitQuiz() {
+            let correct = 0;
+            userAns.forEach((ans, i) => { if(ans === hindiDB[i].a) correct++; });
+            document.getElementById('scoreDisp').innerText = Math.round((correct/500)*100) + "%";
+            document.getElementById('resultScreen').style.display = 'flex';
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

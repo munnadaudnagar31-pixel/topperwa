@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 1 - Live Test</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .quiz-container {
+            background: #fff;
+            width: 100%;
+            max-width: 550px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Bar: Timer & Progress */
+        .quiz-header {
+            background: #fff;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .timer-box {
+            background: #ffe0e0;
+            color: #d32f2f;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .question-count {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            width: 100%;
+            background: #f1f1f1;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #764ba2;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Section */
+        .quiz-body { padding: 25px 20px; }
+
+        h2#question-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+
+        /* Options */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #444;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-btn:hover { background: #e2e6ea; }
+
+        /* Correct/Wrong Styles */
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .option-btn.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        /* Footer Buttons */
+        .quiz-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #next-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: none; /* Hide initially */
+        }
+        #next-btn:hover { background: #5b3a82; }
+
+        .home-link {
+            text-decoration: none;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Result Box (Hidden by default) */
+        .result-box {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            background: #764ba2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+        
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+
+        .accuracy-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .btn-restart { background: #764ba2; color: white; }
+        .btn-home { background: #eee; color: #333; }
+
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न यहाँ लोड होगा...</h2>
+            <div class="options-list" id="options-container">
+                </div>
+        </div>
+
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ▼▼▼ टाइम सेटिंग (सेकंड में) ▼▼▼
+    const TOTAL_TIME_MINUTES = 10; // यहाँ 10 मिनट सेट है, आप बदल सकते हैं
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ QUESTIONS DATA ▼▼▼
+    const questions = [
+        { question: "1. इटली एवं जर्मनी वर्तमान में किस महादेश के अंतर्गत आते हैं?", answers: [ { text: "उत्तरी अमेरिका", correct: false }, { text: "दक्षिणी अमेरिका", correct: false }, { text: "यूरोप", correct: true }, { text: "एशिया", correct: false } ] },
+        { question: "2. फ्रांस में किस शासन वंश की पुनर्स्थापना वियना कांग्रेस द्वारा की गई थी?", answers: [ { text: "हैब्सबर्ग", correct: false }, { text: "आलिया वंश", correct: false }, { text: "बूर्वो वंश", correct: true }, { text: "जारशाही", correct: false } ] },
+        { question: "3. मेजिनी का संबंध किस संगठन से था?", answers: [ { text: "लाल सेना", correct: false }, { text: "कार्बोनरी", correct: true }, { text: "फिलिक हेटारिया", correct: false }, { text: "डायट", correct: false } ] },
+        { question: "4. इटली एवं जर्मनी के एकीकरण के विरुद्ध निम्न में कौन था?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "रूस", correct: false }, { text: "ऑस्ट्रिया", correct: true }, { text: "प्रशा", correct: false } ] },
+        { question: "5. 'काउन्ट काबूर' को विक्टर इमैनुएल ने किस पद पर नियुक्त किया?", answers: [ { text: "सेनापति", correct: false }, { text: "फ्रांस में राजदूत", correct: false }, { text: "प्रधानमंत्री", correct: true }, { text: "गृहमंत्री", correct: false } ] },
+        { question: "6. गैरीबाल्डी पेशे से क्या था?", answers: [ { text: "सिपाही", correct: false }, { text: "किसान", correct: false }, { text: "जमींदार", correct: false }, { text: "नाविक", correct: true } ] },
+        { question: "7. जर्मन राइन राज्य का निर्माण किसने किया था?", answers: [ { text: "लुई 18वाँ", correct: false }, { text: "नेपोलियन बोनापार्ट", correct: true }, { text: "नेपोलियन II", correct: false }, { text: "बिस्मार्क", correct: false } ] },
+        { question: "8. जालवेराइन कैसी संस्था थी?", answers: [ { text: "क्रांतिकारियों की", correct: false }, { text: "व्यापारियों की", correct: true }, { text: "विद्वानों की", correct: false }, { text: "पादरी एवं सामंतों की", correct: false } ] },
+        { question: "9. 'रक्त एवं लौह' की नीति का अवलंबन किसने किया था?", answers: [ { text: "मेजिनी", correct: false }, { text: "हिटलर", correct: false }, { text: "बिस्मार्क", correct: true }, { text: "विलियम I", correct: false } ] },
+        { question: "10. फ्रैंकफर्ट की संधि कब हुई?", answers: [ { text: "1864", correct: false }, { text: "1866", correct: false }, { text: "1870", correct: false }, { text: "1871", correct: true } ] },
+        { question: "11. यूरोपवासियों के लिए किस देश का साहित्य एवं ज्ञान-विज्ञान प्रेरणा स्रोत रहा?", answers: [ { text: "जर्मनी", correct: false }, { text: "यूनान", correct: true }, { text: "तुर्की", correct: false }, { text: "इंग्लैंड", correct: false } ] },
+        { question: "12. 1829 ई० की एड्रियानोपुल की संधि किस देश के साथ हुई?", answers: [ { text: "तुर्की", correct: true }, { text: "यूनान", correct: false }, { text: "हंगरी", correct: false }, { text: "पोलैंड", correct: false } ] },
+        { question: "13. हंगरी की राजधानी कहाँ है?", answers: [ { text: "बुडापेस्ट", correct: true }, { text: "रोम", correct: false }, { text: "पेरिस", correct: false }, { text: "मॉस्को", correct: false } ] },
+        { question: "14. सेडोवा के युद्ध में किसकी पराजय हुई?", answers: [ { text: "प्रशा की", correct: false }, { text: "सार्डिनिया की", correct: false }, { text: "ऑस्ट्रिया की", correct: true }, { text: "नेपल्स की", correct: false } ] },
+        { question: "15. किस युद्ध के बाद जर्मनी का एकीकरण पूरा हुआ?", answers: [ { text: "क्रीमिया का युद्ध", correct: false }, { text: "सेडाओ का युद्ध", correct: false }, { text: "प्रशा-डेनमार्क युद्ध", correct: false }, { text: "सेडान का युद्ध", correct: true } ] },
+        { question: "16. यंग यूरोप का संस्थापक कौन था?", answers: [ { text: "मेजिनी", correct: true }, { text: "गैरीबाल्डी", correct: false }, { text: "विक्टर इमैनुएल", correct: false }, { text: "मुसोलिनी", correct: false } ] },
+        { question: "17. यूरोप का मरीज किसे कहा जाता था?", answers: [ { text: "तुर्की", correct: true }, { text: "इटली", correct: false }, { text: "इंग्लैंड", correct: false }, { text: "फ्रांस", correct: false } ] },
+        { question: "18. वियना कांग्रेस कब हुआ था?", answers: [ { text: "1815", correct: true }, { text: "1818", correct: false }, { text: "1820", correct: false }, { text: "1848", correct: false } ] },
+        { question: "19. जर्मनी के एकीकरण का प्रमुख वास्तुकार कौन था?", answers: [ { text: "मेजिनी", correct: false }, { text: "गैरीबाल्डी", correct: false }, { text: "लेनिन", correct: false }, { text: "बिस्मार्क", correct: true } ] },
+        { question: "20. इटली के एकीकरण में निम्न में से किसका संबंध नहीं है?", answers: [ { text: "बिस्मार्क", correct: true }, { text: "मेजिनी", correct: false }, { text: "काउन्ट काबूर", correct: false }, { text: "गैरीबाल्डी", correct: false } ] },
+        { question: "21. 1830 की क्रांति के बाद फ्रांस में किस प्रकार का शासन स्थापित हुआ?", answers: [ { text: "निरंकुश राजतंत्र", correct: false }, { text: "संघीय शासन", correct: false }, { text: "गणराज्य", correct: false }, { text: "संवैधानिक राजतंत्र", correct: true } ] },
+        { question: "22. जर्मनी के एकीकरण के लिए बिस्मार्क ने कितने युद्ध किए?", answers: [ { text: "एक", correct: false }, { text: "दो", correct: false }, { text: "तीन", correct: true }, { text: "चार", correct: false } ] },
+        { question: "23. यूनान के स्वतंत्रता संग्राम में किसकी पराजय हुई?", answers: [ { text: "रूस की", correct: false }, { text: "तुर्की की", correct: true }, { text: "यूनान की", correct: false }, { text: "फ्रांस की", correct: false } ] },
+        { question: "24. मारीआन किस देश के राष्ट्रवाद की प्रतीक थी?", answers: [ { text: "फ्रांस", correct: true }, { text: "रूस", correct: false }, { text: "इटली", correct: false }, { text: "जर्मनी", correct: false } ] },
+        { question: "25. एक्ट ऑफ यूनियन किस वर्ष पारित हुआ?", answers: [ { text: "1688 में", correct: true }, { text: "1707 में", correct: false }, { text: "1788 में", correct: false }, { text: "1807 में", correct: false } ] },
+        { question: "26. नेपोलियन संहिता किस वर्ष लागू की गई?", answers: [ { text: "1789 में", correct: false }, { text: "1791 में", correct: false }, { text: "1801 में", correct: false }, { text: "1804 में", correct: true } ] },
+        { question: "27. कार्बोनरी की स्थापना किस वर्ष हुई थी?", answers: [ { text: "1810 में", correct: true }, { text: "1815 में", correct: false }, { text: "1830 में", correct: false }, { text: "1848 में", correct: false } ] },
+        { question: "28. चार्टिस्ट आंदोलन कहाँ हुआ?", answers: [ { text: "फ्रांस", correct: false }, { text: "ऑस्ट्रिया", correct: false }, { text: "हंगरी", correct: false }, { text: "इंग्लैंड", correct: true } ] },
+        { question: "29. राष्ट्रवाद की अवधारणा का जन्म किस घटना से माना जाता है?", answers: [ { text: "पुनर्जागरण", correct: true }, { text: "धर्मसुधार आंदोलन", correct: false }, { text: "गौरवपूर्ण क्रांति", correct: false }, { text: "फ्रांस की क्रांति", correct: false } ] },
+        { question: "30. किस संधि द्वारा स्वतंत्र यूनान राष्ट्र की स्थापना हुई?", answers: [ { text: "वियना की संधि", correct: false }, { text: "कुस्तुनतुनिया की संधि", correct: true }, { text: "प्राग की संधि", correct: false }, { text: "एड्रियानोपुल की संधि", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    // Elements
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+
+    // Result Elements
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            
+            // Format time (09:05)
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        
+        // Update Progress Bar
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+
+        // Show correct answer & Disable all
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval); // Stop Timer
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+
+        // Calculate Accuracy
+        let accuracy = Math.round((score / questions.length) * 100);
+        
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+
+        // Remarks based on accuracy
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बेहतरीन! आप टॉपर बन सकते हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 अच्छा प्रयास! थोड़ी और मेहनत करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 आपको अभी और पढ़ाई की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    // Start
+    startQuiz();
+
+</script>
+
+</body>
+</html>

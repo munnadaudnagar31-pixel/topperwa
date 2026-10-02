@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 3 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Industrial Steel) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #eceff1; color: #455a64; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #607d8b; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; max-height: 60vh; overflow-y: auto; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 12px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #cfd8dc; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        #next-btn { background: #607d8b; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #455a64; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #607d8b; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(96, 125, 139, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #607d8b; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Q: <span id="q-index">1</span>/<span id="total-q">50</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit</a>
+            <button id="next-btn" onclick="nextQuestion()">Next ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapters</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12; 
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 3 QUESTIONS (निर्माण उद्योग) ▼▼▼
+    const questions = [
+        { question: "1. भारत में सबसे पहले स्थापित लौह-इस्पात कंपनी निम्नांकित में से कौन है?", answers: [ { text: "भारतीय लोहा और इस्पात कंपनी (IISCO)", correct: false }, { text: "टाटा लोहा इस्पात कंपनी (TISCO)", correct: true }, { text: "बोकारो स्टील सिटी", correct: false }, { text: "विश्वेश्वरैया आयरन एंड स्टील कंपनी", correct: false } ] },
+        { question: "2. निम्नलिखित में से कौन उद्योग कृषि पर आधारित नहीं है?", answers: [ { text: "सूती वस्त्र", correct: false }, { text: "सीमेंट", correct: true }, { text: "चीनी", correct: false }, { text: "जूट", correct: false } ] },
+        { question: "3. निम्न में से कौन उपभोक्ता उद्योग है?", answers: [ { text: "पेट्रोल रसायन", correct: false }, { text: "लौह इस्पात", correct: false }, { text: "चीनी उद्योग", correct: true }, { text: "चित्तरंजन लोकोमोटिव", correct: false } ] },
+        { question: "4. निम्नलिखित में से कौन छोटे पैमाने का उद्योग है?", answers: [ { text: "चीनी उद्योग", correct: false }, { text: "कागज उद्योग", correct: false }, { text: "खिलौना उद्योग", correct: true }, { text: "विद्युत उपकरण उद्योग", correct: false } ] },
+        { question: "5. भोपाल त्रासदी में किस गैस का रिसाव हुआ था?", answers: [ { text: "कार्बन डाइऑक्साइड", correct: false }, { text: "कार्बन मोनोऑक्साइड", correct: false }, { text: "मिथाइल आइसोसाइनाइट", correct: true }, { text: "सल्फर डाइऑक्साइड", correct: false } ] },
+        { question: "6. हुगली औद्योगिक प्रदेश का केंद्र है?", answers: [ { text: "कोलकाता-रिषड़ा", correct: true }, { text: "कोलकाता-कोन्नगर", correct: false }, { text: "कोलकाता-मेदिनीपुर", correct: false }, { text: "कोलकाता-हावड़ा", correct: false } ] },
+        { question: "7. निम्नलिखित में कौन-सा उद्योग सार्वजनिक क्षेत्र के अंतर्गत आता है?", answers: [ { text: "जे. के. सीमेंट उद्योग", correct: false }, { text: "टाटा लौह एवं इस्पात", correct: false }, { text: "बोकारो लौह इस्पात उद्योग", correct: true }, { text: "रेमंड वस्त्र उद्योग", correct: false } ] },
+        { question: "8. पहली आधुनिक सूती मिल मुंबई में स्थापित की गई थी, क्योंकि?", answers: [ { text: "मुंबई एक पत्तन है", correct: false }, { text: "यह कपास उत्पादक क्षेत्र के निकट स्थित है", correct: false }, { text: "मुंबई में पूँजी उपलब्ध थी", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "9. सिंदरी कहाँ स्थित है?", answers: [ { text: "पश्चिम बंगाल", correct: false }, { text: "झारखंड", correct: true }, { text: "छत्तीसगढ़", correct: false }, { text: "ओडिशा", correct: false } ] },
+        { question: "10. चीनी उत्पादन में अग्रणी राज्य कौन है?", answers: [ { text: "उत्तर प्रदेश", correct: false }, { text: "महाराष्ट्र", correct: true }, { text: "पंजाब", correct: false }, { text: "असम", correct: false } ] },
+        { question: "11. इनमें कौन सूती वस्त्र उत्पादन में अग्रणी है?", answers: [ { text: "कानपुर", correct: true }, { text: "मुंबई", correct: false }, { text: "चेन्नई", correct: false }, { text: "नागपुर", correct: false } ] },
+        { question: "12. बोकारो इस्पात संयंत्र किस देश के सहयोग से खोला गया है?", answers: [ { text: "जर्मनी", correct: false }, { text: "ब्रिटेन", correct: false }, { text: "रूस", correct: true }, { text: "अमेरिका", correct: false } ] },
+        { question: "13. सीमेंट उद्योग का सबसे प्रमुख कच्चा माल क्या है?", answers: [ { text: "चूना पत्थर", correct: true }, { text: "बॉक्साइट", correct: false }, { text: "ग्रेनाइट", correct: false }, { text: "लोहा", correct: false } ] },
+        { question: "14. भारत का 'सिलिकॉन सिटी' (Silicon City) किसे कहा जाता है?", answers: [ { text: "बेंगलुरु", correct: true }, { text: "पुणे", correct: false }, { text: "मुंबई", correct: false }, { text: "चेन्नई", correct: false } ] },
+        { question: "15. भारत में पहला उर्वरक संयंत्र कहाँ स्थापित किया गया था?", answers: [ { text: "रानीपेट", correct: true }, { text: "खेतड़ी", correct: false }, { text: "सिंदरी", correct: false }, { text: "जम्मू", correct: false } ] },
+        { question: "16. नेपानगर प्रसिद्ध है?", answers: [ { text: "चीनी के लिए", correct: false }, { text: "सीमेंट के लिए", correct: false }, { text: "अखबारी कागज के लिए", correct: true }, { text: "सूती कपड़ों के लिए", correct: false } ] },
+        { question: "17. स्टील अथॉरिटी ऑफ इंडिया लिमिटेड (SAIL) का गठन किस वर्ष किया गया था?", answers: [ { text: "1972", correct: false }, { text: "1974", correct: true }, { text: "1976", correct: false }, { text: "1978", correct: false } ] },
+        { question: "18. भारत का बर्मिंघम किस शहर को कहा जाता है?", answers: [ { text: "बोकारो", correct: false }, { text: "जमशेदपुर", correct: true }, { text: "भिलाई", correct: false }, { text: "रेवाड़ी", correct: false } ] },
+        { question: "19. भारत में जूट के सबसे अधिक कारखाने किस राज्य में हैं?", answers: [ { text: "असम", correct: false }, { text: "पश्चिम बंगाल", correct: true }, { text: "बिहार", correct: false }, { text: "ओडिशा", correct: false } ] },
+        { question: "20. निम्नलिखित में कौन-सा उद्योग दुर्भाष, कंप्यूटर आदि संयंत्र निर्मित करता है?", answers: [ { text: "स्टील", correct: false }, { text: "इलेक्ट्रॉनिक", correct: true }, { text: "एल्यूमीनियम", correct: false }, { text: "सूचना प्रौद्योगिकी", correct: false } ] },
+        { question: "21. राउरकेला इस्पात केंद्र किस राज्य में स्थित है?", answers: [ { text: "पश्चिम बंगाल", correct: false }, { text: "ओडिशा", correct: true }, { text: "झारखंड", correct: false }, { text: "छत्तीसगढ़", correct: false } ] },
+        { question: "22. इनमें से कौन औद्योगिक अवस्थिति का कारक नहीं है?", answers: [ { text: "बाजार", correct: false }, { text: "जनसंख्या", correct: true }, { text: "पूंजी", correct: false }, { text: "ऊर्जा", correct: false } ] },
+        { question: "23. भारत में सबसे पहले सूती वस्त्र मिल किस शहर में स्थापित की गई थी?", answers: [ { text: "सूरत", correct: false }, { text: "मुंबई", correct: false }, { text: "अहमदाबाद", correct: false }, { text: "कोलकाता", correct: true } ] },
+        { question: "24. भारत में तांबा गलाने का आधुनिक कारखाना सबसे पहले कहाँ खुला?", answers: [ { text: "तूतीकोरिन", correct: false }, { text: "खेतड़ी", correct: false }, { text: "घाटशिला", correct: true }, { text: "जमशेदपुर", correct: false } ] },
+        { question: "25. अंगोरा ऊन किस जानवर के रोएं से बनाया जाता है?", answers: [ { text: "भेड़", correct: false }, { text: "खरगोश", correct: true }, { text: "शेर", correct: false }, { text: "भालू", correct: false } ] },
+        { question: "26. पश्मीना ऊन किस जानवर से बनाया जाता है?", answers: [ { text: "भेड़", correct: true }, { text: "खरगोश", correct: false }, { text: "शेर", correct: false }, { text: "भालू", correct: false } ] },
+        { question: "27. भारत में रेल इंजन (लोकोमोटिव) बनाने का कारखाना कहाँ स्थित है?", answers: [ { text: "कपूरथला", correct: false }, { text: "वाराणसी", correct: false }, { text: "चितरंजन", correct: true }, { text: "पेराम्बूर", correct: false } ] },
+        { question: "28. भारत में वायुयान निर्माण का प्रथम कारखाना कहाँ स्थापित किया गया?", answers: [ { text: "कानपुर", correct: false }, { text: "बेंगलुरु", correct: true }, { text: "कोचीन", correct: false }, { text: "कोरापुट", correct: false } ] },
+        { question: "29. रसायन उद्योग में भारत का एशिया में कौन सा स्थान है?", answers: [ { text: "पहला", correct: false }, { text: "दूसरा", correct: false }, { text: "तीसरा", correct: true }, { text: "चौथा", correct: false } ] },
+        { question: "30. बिहार में किस स्थान पर सवारी गाड़ी के रेलवे डिब्बे बनाने का कारखाना निर्माणाधीन है?", answers: [ { text: "हरनौत", correct: true }, { text: "सीतामढ़ी", correct: false }, { text: "हाजीपुर", correct: false }, { text: "भागलपुर", correct: false } ] },
+        { question: "31. निम्नलिखित में से कौन-सा राज्य शक्कर (चीनी) का कटोरा कहलाता है?", answers: [ { text: "आंध्र प्रदेश", correct: false }, { text: "बिहार", correct: false }, { text: "पंजाब", correct: false }, { text: "उत्तर प्रदेश", correct: true } ] },
+        { question: "32. उत्तर भारत का मैनचेस्टर किसे कहा जाता है?", answers: [ { text: "कानपुर", correct: true }, { text: "लखनऊ", correct: false }, { text: "वाराणसी", correct: false }, { text: "दिल्ली", correct: false } ] },
+        { question: "33. दक्षिण भारत का मैनचेस्टर किसे कहा जाता है?", answers: [ { text: "कोयंबटूर", correct: true }, { text: "मदुरई", correct: false }, { text: "बेंगलुरु", correct: false }, { text: "पेराम्बूर", correct: false } ] },
+        { question: "34. भारत का मैनचेस्टर किसे कहते हैं?", answers: [ { text: "अहमदाबाद", correct: true }, { text: "सूरत", correct: false }, { text: "वडोदरा", correct: false }, { text: "राजकोट", correct: false } ] },
+        { question: "35. भिलाई इस्पात संयंत्र किस राज्य में है?", answers: [ { text: "छत्तीसगढ़", correct: true }, { text: "मध्य प्रदेश", correct: false }, { text: "ओडिशा", correct: false }, { text: "झारखंड", correct: false } ] },
+        { question: "36. दुर्गापुर स्टील प्लांट किस राज्य में स्थित है?", answers: [ { text: "झारखंड", correct: false }, { text: "पश्चिम बंगाल", correct: true }, { text: "ओडिशा", correct: false }, { text: "बिहार", correct: false } ] },
+        { question: "37. एल्युमिनियम उद्योग का प्रमुख कच्चा माल क्या है?", answers: [ { text: "हेमेटाइट", correct: false }, { text: "बॉक्साइट", correct: true }, { text: "सिडेराइट", correct: false }, { text: "लिमोनाइट", correct: false } ] },
+        { question: "38. गन्ने के रस में सुक्रोज की मात्रा किस राज्य में अधिक पाई जाती है?", answers: [ { text: "बिहार", correct: false }, { text: "उत्तर प्रदेश", correct: false }, { text: "पंजाब", correct: false }, { text: "महाराष्ट्र", correct: true } ] },
+        { question: "39. पेट्रो-रसायन उद्योग के लिए कौन सा कच्चा माल आवश्यक है?", answers: [ { text: "कोयला", correct: false }, { text: "नेफ्था", correct: true }, { text: "लौह अयस्क", correct: false }, { text: "नमक", correct: false } ] },
+        { question: "40. देश में रेशम का सबसे बड़ा उत्पादक राज्य कौन है?", answers: [ { text: "कर्नाटक", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "पश्चिम बंगाल", correct: false }, { text: "असम", correct: false } ] },
+        { question: "41. जमशेदपुर किस उद्योग के लिए प्रसिद्ध है?", answers: [ { text: "सीमेंट", correct: false }, { text: "लौह-इस्पात", correct: true }, { text: "सूती वस्त्र", correct: false }, { text: "चीनी", correct: false } ] },
+        { question: "42. चूना पत्थर का उपयोग किस उद्योग में सबसे अधिक होता है?", answers: [ { text: "सीमेंट", correct: true }, { text: "जूट", correct: false }, { text: "चीनी", correct: false }, { text: "एल्युमिनियम", correct: false } ] },
+        { question: "43. भारत में कितने सार्वजनिक क्षेत्र के तेल परिष्करण केन्द्र कार्य कर रहे हैं?", answers: [ { text: "15", correct: false }, { text: "16", correct: false }, { text: "18", correct: true }, { text: "20", correct: false } ] },
+        { question: "44. दमघोटू गैस किसे कहा जाता है?", answers: [ { text: "कार्बन मोनोऑक्साइड", correct: true }, { text: "कार्बन डाइऑक्साइड", correct: false }, { text: "सल्फर", correct: false }, { text: "सल्फ्यूरिक अम्ल", correct: false } ] },
+        { question: "45. जूट उद्योग के सबसे अधिक कारखाने किस नदी के तट पर हैं?", answers: [ { text: "दामोदर", correct: false }, { text: "हुगली", correct: true }, { text: "गंगा", correct: false }, { text: "कोसी", correct: false } ] },
+        { question: "46. मुर्री (बिहार) में किस उद्योग का कारखाना है?", answers: [ { text: "सीमेंट", correct: false }, { text: "एल्युमिनियम", correct: true }, { text: "कांच", correct: false }, { text: "खाद", correct: false } ] },
+        { question: "47. किस राज्य में सॉफ्टवेयर प्रौद्योगिकी पार्क नहीं है?", answers: [ { text: "कर्नाटक", correct: false }, { text: "छत्तीसगढ़", correct: true }, { text: "राजस्थान", correct: false }, { text: "असम", correct: false } ] },
+        { question: "48. निम्नलिखित में कौन-सा शहर तमिलनाडु का 'मैनचेस्टर' कहलाता है?", answers: [ { text: "कोयंबटूर", correct: true }, { text: "चेन्नई", correct: false }, { text: "सलेम", correct: false }, { text: "मदुरई", correct: false } ] },
+        { question: "49. विशाखापत्तनम तेल शोधक कारखाना किस राज्य में है?", answers: [ { text: "आंध्र प्रदेश", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "केरल", correct: false }, { text: "कर्नाटक", correct: false } ] },
+        { question: "50. सूती वस्त्रों की राजधानी किसे कहा जाता है?", answers: [ { text: "सूरत", correct: false }, { text: "मुंबई", correct: true }, { text: "अहमदाबाद", correct: false }, { text: "कोलकाता", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🏭 शानदार! उद्योगों की जानकारी अच्छी है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर किस राज्य में कौन सा उद्योग है, याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन की सख्त जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

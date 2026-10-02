@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Chemistry Ch-1 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (CHEMISTRY) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #E0F7FA 0%, #B2DFDB 100%);
+            --header-gradient: linear-gradient(135deg, #00695C 0%, #004D40 100%);
+            --card-bg: #ffffff;
+            --text-main: #004D40;
+            --text-sub: #00796B;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00C853; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 77, 64, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px; /* Space for Next button */
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* States */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 77, 64, 0.3); transition: 0.2s;
+            display: none; /* Hidden initially */
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px;
+            animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #009688;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #004D40; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+        .home-btn {
+            background: #2d3436; color: white; padding: 15px 30px; border-radius: 50px;
+            text-decoration: none; font-weight: 600; margin-top: 20px; display: inline-block;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="chemistry_chapters.html" class="close-btn">✕</a>
+        <span>Ch-1: Chemical Reactions</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading Question...</div>
+            
+            <div class="options-list" id="options-container">
+                </div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #004D40; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">Great job practicing.</p>
+        <a href="chemistry_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#009688; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS ---
+        const questions = [
+            { q: "Which of the following is a balanced chemical equation?", o: ["H2 + O2 -> H2O", "2H2 + O2 -> 2H2O", "H2 + 2O2 -> 2H2O", "2H2 + 2O2 -> 2H2O"], a: 1 },
+            { q: "What happens when Magnesium ribbon is burnt in air?", o: ["It burns with a dazzling white flame", "It turns black", "It produces hydrogen gas", "No change occurs"], a: 0 },
+            { q: "The chemical formula of Magnesium Oxide is:", o: ["MgO2", "Mg2O", "MgO", "Mg(OH)2"], a: 2 },
+            { q: "Reaction of Quick lime (CaO) with water to form Slaked lime is an example of:", o: ["Displacement", "Combination", "Decomposition", "Double Displacement"], a: 1 },
+            { q: "The chemical formula of Marble (Calcium Carbonate) is:", o: ["CaO", "Ca(OH)2", "CaCO3", "CaCl2"], a: 2 },
+            { q: "Which gas is evolved when Zinc granules react with dilute Sulphuric Acid?", o: ["Oxygen", "Carbon Dioxide", "Hydrogen", "Nitrogen"], a: 2 },
+            { q: "What is the colour of Ferrous Sulphate crystals?", o: ["Blue", "Green", "White", "Red"], a: 1 },
+            { q: "On heating Ferrous Sulphate, the gas evolved has the smell of:", o: ["Rotten eggs", "Burning Sulphur", "Pleasant smell", "No smell"], a: 1 },
+            { q: "The reaction used in black and white photography is:", o: ["Thermal Decomposition", "Electrolytic Decomposition", "Photolytic Decomposition", "Displacement"], a: 2 },
+            { q: "When Lead Nitrate is heated, brown fumes are emitted. These fumes are of:", o: ["Oxygen", "Nitrogen Dioxide", "Nitrogen", "Lead Oxide"], a: 1 },
+            { q: "Electrolysis of water produces Hydrogen and Oxygen in the ratio:", o: ["1:1", "2:1", "1:2", "1:8"], a: 1 },
+            { q: "Respiration is which type of reaction?", o: ["Endothermic", "Exothermic", "Reduction", "Combination"], a: 1 },
+            { q: "Which substance is used for whitewashing walls?", o: ["Calcium Carbonate", "Calcium Oxide", "Calcium Hydroxide", "Calcium Sulphate"], a: 2 },
+            { q: "The layer deposited on Iron during rusting is chemically:", o: ["Fe2O3", "Fe3O4", "Hydrated Ferric Oxide", "FeCO3"], a: 2 },
+            { q: "Identify the Oxidizing Agent in: CuO + H2 -> Cu + H2O", o: ["CuO", "H2", "Cu", "H2O"], a: 0 },
+            { q: "The reaction Zn + CuSO4 -> ZnSO4 + Cu is an example of:", o: ["Combination", "Decomposition", "Displacement", "Double Displacement"], a: 2 },
+            { q: "What is the colour of Copper Sulphate solution?", o: ["Green", "Blue", "Colourless", "Yellow"], a: 1 },
+            { q: "The reaction Na2SO4 + BaCl2 -> BaSO4 + 2NaCl is an example of:", o: ["Displacement", "Double Displacement", "Redox", "Combination"], a: 1 },
+            { q: "The insoluble substance formed during a chemical reaction is called:", o: ["Solution", "Precipitate", "Solvent", "Residue"], a: 1 },
+            { q: "Oxidation is defined as:", o: ["Gain of Oxygen", "Loss of Hydrogen", "Loss of Electrons", "All of the above"], a: 3 },
+            { q: "Reduction is defined as:", o: ["Loss of Oxygen", "Gain of Hydrogen", "Gain of Electrons", "All of the above"], a: 3 },
+            { q: "Which gas is flushed in bags of chips to prevent Rancidity?", o: ["Oxygen", "Hydrogen", "Nitrogen", "Carbon Dioxide"], a: 2 },
+            { q: "Corrosion of Silver leads to the formation of a coating of which colour?", o: ["Green", "Red", "Black", "Blue"], a: 2 },
+            { q: "Green coating on Copper is due to formation of:", o: ["Copper Oxide", "Copper Carbonate", "Copper Sulphate", "Copper Nitrate"], a: 1 },
+            { q: "Burning of natural gas is an example of:", o: ["Endothermic Reaction", "Exothermic Reaction", "Reduction", "Decomposition"], a: 1 },
+            { q: "Chemical formula of Lead Nitrate is:", o: ["PbNO3", "Pb(NO3)2", "Pb2NO3", "Pb(NO2)2"], a: 1 },
+            { q: "MnO2 + 4HCl -> MnCl2 + 2H2O + Cl2. The substance oxidized is:", o: ["MnO2", "HCl", "MnCl2", "Cl2"], a: 1 },
+            { q: "Which law is followed while balancing a chemical equation?", o: ["Law of Conservation of Momentum", "Law of Conservation of Mass", "Law of Constant Proportions", "Avogadro's Law"], a: 1 },
+            { q: "Decomposition of vegetable matter into compost is an example of:", o: ["Endothermic", "Exothermic", "Displacement", "None"], a: 1 },
+            { q: "When AgCl is exposed to sunlight, its colour changes from white to:", o: ["Yellow", "Grey", "Black", "Green"], a: 1 },
+            { q: "Precipitate of Barium Sulphate (BaSO4) is of which colour?", o: ["Yellow", "White", "Black", "Red"], a: 1 },
+            { q: "Reaction Pb(NO3)2 + 2KI -> PbI2 + 2KNO3 produces a precipitate of colour:", o: ["White", "Yellow", "Red", "Green"], a: 1 },
+            { q: "H2S + I2 -> 2HI + S. The reducing agent is:", o: ["H2S", "I2", "HI", "S"], a: 0 },
+            { q: "Fatty foods become rancid due to:", o: ["Reduction", "Hydrogenation", "Oxidation", "Corrosion"], a: 2 },
+            { q: "CaO + H2O -> Ca(OH)2 + Heat. This reaction is:", o: ["Endothermic", "Exothermic", "Decomposition", "Redox"], a: 1 },
+            { q: "Chemical formula of Rust is:", o: ["Fe2O3", "Fe3O4", "Fe2O3.xH2O", "FeCO3"], a: 2 },
+            { q: "Which gas burns with a 'Pop' sound?", o: ["Oxygen", "Hydrogen", "Carbon Dioxide", "Nitrogen"], a: 1 },
+            { q: "Which gas turns lime water milky?", o: ["O2", "H2", "CO2", "N2"], a: 2 },
+            { q: "In the reaction 2PbO + C -> 2Pb + CO2, Carbon acts as:", o: ["Oxidizing Agent", "Reducing Agent", "Catalyst", "Flux"], a: 1 },
+            { q: "Reaction in which energy is absorbed is known as:", o: ["Exothermic", "Endothermic", "Combustion", "Combination"], a: 1 },
+            { q: "What is chemically 'Slaked Lime'?", o: ["Calcium Oxide", "Calcium Carbonate", "Calcium Hydroxide", "Calcium Chloride"], a: 2 },
+            { q: "Fe2O3 + 2Al -> Al2O3 + 2Fe. This reaction is:", o: ["Combination", "Double Displacement", "Decomposition", "Displacement"], a: 3 },
+            { q: "Condition necessary for rusting of iron is:", o: ["Presence of Air only", "Presence of Water only", "Presence of Air and Water", "Presence of Nitrogen"], a: 2 },
+            { q: "Which of the following is not a physical change?", o: ["Boiling of water", "Melting of ice", "Burning of LPG", "Dissolving salt in water"], a: 2 },
+            { q: "A skeletal chemical equation is:", o: ["Balanced", "Unbalanced", "Always correct", "None of these"], a: 1 }
+        ];
+
+        // --- GAME VARIABLES ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        // --- ELEMENTS ---
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        // --- INIT ---
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none"; // Hide next button
+            const q = questions[currentQuestion];
+            
+            // Update UI
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            // Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Render Options
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return; // Prevent multiple clicks
+            isAnswered = true;
+
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                // Correct
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                // Wrong
+                btnElement.classList.add('wrong');
+                // Highlight correct one
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            // Disable all options
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            // Show Next Button
+            nextBtn.style.display = "block";
+            
+            // Auto scroll to bottom to see Next button
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0; // Scroll to top
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+
+    </script>
+</body>
+</html>

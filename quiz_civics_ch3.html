@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Chapter 3 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Justice Purple) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #f3e5f5; color: #7b1fa2; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #8E2DE2; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #e1bee7; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #8E2DE2; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #4a00e0; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #8E2DE2; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(142, 45, 226, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #8E2DE2; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="civics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="civics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CIVICS CHAPTER 3 QUESTIONS (लोकतंत्र में प्रतिस्पर्धा एवं संघर्ष) ▼▼▼
+    const questions = [
+        { question: "1. वर्ष 1975 भारतीय राजनीति में किसलिए जाना जाता है?", answers: [ { text: "आम चुनाव हुए थे", correct: false }, { text: "इंदिरा गाँधी प्रधानमंत्री बनी थीं", correct: false }, { text: "देश में आपातकाल लागू हुआ था", correct: true }, { text: "जनता पार्टी की सरकार बनी थी", correct: false } ] },
+        { question: "2. भारत में 'संपूर्ण क्रांति' का नेतृत्व निम्नलिखित में किसने किया?", answers: [ { text: "मोरारजी देसाई", correct: false }, { text: "नीतीश कुमार", correct: false }, { text: "इंदिरा गाँधी", correct: false }, { text: "जयप्रकाश नारायण", correct: true } ] },
+        { question: "3. 'ताड़ी विरोधी आंदोलन' किस प्रांत से शुरू किया गया?", answers: [ { text: "बिहार", correct: false }, { text: "उत्तर प्रदेश", correct: false }, { text: "आंध्र प्रदेश", correct: true }, { text: "तमिलनाडु", correct: false } ] },
+        { question: "4. 'नर्मदा घाटी परियोजना' किन राज्यों से संबंधित है?", answers: [ { text: "बिहार, यूपी, एमपी", correct: false }, { text: "तमिलनाडु, केरल, कर्नाटक", correct: false }, { text: "प. बंगाल, यूपी, पंजाब", correct: false }, { text: "गुजरात, महाराष्ट्र, मध्य प्रदेश", correct: true } ] },
+        { question: "5. 'सूचना के अधिकार आंदोलन' की शुरुआत कहाँ से हुई?", answers: [ { text: "राजस्थान", correct: true }, { text: "दिल्ली", correct: false }, { text: "तमिलनाडु", correct: false }, { text: "बिहार", correct: false } ] },
+        { question: "6. 'सूचना का अधिकार' (RTI) संबंधी कानून कब बना?", answers: [ { text: "2004 में", correct: false }, { text: "2005 में", correct: true }, { text: "2006 में", correct: false }, { text: "2007 में", correct: false } ] },
+        { question: "7. नेपाल में 'सप्तदलीय गठबंधन' का मुख्य उद्देश्य क्या है?", answers: [ { text: "राजा को देश छोड़ने पर मजबूर करना", correct: false }, { text: "लोकतंत्र की स्थापना करना", correct: true }, { text: "भारत-नेपाल संबंधों को सुधारना", correct: false }, { text: "सर्वदलीय सरकार की स्थापना करना", correct: false } ] },
+        { question: "8. बोलिविया में जनसंघर्ष का मुख्य कारण क्या था?", answers: [ { text: "पानी की कीमत में वृद्धि", correct: true }, { text: "खाद्यान्न की कीमत में वृद्धि", correct: false }, { text: "पेट्रोल की कीमत में वृद्धि", correct: false }, { text: "जीवन रक्षक दवाओं की कमी", correct: false } ] },
+        { question: "9. राजनीतिक दलों की नींव सर्वप्रथम किस देश में पड़ी?", answers: [ { text: "ब्रिटेन", correct: true }, { text: "भारत", correct: false }, { text: "फ्रांस", correct: false }, { text: "संयुक्त राज्य अमेरिका", correct: false } ] },
+        { question: "10. 'दल-बदल कानून' निम्नलिखित में किस पर लागू होता है?", answers: [ { text: "सांसदों और विधायकों पर", correct: true }, { text: "राष्ट्रपति पर", correct: false }, { text: "उपराष्ट्रपति पर", correct: false }, { text: "उपर्युक्त सभी पर", correct: false } ] },
+        { question: "11. निम्नलिखित में किसे 'लोकतंत्र का प्राण' माना जाता है?", answers: [ { text: "सरकार को", correct: false }, { text: "न्यायपालिका को", correct: false }, { text: "संविधान को", correct: false }, { text: "राजनीतिक दल को", correct: true } ] },
+        { question: "12. भारतीय जनता पार्टी (BJP) की स्थापना कब हुई?", answers: [ { text: "1979", correct: false }, { text: "1980", correct: true }, { text: "1981", correct: false }, { text: "1985", correct: false } ] },
+        { question: "13. भारतीय राष्ट्रीय कांग्रेस की स्थापना कब हुई?", answers: [ { text: "1885", correct: true }, { text: "1890", correct: false }, { text: "1895", correct: false }, { text: "1900", correct: false } ] },
+        { question: "14. बहुजन समाज पार्टी के संस्थापक कौन थे?", answers: [ { text: "अंबेडकर", correct: false }, { text: "काशीराम", correct: true }, { text: "मायावती", correct: false }, { text: "रामविलास पासवान", correct: false } ] },
+        { question: "15. भारत में किस प्रधानमंत्री के नेतृत्व में प्रथम बार गैर-कांग्रेसी सरकार बनी?", answers: [ { text: "अटल बिहारी वाजपेयी", correct: false }, { text: "मोरारजी देसाई", correct: true }, { text: "चौधरी चरण सिंह", correct: false }, { text: "विश्वनाथ प्रताप सिंह", correct: false } ] },
+        { question: "16. चिपको आंदोलन निम्नलिखित में से किससे संबंधित है?", answers: [ { text: "पेड़ काटने के विरोध से", correct: true }, { text: "आर्थिक शोषण से", correct: false }, { text: "शराबखोरी के विरुद्ध", correct: false }, { text: "कांग्रेस पार्टी के विरोध से", correct: false } ] },
+        { question: "17. 'नर्मदा बचाओ आंदोलन' किसने चलाया?", answers: [ { text: "मेधा पाटेकर", correct: true }, { text: "संदीप पांडेय", correct: false }, { text: "अन्ना हजारे", correct: false }, { text: "अरुंधति रॉय", correct: false } ] },
+        { question: "18. श्रीलंका में कब लोकतंत्र की स्थापना हुई?", answers: [ { text: "1948", correct: false }, { text: "1956", correct: false }, { text: "1960", correct: false }, { text: "1948 (स्वतंत्रता) / लोकतंत्र बाद में मजबूत हुआ", correct: false }, { text: "1956 (सिंहली अधिनियम)", correct: false } ] },
+        /* Note: For Q18, Sri Lanka gained independence in 1948. Democracy established since then. Simplified options below */
+        { question: "18. श्रीलंका कब आजाद हुआ?", answers: [ { text: "1947", correct: false }, { text: "1948", correct: true }, { text: "1949", correct: false }, { text: "1950", correct: false } ] },
+        { question: "19. भारतीय किसान यूनियन के प्रमुख नेता कौन थे?", answers: [ { text: "मोरारजी देसाई", correct: false }, { text: "जयप्रकाश नारायण", correct: false }, { text: "महेंद्र सिंह टिकैत", correct: true }, { text: "चौधरी चरण सिंह", correct: false } ] },
+        { question: "20. किस देश में बहुदलीय व्यवस्था नहीं है?", answers: [ { text: "भारत", correct: false }, { text: "पाकिस्तान", correct: false }, { text: "बांग्लादेश", correct: false }, { text: "ब्रिटेन", correct: true } ] },
+        { question: "21. गठबंधन की सरकार बनाने की संभावना किस प्रकार की दलीय व्यवस्था में रहती है?", answers: [ { text: "एकदलीय व्यवस्था", correct: false }, { text: "द्विदलीय व्यवस्था", correct: false }, { text: "बहुदलीय व्यवस्था", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "22. जनता दल (यूनाइटेड) पार्टी का गठन कब हुआ?", answers: [ { text: "1992", correct: false }, { text: "1999", correct: true }, { text: "2000", correct: false }, { text: "2004", correct: false } ] },
+        { question: "23. बांग्लादेश का निर्माण कब हुआ?", answers: [ { text: "1970", correct: false }, { text: "1971", correct: true }, { text: "1972", correct: false }, { text: "1975", correct: false } ] },
+        { question: "24. राष्ट्रीय जनता दल (RJD) की स्थापना कब हुई?", answers: [ { text: "1995", correct: false }, { text: "1996", correct: false }, { text: "1997", correct: true }, { text: "1998", correct: false } ] },
+        { question: "25. 17वीं लोकसभा का चुनाव किस वर्ष हुआ?", answers: [ { text: "2010", correct: false }, { text: "2014", correct: false }, { text: "2019", correct: true }, { text: "2005", correct: false } ] },
+        { question: "26. निम्नलिखित में कौन राष्ट्रीय दल नहीं है?", answers: [ { text: "भारतीय राष्ट्रीय कांग्रेस", correct: false }, { text: "बहुजन समाज पार्टी", correct: false }, { text: "लोक जनशक्ति पार्टी", correct: true }, { text: "भारतीय जनता पार्टी", correct: false } ] },
+        { question: "27. राजनीतिक दलों की मान्यता और उसका चुनाव चिह्न किसके द्वारा प्रदान किया जाता है?", answers: [ { text: "राष्ट्रपति", correct: false }, { text: "प्रधानमंत्री", correct: false }, { text: "निर्वाचन आयोग", correct: true }, { text: "संसद", correct: false } ] },
+        { question: "28. दलित पैंथर्स नामक संगठन की स्थापना किस राज्य में हुई?", answers: [ { text: "उत्तर प्रदेश", correct: false }, { text: "गुजरात", correct: false }, { text: "महाराष्ट्र", correct: true }, { text: "बिहार", correct: false } ] },
+        { question: "29. बोलिविया किस महादेश का हिस्सा है?", answers: [ { text: "अफ्रीका", correct: false }, { text: "यूरोप", correct: false }, { text: "दक्षिणी अमेरिका", correct: true }, { text: "एशिया", correct: false } ] },
+        { question: "30. इनमें से कौन-सा कार्य राजनीतिक दल नहीं करता है?", answers: [ { text: "चुनाव लड़ना", correct: false }, { text: "सरकार बनाना", correct: false }, { text: "लोकमत का निर्माण", correct: false }, { text: "अफसरों की बहाली", correct: true } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "✊ शाबाश! जन-संघर्ष और आंदोलनों की अच्छी समझ है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर राजनीतिक दलों के स्थापना वर्ष याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

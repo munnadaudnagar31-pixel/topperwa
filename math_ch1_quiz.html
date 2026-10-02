@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-1: Real Numbers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Real Numbers</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Real Numbers) ---
+        const questions = [
+            { q: "Euclid’s division lemma states that for two positive integers a and b, there exist unique integers q and r such that a = bq + r, where r must satisfy", o: ["1 < r < b", "0 < r ≤ b", "0 ≤ r < b", "0 < r < b"], a: 2 },
+            { q: "The HCF of 135 and 225 is", o: ["15", "45", "35", "55"], a: 1 },
+            { q: "If HCF(a, b) = 12 and a × b = 1800, then LCM(a, b) is", o: ["3600", "900", "150", "90"], a: 2 },
+            { q: "The product of a non-zero rational and an irrational number is", o: ["Always irrational", "Always rational", "Rational or irrational", "One"], a: 0 },
+            { q: "Which of the following is a rational number?", o: ["√3", "π", "2.101001000...", "0.3333..."], a: 3 },
+            { q: "The decimal expansion of the rational number 33/(2² × 5) will terminate after", o: ["One decimal place", "Two decimal places", "Three decimal places", "Four decimal places"], a: 1 },
+            { q: "If p and q are co-prime numbers, then p² and q² are", o: ["Co-prime", "Not co-prime", "Even", "Odd"], a: 0 },
+            { q: "Which of the following is not an irrational number?", o: ["3 + √7", "3 - √7", "3 + √9", "3/√7"], a: 2 },
+            { q: "The LCM of smallest two-digit composite number and smallest composite number is", o: ["12", "4", "20", "44"], a: 2 },
+            { q: "For some integer m, every even integer is of the form", o: ["m", "m + 1", "2m", "2m + 1"], a: 2 },
+            { q: "For some integer q, every odd integer is of the form", o: ["q", "q + 1", "2q", "2q + 1"], a: 3 },
+            { q: "n² - 1 is divisible by 8, if n is", o: ["an integer", "a natural number", "an odd integer", "an even integer"], a: 2 },
+            { q: "If the HCF of 65 and 117 is expressible in the form 65m - 117, then the value of m is", o: ["4", "2", "1", "3"], a: 1 },
+            { q: "The largest number which divides 70 and 125, leaving remainders 5 and 8, respectively, is", o: ["13", "65", "875", "1750"], a: 0 },
+            { q: "If two positive integers a and b are written as a = x³y² and b = xy³, where x, y are prime numbers, then HCF(a, b) is", o: ["xy", "xy²", "x³y³", "x²y²"], a: 1 },
+            { q: "If two positive integers p and q can be expressed as p = ab² and q = a³b; a, b being prime numbers, then LCM(p, q) is", o: ["ab", "a²b²", "a³b²", "a³b³"], a: 2 },
+            { q: "The product of a non-zero rational number and an irrational number is", o: ["Always irrational", "Always rational", "Rational or irrational", "One"], a: 0 },
+            { q: "The least number that is divisible by all the numbers from 1 to 10 (both inclusive) is", o: ["10", "100", "504", "2520"], a: 3 },
+            { q: "The decimal expansion of the rational number 14587/1250 will terminate after", o: ["One decimal place", "Two decimal places", "Three decimal places", "Four decimal places"], a: 3 },
+            { q: "Which of the following rational numbers have a terminating decimal expansion?", o: ["125/441", "77/210", "15/1600", "129/(2²5⁷7⁵)"], a: 2 },
+            { q: "The prime factorization of 3825 is", o: ["3 × 5² × 21", "3² × 5² × 35", "3² × 5² × 17", "3² × 25 × 17"], a: 2 },
+            { q: "If the HCF of two numbers is 1, then the two numbers are called", o: ["Composite", "Twin primes", "Co-prime", "Perfect numbers"], a: 2 },
+            { q: "√5 is", o: ["Rational", "Irrational", "Integer", "Whole number"], a: 1 },
+            { q: "The sum of a rational and an irrational number is", o: ["Rational", "Irrational", "Both", "None"], a: 1 },
+            { q: "Which of the following is a composite number?", o: ["23", "29", "32", "13"], a: 2 },
+            { q: "Fundamental Theorem of Arithmetic is related to", o: ["Division", "Multiplication", "Addition", "Subtraction"], a: 1 },
+            { q: "If a = 2³ × 3, b = 2 × 3 × 5, c = 3ⁿ × 5 and LCM(a, b, c) = 2³ × 3² × 5, then n =", o: ["1", "2", "3", "4"], a: 1 },
+            { q: "The number of prime factors of 5005 is", o: ["2", "4", "6", "7"], a: 1 },
+            { q: "The HCF of 96 and 404 is", o: ["4", "2", "8", "6"], a: 0 },
+            { q: "Total number of distinct prime factors of the largest 4-digit number is", o: ["2", "3", "5", "11"], a: 1 },
+            { q: "Which number is known as the smallest prime number?", o: ["0", "1", "2", "3"], a: 2 },
+            { q: "If LCM(77, 99) = 693, then HCF(77, 99) is", o: ["11", "7", "9", "22"], a: 0 },
+            { q: "Euclid's division lemma is used to find", o: ["LCM", "HCF", "Prime Factors", "Decimal Expansion"], a: 1 },
+            { q: "The ratio of LCM and HCF of the least composite and the least prime numbers is", o: ["1:2", "2:1", "1:1", "1:3"], a: 1 },
+            { q: "If 'a' is a rational number and 'b' is an irrational number, then a+b is", o: ["Rational", "Irrational", "Imaginary", "Integer"], a: 1 },
+            { q: "Is 22/7 a rational number?", o: ["Yes", "No", "Maybe", "Undefined"], a: 0 },
+            { q: "Is π a rational number?", o: ["Yes", "No, it is irrational", "It is an integer", "Undefined"], a: 1 },
+            { q: "Which of the following ends with digit 0 for any natural number n?", o: ["4ⁿ", "6ⁿ", "5ⁿ", "None of these"], a: 3 },
+            { q: "The HCF of two consecutive even numbers is", o: ["1", "2", "4", "0"], a: 1 },
+            { q: "The HCF of two consecutive odd numbers is", o: ["1", "2", "0", "3"], a: 0 },
+            { q: "Which of the following numbers has a non-terminating repeating decimal expansion?", o: ["17/8", "13/3125", "64/455", "6/15"], a: 2 },
+            { q: "The exponent of 2 in the prime factorisation of 144 is", o: ["4", "5", "6", "3"], a: 0 },
+            { q: "If HCF(26, 169) = 13, then LCM(26, 169) is", o: ["26", "52", "338", "13"], a: 2 },
+            { q: "If a = 2² × 3³ × 5⁴ and b = 2³ × 3² × 5, then HCF(a, b) is", o: ["90", "180", "360", "540"], a: 1 },
+            { q: "The smallest number by which √27 should be multiplied so as to get a rational number is", o: ["√27", "3√3", "√3", "3"], a: 2 },
+            { q: "If n is a natural number, then 9²ⁿ - 4²ⁿ is always divisible by", o: ["5", "13", "Both 5 and 13", "None"], a: 2 },
+            { q: "The smallest rational number by which 1/3 should be multiplied so that its decimal expansion terminates after one place of decimal is", o: ["3/10", "1/10", "3", "30"], a: 0 },
+            { q: "If the sum of LCM and HCF of two numbers is 1260 and their LCM is 900 more than their HCF, then the product of two numbers is", o: ["203400", "194400", "198400", "205400"], a: 1 },
+            { q: "Rational numbers are always", o: ["Integers", "Real Numbers", "Whole Numbers", "Natural Numbers"], a: 1 },
+            { q: "There are _____ rational numbers between any two rational numbers.", o: ["0", "1", "100", "Infinitely many"], a: 3 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes in seconds
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                // Add option circle
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            // Scroll to top
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                // VIBRATION for Wrong Answer (Android only)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200); // 200ms vibration
+                }
+            }
+
+            // Disable all buttons
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            // Auto scroll to bottom smoothly
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            // Calculate Stats
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            // Update Result UI
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            // Dynamic Feedback
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Outstanding! You are a Math Wizard! 🧙‍♂️";
+            else if(accuracy >= 70) feedback.innerText = "Great job! Just a little more practice. 💪";
+            else if(accuracy >= 50) feedback.innerText = "Good effort, but review your concepts. 📚";
+            else feedback.innerText = "Don't give up! Study hard and try again. 🔥";
+        }
+    </script>
+</body>
+</html>

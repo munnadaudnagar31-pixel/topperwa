@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 4 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Transit Orange & Blue) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #FF8008 0%, #FFC837 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #fff3e0; color: #ef6c00; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #FF8008; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; max-height: 60vh; overflow-y: auto; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 12px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #ffe0b2; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+        #next-btn { background: #FF8008; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #e65100; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #FF8008; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(255, 128, 8, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #FF8008; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Q: <span id="q-index">1</span>/<span id="total-q">50</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit</a>
+            <button id="next-btn" onclick="nextQuestion()">Next ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapters</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12; 
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 4 QUESTIONS (परिवहन, संचार एवं व्यापार) ▼▼▼
+    const questions = [
+        { question: "1. भारत में वर्तमान में रेल मंडलों (Zones) की संख्या कितनी है?", answers: [ { text: "16", correct: false }, { text: "17", correct: false }, { text: "18", correct: true }, { text: "20", correct: false } ] },
+        { question: "2. स्वर्णिम चतुर्भुज महामार्ग (Golden Quadrilateral) किससे संबंधित है?", answers: [ { text: "रेलवे", correct: false }, { text: "सड़क परिवहन", correct: true }, { text: "जल परिवहन", correct: false }, { text: "वायु परिवहन", correct: false } ] },
+        { question: "3. भारत का सबसे बड़ा बंदरगाह कौन है?", answers: [ { text: "मुंबई", correct: true }, { text: "चेन्नई", correct: false }, { text: "कोलकाता", correct: false }, { text: "कांडला", correct: false } ] },
+        { question: "4. फाल्टा विशेष आर्थिक क्षेत्र (SEZ) कहाँ स्थित है?", answers: [ { text: "बिहार", correct: false }, { text: "पश्चिम बंगाल", correct: true }, { text: "केरल", correct: false }, { text: "ओडिशा", correct: false } ] },
+        { question: "5. भारत में सबसे पहले रेलगाड़ी किन स्टेशनों के बीच चली थी?", answers: [ { text: "मुंबई से पुणे", correct: false }, { text: "मुंबई से ठाणे", correct: true }, { text: "कोलकाता से हावड़ा", correct: false }, { text: "दिल्ली से आगरा", correct: false } ] },
+        { question: "6. भारतीय अंतर्देशीय जलमार्ग प्राधिकरण का गठन किस वर्ष किया गया था?", answers: [ { text: "1986", correct: true }, { text: "1988", correct: false }, { text: "1989", correct: false }, { text: "1985", correct: false } ] },
+        { question: "7. निम्न में से कौन-से दो दूरस्थ स्थान पूर्वी-पश्चिमी गलियारे से जुड़े हैं?", answers: [ { text: "मुंबई और नागपुर", correct: false }, { text: "सिलचर और पोरबंदर", correct: true }, { text: "मुंबई और कोलकाता", correct: false }, { text: "नागपुर और सिलीगुड़ी", correct: false } ] },
+        { question: "8. भारत में कुल कितने डाक क्षेत्रों में बाँटा गया है?", answers: [ { text: "7", correct: false }, { text: "5", correct: false }, { text: "6", correct: false }, { text: "8", correct: true } ] },
+        { question: "9. नागपुर सड़क योजना के अंतर्गत सड़कों को कितने भागों में बाँटा गया है?", answers: [ { text: "4", correct: true }, { text: "6", correct: false }, { text: "2", correct: false }, { text: "5", correct: false } ] },
+        { question: "10. देश में कितने विशेष आर्थिक क्षेत्र विकसित हैं?", answers: [ { text: "10", correct: false }, { text: "7", correct: true }, { text: "15", correct: false }, { text: "5", correct: false } ] },
+        { question: "11. 'ग्रैंड ट्रंक रोड' (GT Road) का राष्ट्रीय राजमार्ग संख्या क्या है?", answers: [ { text: "1", correct: false }, { text: "2", correct: false }, { text: "1 और 2", correct: true }, { text: "3 और 4", correct: false } ] },
+        { question: "12. बिहार में रेल वर्कशॉप कहाँ स्थित है?", answers: [ { text: "जमालपुर", correct: true }, { text: "भागलपुर", correct: false }, { text: "मुंगेर", correct: false }, { text: "पटना", correct: false } ] },
+        { question: "13. कावर झील कहाँ स्थित है?", answers: [ { text: "दरभंगा में", correct: false }, { text: "भागलपुर में", correct: false }, { text: "बेगूसराय में", correct: true }, { text: "मुजफ्फरपुर में", correct: false } ] },
+        { question: "14. भारत का सबसे लम्बा राष्ट्रीय राजमार्ग कौन-सा है?", answers: [ { text: "NH-1", correct: false }, { text: "NH-7 (NH-44)", correct: true }, { text: "NH-2", correct: false }, { text: "NH-8", correct: false } ] },
+        { question: "15. भारतीय रेलवे को कितने जोन में बाँटा गया है? (किताब के अनुसार)", answers: [ { text: "16", correct: true }, { text: "18", correct: false }, { text: "19", correct: false }, { text: "20", correct: false } ] },
+        { question: "16. कांडला बंदरगाह कहाँ है?", answers: [ { text: "महाराष्ट्र", correct: false }, { text: "गुजरात", correct: true }, { text: "गोवा", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "17. पूर्व-मध्य रेलवे का मुख्यालय कहाँ है?", answers: [ { text: "पटना", correct: false }, { text: "हाजीपुर", correct: true }, { text: "मुजफ्फरपुर", correct: false }, { text: "समस्तीपुर", correct: false } ] },
+        { question: "18. 'इन्नौर' बंदरगाह कहाँ स्थित है?", answers: [ { text: "कर्नाटक", correct: false }, { text: "तमिलनाडु", correct: true }, { text: "आंध्र प्रदेश", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "19. भारत को कुल कितने पिन कोड (PIN) क्षेत्रों में बाँटा गया है?", answers: [ { text: "6", correct: false }, { text: "8", correct: true }, { text: "9", correct: false }, { text: "5", correct: false } ] },
+        { question: "20. देश में वायु परिवहन का राष्ट्रीयकरण किस वर्ष किया गया?", answers: [ { text: "1950", correct: false }, { text: "1951", correct: false }, { text: "1953", correct: true }, { text: "1960", correct: false } ] },
+        { question: "21. भारत का सर्वाधिक विदेशी व्यापार किस मार्ग द्वारा होता है?", answers: [ { text: "स्थल मार्ग", correct: false }, { text: "वायु मार्ग", correct: false }, { text: "समुद्री मार्ग", correct: true }, { text: "पाइपलाइन", correct: false } ] },
+        { question: "22. पक्की सड़कों की लंबाई की दृष्टि से प्रथम स्थान पर कौन-सा राज्य है?", answers: [ { text: "बिहार", correct: false }, { text: "महाराष्ट्र", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "23. भारत के किस राज्य में सड़कों का घनत्व सबसे अधिक है?", answers: [ { text: "केरल", correct: true }, { text: "बिहार", correct: false }, { text: "राजस्थान", correct: false }, { text: "पंजाब", correct: false } ] },
+        { question: "24. 'पारादीप' बंदरगाह किस राज्य में स्थित है?", answers: [ { text: "आंध्र प्रदेश", correct: false }, { text: "ओडिशा", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "पश्चिम बंगाल", correct: false } ] },
+        { question: "25. निम्नलिखित में से कौन-सी सड़कों का एक वर्ग नहीं है?", answers: [ { text: "पूरब-पश्चिम गलियारा", correct: false }, { text: "एक्सप्रेस वे", correct: false }, { text: "स्वर्णिम चतुर्भुज", correct: false }, { text: "सीमांत सड़कें", correct: true } ] },
+        { question: "26. भारत में टेलीफोन सेवाएं कब आरंभ हुई?", answers: [ { text: "1818", correct: false }, { text: "1881", correct: true }, { text: "1912", correct: false }, { text: "1947", correct: false } ] },
+        { question: "27. बिहार में रज्जू मार्ग (Ropeway) कहाँ है?", answers: [ { text: "बिहार शरीफ", correct: false }, { text: "राजगीर", correct: true }, { text: "गया", correct: false }, { text: "बांका", correct: false } ] },
+        { question: "28. किस वर्ष इंडियन एयरलाइंस को 'इंडियन' नाम दिया गया?", answers: [ { text: "2006", correct: false }, { text: "2003", correct: false }, { text: "2008", correct: false }, { text: "2005", correct: true } ] },
+        { question: "29. हल्दिया बंदरगाह किस राज्य में स्थित है?", answers: [ { text: "पश्चिम बंगाल", correct: true }, { text: "ओडिशा", correct: false }, { text: "आंध्र प्रदेश", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "30. मार्मागओ बंदरगाह कहाँ है?", answers: [ { text: "कर्नाटक", correct: false }, { text: "गोवा", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "आंध्र प्रदेश", correct: false } ] },
+        { question: "31. नेताजी सुभाष चंद्र बोस अंतर्राष्ट्रीय हवाई अड्डा कहाँ है?", answers: [ { text: "दिल्ली", correct: false }, { text: "कोलकाता", correct: true }, { text: "मुंबई", correct: false }, { text: "चेन्नई", correct: false } ] },
+        { question: "32. निम्नलिखित में से कौन-सा सबसे लंबा राष्ट्रीय राजमार्ग है?", answers: [ { text: "NH-2", correct: false }, { text: "NH-3", correct: false }, { text: "NH-5", correct: false }, { text: "NH-7", correct: true } ] },
+        { question: "33. परिवहन का सबसे सस्ता साधन कौन-सा है?", answers: [ { text: "सड़क", correct: false }, { text: "जल", correct: true }, { text: "वायु", correct: false }, { text: "रेल", correct: false } ] },
+        { question: "34. भारत में रेडियो का पहला प्रसारण किस वर्ष हुआ था?", answers: [ { text: "1923", correct: true }, { text: "1930", correct: false }, { text: "1936", correct: false }, { text: "1957", correct: false } ] },
+        { question: "35. कोच्चि बंदरगाह स्थित है?", answers: [ { text: "कर्नाटक में", correct: false }, { text: "केरल में", correct: true }, { text: "तमिलनाडु में", correct: false }, { text: "आंध्र प्रदेश में", correct: false } ] },
+        { question: "36. भारत में स्पीड पोस्ट (Speed Post) का शुभारंभ किस वर्ष हुआ?", answers: [ { text: "1981", correct: false }, { text: "1985", correct: false }, { text: "1986", correct: true }, { text: "1991", correct: false } ] },
+        { question: "37. 'जवाहरलाल नेहरू बंदरगाह' कहाँ स्थित है?", answers: [ { text: "मुंबई", correct: false }, { text: "न्हावा शेवा (महाराष्ट्र)", correct: true }, { text: "चेन्नई", correct: false }, { text: "कोलकाता", correct: false } ] },
+        { question: "38. देश में कितने अंतर्देशीय जलमार्ग को राष्ट्रीय जलमार्ग घोषित किया गया है?", answers: [ { text: "4", correct: false }, { text: "5", correct: false }, { text: "6", correct: true }, { text: "10", correct: false } ] },
+        { question: "39. राष्ट्रीय जलमार्ग संख्या 1 (NW-1) कहाँ से कहाँ तक है?", answers: [ { text: "इलाहाबाद से हल्दिया", correct: true }, { text: "सदिया से धुबरी", correct: false }, { text: "कोल्लम से कोट्टापुरम", correct: false }, { text: "काकीनाड़ा से पुदुचेरी", correct: false } ] },
+        { question: "40. बिहार की पहली रेल लाइन कौन थी?", answers: [ { text: "मार्टिन लाइट रेलवे", correct: false }, { text: "ईस्ट इंडिया रेलवे", correct: true }, { text: "भारतीय रेल", correct: false }, { text: "बिहार रेल सेवा", correct: false } ] },
+        { question: "41. पटना हवाई अड्डे का क्या नाम है?", answers: [ { text: "जयप्रकाश नारायण अंतर्राष्ट्रीय हवाई अड्डा", correct: true }, { text: "पटना हवाई अड्डा", correct: false }, { text: "राजेंद्र प्रसाद हवाई अड्डा", correct: false }, { text: "बिहार हवाई अड्डा", correct: false } ] },
+        { question: "42. 'तूतीकोरिन' पत्तन किस राज्य में स्थित है?", answers: [ { text: "केरल", correct: false }, { text: "तमिलनाडु", correct: true }, { text: "कर्नाटक", correct: false }, { text: "आंध्र प्रदेश", correct: false } ] },
+        { question: "43. भारत में कितने आकाशवाणी केंद्र हैं?", answers: [ { text: "52", correct: false }, { text: "152", correct: false }, { text: "200 से अधिक", correct: true }, { text: "405", correct: false } ] },
+        { question: "44. भारत में टेलीफोन की सेवाएँ कब आरंभ हुईं?", answers: [ { text: "1881", correct: true }, { text: "1891", correct: false }, { text: "1981", correct: false }, { text: "1991", correct: false } ] },
+        { question: "45. इनमें कौन व्यापारिक केन्द्र गंगा नदी के किनारे स्थित नहीं है?", answers: [ { text: "कानपुर", correct: false }, { text: "भागलपुर", correct: false }, { text: "जबलपुर", correct: true }, { text: "वाराणसी", correct: false } ] },
+        { question: "46. स्वतंत्रता प्राप्ति के समय देश में सड़कों की कुल लंबाई कितनी थी?", answers: [ { text: "2.42 लाख किमी", correct: false }, { text: "3.88 लाख किमी", correct: true }, { text: "5.78 लाख किमी", correct: false }, { text: "1.46 लाख किमी", correct: false } ] },
+        { question: "47. कौन-सा शहर 'भारत की सिलिकॉन वैली' नहीं है, बल्कि 'इलेक्ट्रॉनिक राजधानी' है?", answers: [ { text: "बेंगलुरु", correct: true }, { text: "पुणे", correct: false }, { text: "हैदराबाद", correct: false }, { text: "नोएडा", correct: false } ] },
+        { question: "48. रेल मंत्रालय ने 'विलेज ऑन व्हील्स' नामक परियोजना किस वर्ष शुरू की?", answers: [ { text: "2004", correct: true }, { text: "2005", correct: false }, { text: "2006", correct: false }, { text: "2007", correct: false } ] },
+        { question: "49. उत्तर-दक्षिण गलियारा (North-South Corridor) किसे जोड़ता है?", answers: [ { text: "दिल्ली को चेन्नई से", correct: false }, { text: "श्रीनगर को कन्याकुमारी से", correct: true }, { text: "जम्मू को मुंबई से", correct: false }, { text: "अमृतसर को कोच्चि से", correct: false } ] },
+        { question: "50. इनमें से कौन-सा पत्तन पूर्वी तट पर स्थित है जो अंतः स्थलीय तथा अधिकतम गहराई वाला सुरक्षित पत्तन है?", answers: [ { text: "चेन्नई", correct: false }, { text: "पारादीप", correct: false }, { text: "तूतीकोरिन", correct: false }, { text: "विशाखापत्तनम", correct: true } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🚆 शानदार! परिवहन वाला चैप्टर आपका तैयार है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर रेलवे जोन और हाईवे नंबर याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 मैप देखकर और अभ्यास करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

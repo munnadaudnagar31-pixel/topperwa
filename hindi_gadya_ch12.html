@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Ch-12: शिक्षा और संस्कृति</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL HINDI THEME (Saffron) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            --header-gradient: linear-gradient(135deg, #e65100 0%, #ff6f00 100%);
+            --card-bg: #ffffff;
+            --text-main: #3e2723;
+            --text-sub: #e65100;
+            --option-bg: #fff8e1;
+            --correct-color: #2e7d32; /* Green */
+            --wrong-color: #c62828;   /* Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            background: var(--header-gradient);
+            padding: 20px 25px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10; box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%; transition: 0.2s;
+        }
+        .close-btn:active { transform: scale(0.9); }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 18px; border-radius: 30px;
+            font-family: 'Poppins', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: #ffe0b2; }
+        .progress-bar { height: 100%; background: #ef6c00; width: 0%; transition: width 0.3s ease; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 650px;
+            padding: 30px; border-radius: 24px; box-shadow: 0 15px 40px rgba(230, 81, 0, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px; position: relative;
+            border-top: 5px solid #ff6f00;
+        }
+
+        /* Literature Decoration */
+        .question-card::before {
+            content: '“'; position: absolute; top: 10px; left: 20px; font-size: 60px;
+            color: #fff3e0; font-family: 'Lora', serif; z-index: 0;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+        .q-count { font-size: 13px; font-weight: 700; color: #fff; background: #e65100; padding: 4px 12px; border-radius: 20px; }
+        .q-subject { font-size: 13px; font-weight: 700; color: #e65100; letter-spacing: 1px; }
+
+        .question-text { 
+            font-size: 19px; font-weight: 600; margin-bottom: 25px; line-height: 1.6; 
+            color: #3e2723; position: relative; z-index: 1;
+        }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 16px; color: #4e342e; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .option-circle {
+            width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffcc80;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; 
+            font-size: 14px; color: #ff9800; font-weight: 700; transition: 0.2s;
+        }
+
+        .option-btn:active { transform: scale(0.98); background: #ffe0b2; }
+        
+        /* Correct State */
+        .option-btn.correct { background: #e8f5e9; border-color: var(--correct-color); color: #1b5e20; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); color: white; content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #ffebee; border-color: var(--wrong-color); color: var(--wrong-color); animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); color: white; }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: var(--header-gradient);
+            color: white; border: none; width: 100%; max-width: 650px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(230, 81, 0, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px; background: #fff3e0;
+            border-radius: 30px; padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(230, 81, 0, 0.15);
+        }
+
+        .score-circle {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: white; border: 8px solid #e65100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .score-num { font-size: 38px; font-weight: 800; color: #e65100; line-height: 1; }
+        .score-label { font-size: 11px; color: #ef6c00; font-weight: 700; margin-top: 5px; letter-spacing: 1px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .stat-val { font-size: 18px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 10px; color: #5d4037; font-weight: 600; text-transform: uppercase; }
+
+        .green-text { color: #2e7d32; }
+        .red-text { color: #c62828; }
+        .blue-text { color: #1565c0; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 16px; border-radius: 16px;
+            font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #e65100; color: white; box-shadow: 0 5px 15px rgba(230, 81, 0, 0.3); }
+        .btn-secondary { background: #ffe0b2; color: #e65100; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="hindi_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box">
+            <span>⏳</span> <span id="time-left">15:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">1 / 50</span>
+                <span class="q-subject">शिक्षा और संस्कृति</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#e65100; margin-bottom: 10px;">Quiz Complete!</h2>
+            <p style="color:#ef6c00; font-size:14px; margin-bottom: 25px;">शिक्षा और संस्कृति</p>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#5d4037; font-size:14px; margin-bottom:25px; line-height:1.4;">बहुत अच्छा!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='hindi_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MCQs from 'Shiksha aur Sanskriti' ---
+        const questions = [
+            { q: "'शिक्षा और संस्कृति' पाठ के लेखक कौन हैं?", o: ["महात्मा गाँधी", "जवाहरलाल नेहरू", "भीमराव अम्बेडकर", "रवीन्द्रनाथ टैगोर"], a: 0 },
+            { q: "महात्मा गाँधी का जन्म कब हुआ था?", o: ["2 अक्टूबर 1869", "2 अक्टूबर 1870", "2 अक्टूबर 1868", "2 अक्टूबर 1871"], a: 0 },
+            { q: "महात्मा गाँधी का जन्म कहाँ हुआ था?", o: ["पोरबंदर (गुजरात)", "अहमदाबाद", "दिल्ली", "साबरमती"], a: 0 },
+            { q: "महात्मा गाँधी के पिता का नाम क्या था?", o: ["करमचंद गाँधी", "धर्मचंद गाँधी", "हरचंद गाँधी", "मूलचंद गाँधी"], a: 0 },
+            { q: "महात्मा गाँधी की माता का नाम क्या था?", o: ["पुतलीबाई", "कस्तूरबा", "कमलाबाई", "मीराबाई"], a: 0 },
+            { q: "गाँधी जी की पत्नी का नाम क्या था?", o: ["कस्तूरबा गाँधी", "पुतलीबाई", "कमला नेहरू", "सरोजिनी नायडू"], a: 0 },
+            { q: "गाँधी जी वकालत की पढ़ाई के लिए कहाँ गए थे?", o: ["लंदन", "अमेरिका", "जापान", "दक्षिण अफ्रीका"], a: 0 },
+            { q: "गाँधी जी दक्षिण अफ्रीका कब गए थे?", o: ["1893 ई०", "1890 ई०", "1915 ई०", "1895 ई०"], a: 0 },
+            { q: "गाँधी जी दक्षिण अफ्रीका से भारत कब लौटे?", o: ["1915 ई०", "1916 ई०", "1917 ई०", "1914 ई०"], a: 0 },
+            { q: "गाँधी जी ने देश की आजादी के लिए किन हथियारों का प्रयोग किया?", o: ["सत्य और अहिंसा", "बंदूक और तलवार", "तोप और गोला", "लाठी और पत्थर"], a: 0 },
+            { q: "गाँधी जी को 'महात्मा' की उपाधि किसने दी थी?", o: ["रवीन्द्रनाथ टैगोर", "सुभाष चंद्र बोस", "जवाहरलाल नेहरू", "वल्लभभाई पटेल"], a: 0 },
+            { q: "गाँधी जी की मृत्यु कब हुई?", o: ["30 जनवरी 1948", "30 जनवरी 1947", "26 जनवरी 1950", "15 अगस्त 1947"], a: 0 },
+            { q: "गाँधी जी की याद में 2 अक्टूबर को कौन सा दिवस मनाया जाता है?", o: ["अहिंसा दिवस (गाँधी जयंती)", "शहीद दिवस", "स्वतंत्रता दिवस", "गणतंत्र दिवस"], a: 0 },
+            { q: "गाँधी जी की सबसे बड़ी देन क्या है?", o: ["सत्याग्रह", "सविनय अवज्ञा", "असहयोग", "उपर्युक्त सभी"], a: 3 },
+            { q: "'हिन्द स्वराज' और 'सत्य के साथ मेरे प्रयोग' किसकी रचनाएँ हैं?", o: ["महात्मा गाँधी", "नेहरू", "अम्बेडकर", "टैगोर"], a: 0 },
+            { q: "गाँधी जी ने किन पत्रिकाओं का संपादन किया?", o: ["यंग इंडिया और हरिजन", "केसरी और मराठा", "सरस्वती", "हंस"], a: 0 },
+            { q: "गाँधी जी के अनुसार, बढ़िया शिक्षा क्या है?", o: ["अहिंसक प्रतिरोध", "किताबी ज्ञान", "अक्षर ज्ञान", "विदेशी भाषा"], a: 0 },
+            { q: "शिक्षा का ध्येय (उद्देश्य) गाँधी जी क्या मानते थे?", o: ["चरित्र निर्माण", "नौकरी पाना", "अमीर बनना", "विदेश जाना"], a: 0 },
+            { q: "गाँधी जी किस तरह की शिक्षा के पक्षधर थे?", o: ["दस्तकारी या उद्योग केंद्रित", "तकनीकी शिक्षा", "अंग्रेजी शिक्षा", "पुस्तकीय शिक्षा"], a: 0 },
+            { q: "मस्तिष्क और आत्मा का उच्चतम विकास कैसे संभव है?", o: ["शिक्षा से", "धन से", "भोजन से", "खेल से"], a: 0 },
+            { q: "गाँधी जी के अनुसार, शिक्षा कब शुरू होनी चाहिए?", o: ["दस्तकारी सिखाने के साथ", "अक्षर ज्ञान के बाद", "कॉलेज में", "बचपन में"], a: 0 },
+            { q: "'यंग इंडिया' क्या है?", o: ["पत्रिका", "किताब", "स्कूल", "संस्था"], a: 0 },
+            { q: "गाँधी जी के अनुसार, साक्षरता क्या है?", o: ["शिक्षा का न तो अंत है और न ही प्रारंभ", "शिक्षा का अंत", "शिक्षा का प्रारंभ", "सब कुछ"], a: 0 },
+            { q: "टॉलस्टॉय किस देश के साहित्यकार थे?", o: ["रूस", "अमेरिका", "फ्रांस", "जर्मनी"], a: 0 },
+            { q: "गाँधी जी के अनुसार, सच्ची शिक्षा वह है जो बालक के _____ का विकास करे।", o: ["शरीर, बुद्धि और आत्मा", "केवल शरीर", "केवल बुद्धि", "केवल आत्मा"], a: 0 },
+            { q: "गाँधी जी ने बच्चों को किस तरह की तालीम देने की भरसक कोशिश की?", o: ["अहिंसक प्रतिरोध की", "युद्ध की", "व्यापार की", "खेल की"], a: 0 },
+            { q: "मेरा धर्म कैदखाने का धर्म नहीं है - यह कथन किसका है?", o: ["महात्मा गाँधी", "विवेकानंद", "दयानंद सरस्वती", "भगत सिंह"], a: 0 },
+            { q: "गाँधी जी संस्कृति के बारे में क्या कहते थे?", o: ["भारतीय संस्कृति दूसरी संस्कृतियों का बहिष्कार नहीं करती", "हमें केवल अपनी संस्कृति माननी चाहिए", "विदेशी संस्कृति श्रेष्ठ है", "संस्कृति जरूरी नहीं"], a: 0 },
+            { q: "कोई संस्कृति कब तक जिंदा नहीं रह सकती?", o: ["अगर वह दूसरों का बहिष्कार करने की कोशिश करे", "अगर वह पुरानी हो", "अगर वह नई हो", "अगर वह लिखित न हो"], a: 0 },
+            { q: "गाँधी जी के अनुसार, भारतीय संस्कृति किसका प्रतीक है?", o: ["विभिन्न संस्कृतियों के सामंजस्य का", "एकरूपता का", "कठोरता का", "विदेशी विरोध का"], a: 0 },
+            { q: "आध्यात्मिक शिक्षा से गाँधी जी का क्या अभिप्राय है?", o: ["हृदय की शिक्षा", "धार्मिक शिक्षा", "पुस्तकीय ज्ञान", "व्यायाम"], a: 0 },
+            { q: "गाँधी जी के अनुसार, कौन सी विद्या सबसे जरूरी है?", o: ["जीवन जीने की कला", "गणित", "विज्ञान", "इतिहास"], a: 0 },
+            { q: "महात्मा गाँधी अंतरराष्ट्रीय हिंदी विश्वविद्यालय कहाँ है?", o: ["वर्धा (महाराष्ट्र)", "दिल्ली", "बनारस", "जयपुर"], a: 0 },
+            { q: "शशेक्सपियर और मिल्टन किस भाषा के कवि हैं?", o: ["अंग्रेजी", "फ्रेंच", "जर्मन", "इतालवी"], a: 0 },
+            { q: "गाँधी जी वकालत करने कहाँ गए थे?", o: ["दक्षिण अफ्रीका", "इंग्लैंड", "अमेरिका", "जापान"], a: 0 },
+            { q: "अहिंसक प्रतिरोध सबसे _____ और _____ शिक्षा है।", o: ["उदात्त, बढ़िया", "कमजोर, बुरी", "कठिन, महंगी", "सरल, सस्ती"], a: 0 },
+            { q: "गाँधी जी ने किस आश्रम की स्थापना की थी?", o: ["साबरमती आश्रम", "आनंद भवन", "शांति निकेतन", "सदाकत आश्रम"], a: 0 },
+            { q: "अमल का अर्थ क्या है?", o: ["व्यवहार", "नशा", "खाट्टा", "फल"], a: 0 },
+            { q: "दस्तकारी का अर्थ क्या है?", o: ["हस्तकला (हाथ का हुनर)", "दस्तावेज", "मशीन", "किताब"], a: 0 },
+            { q: "गाँधी जी के अनुसार, भारत की स्वराज्य प्राप्ति के बाद शिक्षा का ध्येय क्या होना चाहिए?", o: ["चरित्र निर्माण", "धन कमाना", "विश्व विजय", "आधुनिकता"], a: 0 },
+            { q: "दूसरे की संस्कृति से पहले अपनी संस्कृति की _____ होनी चाहिए।", o: ["गहरी समझ", "बुराई", "नकल", "उपेक्षा"], a: 0 },
+            { q: "अपनी संस्कृति के माध्यम से ही _____ का विकास संभव है।", o: ["व्यक्तित्व", "धन", "शरीर", "घर"], a: 0 },
+            { q: "भारत की संस्कृति कैसी होनी चाहिए?", o: ["खुली हवा वाली (सबके लिए खुली)", "बंद कमरे वाली", "कठोर", "विदेशी"], a: 0 },
+            { q: "मैं चाहता हूँ कि सब देशों की संस्कृतियों की हवा मेरे घर के चारों ओर _____।", o: ["अधिक से अधिक स्वतंत्रता के साथ बहती रहे", "रुक जाए", "तूफान ला दे", "न आए"], a: 0 },
+            { q: "गाँधी जी की हत्या किसने की?", o: ["नाथूराम गोडसे", "अंग्रेजों ने", "आतंकवादियों ने", "किसी ने नहीं"], a: 0 },
+            { q: "हरिजन पत्रिका के संपादक कौन थे?", o: ["महात्मा गाँधी", "अम्बेडकर", "नेहरू", "पटेल"], a: 0 },
+            { q: "उदात्त का शाब्दिक अर्थ क्या है?", o: ["श्रेष्ठ/ऊँचा", "नीचा", "बुरा", "छोटा"], a: 0 },
+            { q: "गाँधी जी को किस वर्ष गोली मारी गई?", o: ["1948", "1947", "1950", "1949"], a: 0 },
+            { q: "शिक्षा से मेरा अभिप्राय बच्चे और मनुष्य के शरीर, बुद्धि और आत्मा के सर्वांगीण विकास से है - यह कथन किसका है?", o: ["महात्मा गाँधी", "विवेकानंद", "अरबिंदो", "टैगोर"], a: 0 },
+            { q: "गाँधी जी के पिता पेशे से क्या थे?", o: ["दीवान", "वकील", "शिक्षक", "किसान"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer
+        let timeLeft = 900; // 15 Minutes
+        let timerInterval;
+
+        // Elements
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 60) {
+                        timerDisplay.style.color = '#c62828';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index);
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                // VIBRATION (Android)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "गाँधीवादी! आप सत्य और अहिंसा के पुजारी हैं! 🕊️";
+            else if(accuracy >= 70) feedback.innerText = "बहुत बढ़िया! बापू के विचार आपको याद हैं। 👍";
+            else if(accuracy >= 50) feedback.innerText = "अच्छा है। चरखा चलाना सीखें (पढ़ाई करें)! 🧶";
+            else feedback.innerText = "सत्य के प्रयोग फिर से पढ़ें! 🔥";
+        }
+    </script>
+</body>
+</html>

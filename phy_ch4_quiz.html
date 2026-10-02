@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Physics Ch-4 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (PHYSICS - PURPLE) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 100%);
+            --header-gradient: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+            --card-bg: #ffffff;
+            --text-main: #2e1a47;
+            --text-sub: #6a4f8a;
+            --option-bg: #F3F0FF;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(74, 0, 224, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #6200ea;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #4A00E0; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="physics_chapters.html" class="close-btn">✕</a>
+        <span>Ch-4: Magnetic Effects</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #4A00E0; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are now a Magnetism Master!</p>
+        <a href="physics_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#6200ea; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Magnetic Effects of Electric Current) ---
+        const questions = [
+            { q: "Who discovered the magnetic effect of electric current?", o: ["Faraday", "Oersted", "Ampere", "Maxwell"], a: 1 },
+            { q: "The magnetic field lines inside a current-carrying solenoid are:", o: ["Circular", "Parabolic", "Parallel straight lines", "Curved"], a: 2 },
+            { q: "The magnetic field lines emerge from the ______ pole of a magnet.", o: ["North", "South", "Middle", "None"], a: 0 },
+            { q: "The magnetic field lines merge into the ______ pole of a magnet.", o: ["North", "South", "Middle", "None"], a: 1 },
+            { q: "The direction of magnetic field produced by a current carrying straight conductor is given by:", o: ["Fleming's Left Hand Rule", "Fleming's Right Hand Rule", "Right Hand Thumb Rule", "Left Hand Thumb Rule"], a: 2 },
+            { q: "A soft iron bar is inserted inside a current-carrying solenoid. The magnetic field inside the solenoid:", o: ["Decreases", "Increases", "Remains same", "Becomes zero"], a: 1 },
+            { q: "An electric motor converts:", o: ["Mechanical energy into electrical energy", "Electrical energy into mechanical energy", "Chemical energy into electrical energy", "Potential energy into kinetic energy"], a: 1 },
+            { q: "Which rule is used to find the direction of force on a current carrying conductor in a magnetic field?", o: ["Fleming's Right Hand Rule", "Fleming's Left Hand Rule", "Right Hand Thumb Rule", "Maxwell's Corkscrew Rule"], a: 1 },
+            { q: "Which rule is used to find the direction of induced current?", o: ["Fleming's Right Hand Rule", "Fleming's Left Hand Rule", "Right Hand Thumb Rule", "Ampere's Law"], a: 0 },
+            { q: "The phenomenon of electromagnetic induction is:", o: ["The process of charging a body", "Producing magnetism in a coil", "Producing induced current in a coil due to relative motion", "Producing electric current by heating"], a: 2 },
+            { q: "The device used for producing electric current is called a:", o: ["Generator", "Galvanometer", "Ammeter", "Motor"], a: 0 },
+            { q: "The essential difference between an AC generator and a DC generator is that:", o: ["AC generator has an electromagnet while DC has permanent magnet", "DC generator generates higher voltage", "AC generator has slip rings while DC generator has a commutator", "AC generator has a commutator while DC has slip rings"], a: 2 },
+            { q: "At the time of short circuit, the current in the circuit:", o: ["Reduces substantially", "Does not change", "Increases heavily", "Varies continuously"], a: 2 },
+            { q: "The frequency of AC supply in India is:", o: ["45 Hz", "50 Hz", "60 Hz", "100 Hz"], a: 1 },
+            { q: "Which of the following properties of a proton can change while it moves freely in a magnetic field?", o: ["Mass", "Speed", "Velocity", "Charge"], a: 2 },
+            { q: "A positively charged particle (alpha particle) projected towards west is deflected towards north by a magnetic field. The direction of magnetic field is:", o: ["Towards south", "Towards east", "Downward", "Upward"], a: 3 },
+            { q: "The strength of magnetic field inside a long current carrying straight solenoid is:", o: ["More at the ends", "Minimum in the middle", "Same at all points", "Zero"], a: 2 },
+            { q: "To convert an AC generator into a DC generator, we use:", o: ["Slip rings", "Split ring type commutator", "Brushes", "Rectifier"], a: 1 },
+            { q: "The safety device used for protecting the circuits due to short-circuiting is:", o: ["Fuse", "Ammeter", "Voltmeter", "Resistor"], a: 0 },
+            { q: "The colour of the insulation of live wire is usually:", o: ["Red", "Black", "Green", "Yellow"], a: 0 },
+            { q: "The colour of the insulation of neutral wire is usually:", o: ["Red", "Black", "Green", "Yellow"], a: 1 },
+            { q: "The colour of the insulation of earth wire is usually:", o: ["Red", "Black", "Green", "Yellow"], a: 2 },
+            { q: "Magnetic field is a quantity that has:", o: ["Direction only", "Magnitude only", "Both direction and magnitude", "Neither direction nor magnitude"], a: 2 },
+            { q: "The region surrounding a magnet where the force of the magnet can be detected is said to have a:", o: ["Magnetic pole", "Magnetic field", "Electric field", "Potential field"], a: 1 },
+            { q: "Magnetic field lines are:", o: ["Open curves", "Closed curves", "Straight lines", "Zig-zag lines"], a: 1 },
+            { q: "No two magnetic field lines can intersect each other because:", o: ["They are parallel", "They are closed curves", "At the point of intersection, the compass needle would point to two directions", "They repel each other"], a: 2 },
+            { q: "The magnetic field produced by a current carrying circular loop at its centre is:", o: ["Zero", "Parallel to the plane of the loop", "Perpendicular to the plane of the loop", "In circular form"], a: 2 },
+            { q: "A current carrying solenoid behaves like a:", o: ["Bar magnet", "Horse-shoe magnet", "Ring magnet", "None of these"], a: 0 },
+            { q: "An electromagnet is a:", o: ["Permanent magnet", "Temporary magnet", "Natural magnet", "Weak magnet"], a: 1 },
+            { q: "The core of an electromagnet is made of:", o: ["Steel", "Soft Iron", "Copper", "Aluminium"], a: 1 },
+            { q: "Permanent magnets are made of:", o: ["Steel", "Soft Iron", "Copper", "Aluminium"], a: 0 },
+            { q: "The force on a current carrying conductor in a magnetic field is maximum when the angle between current and magnetic field is:", o: ["0 degrees", "45 degrees", "90 degrees", "180 degrees"], a: 2 },
+            { q: "The force on a current carrying conductor in a magnetic field is zero when the angle between current and magnetic field is:", o: ["0 degrees", "45 degrees", "90 degrees", "180 degrees"], a: 0 },
+            { q: "Commercial electric motors do not use:", o: ["An electromagnet", "Effectively large number of turns", "A soft iron core", "A permanent magnet"], a: 3 },
+            { q: "The function of the split ring in an electric motor is to:", o: ["Reverse the direction of current", "Increase the current", "Decrease the current", "Stop the motor"], a: 0 },
+            { q: "The potential difference between live wire and neutral wire in India is:", o: ["110 V", "220 V", "440 V", "1000 V"], a: 1 },
+            { q: "Overloading happens when:", o: ["Live wire and neutral wire come in contact", "Too many appliances are connected to a single socket", "Voltage drops suddenly", "Fuse wire melts"], a: 1 },
+            { q: "Earth wire is connected to:", o: ["The metallic body of the appliance", "The switch", "The fuse", "The filament"], a: 0 },
+            { q: "Which instrument can detect the presence of current in a circuit?", o: ["Galvanometer", "Voltmeter", "Rheostat", "Generator"], a: 0 },
+            { q: "Who discovered electromagnetic induction?", o: ["Oersted", "Michael Faraday", "Ampere", "Bohr"], a: 1 },
+            { q: "The strength of the magnetic field produced by a straight conductor depends on:", o: ["Current only", "Distance only", "Both Current and Distance", "Nature of material"], a: 2 },
+            { q: "If the direction of current is reversed, the direction of the magnetic field:", o: ["Remains same", "Gets reversed", "Becomes perpendicular", "Becomes zero"], a: 1 },
+            { q: "MRI stands for:", o: ["Magnetic Resonance Imaging", "Magnetic Radio Imaging", "Magnetic Ray Imaging", "Mechanical Resonance Imaging"], a: 0 },
+            { q: "Which of the following is not attracted by a magnet?", o: ["Iron", "Cobalt", "Nickel", "Brass"], a: 3 },
+            { q: "The north pole of earth's magnetic field is near the geographical:", o: ["North", "South", "East", "West"], a: 1 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

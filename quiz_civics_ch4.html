@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Chapter 4 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Success Teal - Outcomes of Democracy) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e0f2f1; color: #00695c; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #00b09b; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #b2dfdb; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #00b09b; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #00796b; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #00b09b; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #00b09b; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="civics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="civics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CIVICS CHAPTER 4 QUESTIONS (लोकतंत्र की उपलब्धियाँ) ▼▼▼
+    const questions = [
+        { question: "1. लोकतंत्र की सफलता निर्भर करती है?", answers: [ { text: "नागरिकों की उदासीनता पर", correct: false }, { text: "नागरिकों की गैर-कानूनी कार्रवाई पर", correct: false }, { text: "नागरिकों की विवेकपूर्ण सहभागिता पर", correct: true }, { text: "नागरिकों द्वारा अपनी जाति के हितों की रक्षा पर", correct: false } ] },
+        { question: "2. निम्नलिखित में से कौन-सा कथन लोकतांत्रिक व्यवस्थाओं के अनुरूप नहीं है?", answers: [ { text: "कानून के समक्ष समानता", correct: false }, { text: "स्वतंत्र एवं निष्पक्ष चुनाव", correct: false }, { text: "उत्तरदायी शासन व्यवस्था", correct: false }, { text: "बहुसंख्यकों का शासन", correct: true } ] },
+        { question: "3. लोकतंत्र में फैसले लिए जाते हैं?", answers: [ { text: "जल्दी में", correct: false }, { text: "देर से (सामूहिक सहमति से)", correct: true }, { text: "बिना सोचे-समझे", correct: false }, { text: "तानाशाही तरीके से", correct: false } ] },
+        { question: "4. किस व्यवस्था में फैसलों में व्यक्तिगत पूर्वाग्रहों की अधिकता रहती है?", answers: [ { text: "लोकतांत्रिक", correct: false }, { text: "राजशाही", correct: false }, { text: "गैर-लोकतांत्रिक (तानाशाही)", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "5. बिहार में पंचायती राज संस्थाएं हैं?", answers: [ { text: "एक स्तरीय", correct: false }, { text: "दो स्तरीय", correct: false }, { text: "तीन स्तरीय", correct: true }, { text: "चार स्तरीय", correct: false } ] },
+        { question: "6. भारतीय लोकतंत्र में कौन-सी बात देखने को नहीं मिलती?", answers: [ { text: "स्वतंत्र एवं निष्पक्ष चुनाव", correct: false }, { text: "कानून के समक्ष समानता", correct: false }, { text: "बहुसंख्यकों का शासन (बिना रोकटोक)", correct: true }, { text: "उत्तरदायी सरकार", correct: false } ] },
+        /* Note: Democracy ensures majority rule with minority rights, but "dominance of majority" in a negative sense is not a democratic ideal. */
+        { question: "7. लोकतंत्र का सर्वोत्तम गुण क्या है?", answers: [ { text: "जनसंख्या की अधिकता", correct: false }, { text: "नागरिकों की गरिमा में वृद्धि", correct: true }, { text: "बहुदलीय पद्धति", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "8. भारत में लोकतंत्र की सफलता में क्या बाधा है?", answers: [ { text: "अशिक्षा", correct: false }, { text: "गरीबी", correct: false }, { text: "बेरोजगारी", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "9. लोकतंत्र की उपलब्धियों में सबसे अधिक सहायक क्या है?", answers: [ { text: "निर्धनता", correct: false }, { text: "अशिक्षा", correct: false }, { text: "विषमता", correct: false }, { text: "विकास", correct: true } ] },
+        { question: "10. भारत में किस तरह के लोकतंत्र की व्यवस्था है?", answers: [ { text: "प्रत्यक्ष", correct: false }, { text: "अप्रत्यक्ष", correct: true }, { text: "दोनों", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "11. 'विश्व का सबसे बड़ा लोकतांत्रिक देश' कौन है?", answers: [ { text: "चीन", correct: false }, { text: "अमेरिका", correct: false }, { text: "भारत", correct: true }, { text: "फ्रांस", correct: false } ] },
+        { question: "12. लोकतंत्र एक शासन है जिसमें...", answers: [ { text: "सामाजिक व्यवस्था है", correct: false }, { text: "आर्थिक आदर्श है", correct: false }, { text: "विशेष मनोवृत्ति है", correct: false }, { text: "उपर्युक्त तीनों", correct: true } ] },
+        { question: "13. किस आधार पर लोकतंत्र को सर्वोत्तम शासन कहते हैं?", answers: [ { text: "निर्णय में देर", correct: false }, { text: "राष्ट्रीय भावना का अभाव", correct: false }, { text: "जनमत पर आधारित", correct: true }, { text: "राजनीतिक चेतना का अभाव", correct: false } ] },
+        { question: "14. लोकतांत्रिक सरकारों का आधार है?", answers: [ { text: "बहुमत", correct: true }, { text: "अल्पमत", correct: false }, { text: "सैनिकवाद", correct: false }, { text: "पूंजीवाद", correct: false } ] },
+        { question: "15. भारत में मतदान की न्यूनतम आयु क्या है?", answers: [ { text: "16 वर्ष", correct: false }, { text: "18 वर्ष", correct: true }, { text: "21 वर्ष", correct: false }, { text: "25 वर्ष", correct: false } ] },
+        { question: "16. 15वीं लोकसभा चुनाव कब हुआ था?", answers: [ { text: "2006", correct: false }, { text: "2007", correct: false }, { text: "2008", correct: false }, { text: "2009", correct: true } ] },
+        { question: "17. दक्षिण अफ्रीका में लोकतंत्र की कौन सी समस्या प्रमुख थी?", answers: [ { text: "जातिवाद", correct: false }, { text: "रंगभेद", correct: true }, { text: "संप्रदायवाद", correct: false }, { text: "क्षेत्रवाद", correct: false } ] },
+        { question: "18. इनमें से कौन-सी एक बात लोकतांत्रिक व्यवस्थाओं के अनुरूप नहीं है?", answers: [ { text: "कानून के समक्ष समानता", correct: false }, { text: "उत्तरदायी शासन", correct: false }, { text: "बहुसंख्यकों का शासन", correct: true }, { text: "स्वतंत्र चुनाव", correct: false } ] },
+        { question: "19. भारतीय लोकतंत्र के कितने अंग हैं?", answers: [ { text: "एक", correct: false }, { text: "दो", correct: false }, { text: "तीन (विधायिका, कार्यपालिका, न्यायपालिका)", correct: true }, { text: "चार", correct: false } ] },
+        { question: "20. निम्नलिखित में कौन-सा देश लोकतांत्रिक है?", answers: [ { text: "ब्रिटेन", correct: false }, { text: "भारत", correct: false }, { text: "अमेरिका", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "21. भारत में लोकतंत्र की चुनौती क्या नहीं है?", answers: [ { text: "जातिवाद", correct: false }, { text: "आतंकवाद", correct: false }, { text: "परिवारवाद", correct: false }, { text: "मजबूत लोकतंत्र", correct: true } ] },
+        { question: "22. एक उत्तरदायी एवं वैध शासन है?", answers: [ { text: "लोकतंत्र", correct: true }, { text: "राजतंत्र", correct: false }, { text: "सैनिक तंत्र", correct: false }, { text: "तानाशाही", correct: false } ] },
+        { question: "23. देश में निष्पक्ष चुनाव कराने की जिम्मेदारी किसकी है?", answers: [ { text: "राष्ट्रपति", correct: false }, { text: "प्रधानमंत्री", correct: false }, { text: "चुनाव आयोग", correct: true }, { text: "संसद", correct: false } ] },
+        { question: "24. लोकतांत्रिक व्यवस्था में, सत्ता का विकेंद्रीकरण क्या करता है?", answers: [ { text: "शासन को कमजोर करता है", correct: false }, { text: "फैसले लेने में बाधा डालता है", correct: false }, { text: "लोकतंत्र को मजबूत करता है", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "25. आज दुनिया के लगभग कितने देशों में लोकतंत्र है?", answers: [ { text: "20", correct: false }, { text: "50", correct: false }, { text: "100 से अधिक", correct: true }, { text: "सभी देशों में", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बेहतरीन! आप लोकतंत्र के महत्व को समझते हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 अच्छा है, पर लोकतंत्र के गुणों को और पढ़ें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

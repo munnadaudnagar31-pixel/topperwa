@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-11: Constructions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Constructions</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Constructions) ---
+        const questions = [
+            { q: "To divide a line segment AB in the ratio 3:2, a ray AX is drawn such that ∠BAX is acute. The minimum number of points located at equal distances on the ray AX is:", o: ["3", "2", "5", "6"], a: 2 },
+            { q: "To divide a line segment AB in the ratio 5:7, first a ray AX is drawn such that ∠BAX is an acute angle and then points A1, A2, A3... are located at equal distances on the ray AX. The point B is joined to:", o: ["A12", "A13", "A5", "A7"], a: 0 },
+            { q: "To divide a line segment AB in the ratio 4:7, a ray AX is drawn first such that ∠BAX is an acute angle and then points A1, A2, A3... are located at equal distances on the ray AX and the point B is joined to:", o: ["A4", "A11", "A7", "A10"], a: 1 },
+            { q: "To divide a line segment AB in the ratio m:n, where m and n are positive integers, the number of points to be marked on ray AX is:", o: ["m+n", "m-n", "m", "n"], a: 0 },
+            { q: "When constructing a triangle similar to a given triangle with a scale factor of 5/3, the new triangle will be:", o: ["Smaller than the original", "Larger than the original", "Equal to the original", "None of these"], a: 1 },
+            { q: "To construct a triangle similar to a given ΔABC with its sides 3/7 of the corresponding sides of ΔABC, first draw a ray BX such that ∠CBX is an acute angle and X lies on the opposite side of A with respect to BC. Then locate points B1, B2, B3... on BX at equal distances. The point to be joined to C is:", o: ["B3", "B4", "B7", "B10"], a: 2 },
+            { q: "To construct a triangle similar to a given ΔABC with its sides 8/5 of the corresponding sides of ΔABC, draw a ray BX such that ∠CBX is an acute angle and X is on the opposite side of A with respect to BC. The minimum number of points to be located at equal distances on ray BX is:", o: ["5", "8", "13", "3"], a: 1 },
+            { q: "To construct a pair of tangents to a circle at an angle of 60° to each other, it is needed to draw tangents at endpoints of those two radii of the circle, the angle between which is:", o: ["120°", "90°", "60°", "180°"], a: 0 },
+            { q: "To construct a pair of tangents to a circle inclined to each other at an angle of 80°, we require to draw tangents at the end points of two radii which are inclined to each other at an angle of:", o: ["100°", "80°", "90°", "120°"], a: 0 },
+            { q: "A pair of tangents can be constructed from a point P to a circle of radius 3.5 cm situated at a distance of ___ from the centre.", o: ["5 cm", "3 cm", "2 cm", "3.5 cm"], a: 0 },
+            { q: "Which of the following angles can be constructed using a ruler and compass?", o: ["35°", "40°", "22.5°", "50°"], a: 2 },
+            { q: "To divide a line segment in a given ratio, we use the property of:", o: ["Similar triangles", "Congruent triangles", "Area of triangles", "None"], a: 0 },
+            { q: "A scale factor of 3/4 implies that the new triangle is ___ the original triangle.", o: ["Smaller than", "Larger than", "Equal to", "Congruent to"], a: 0 },
+            { q: "The construction of a triangle similar to a given triangle as per given scale factor m/n is possible only when:", o: ["m > n", "m < n", "m = n", "m and n are any positive integers"], a: 3 },
+            { q: "To construct a tangent to a circle from an external point, we first need to:", o: ["Bisect the line segment joining the point and center", "Draw a chord", "Draw the diameter", "Draw a secant"], a: 0 },
+            { q: "Which angle cannot be constructed with ruler and compass?", o: ["75°", "15°", "20°", "135°"], a: 2 },
+            { q: "In dividing a line segment AB in ratio 2:3, the point dividing AB internally lies on AB such that:", o: ["AP/AB = 2/3", "AP/AB = 2/5", "AP/PB = 3/2", "AB/PB = 2/3"], a: 1 },
+            { q: "To construct a 15° angle, we bisect:", o: ["60°", "30°", "45°", "90°"], a: 1 },
+            { q: "If the scale factor is 7/3, then the similar triangle will be:", o: ["Smaller", "Larger", "Same size", "Undefined"], a: 1 },
+            { q: "Construction of tangents to a circle is based on the property that tangent is:", o: ["Parallel to radius", "Perpendicular to radius", "Equal to radius", "None"], a: 1 },
+            { q: "While dividing a line segment of length 10 cm in the ratio 3:2, the length of the smaller part is:", o: ["6 cm", "4 cm", "5 cm", "3 cm"], a: 1 },
+            { q: "For constructing a triangle similar to a given triangle, the ray BX makes an:", o: ["Acute angle", "Obtuse angle", "Right angle", "Reflex angle"], a: 0 },
+            { q: "To construct a triangle similar to ΔABC with scale factor 5/3, points B1, B2... are marked on ray BX. Which point is joined to C?", o: ["B5", "B3", "B8", "B2"], a: 1 },
+            { q: "When constructing a tangent to a circle of radius 4 cm from a point 10 cm away from the center, the length of the tangent is:", o: ["√84", "√116", "6", "8"], a: 0 },
+            { q: "To construct an angle of 22.5°, we bisect angle:", o: ["45°", "90°", "60°", "30°"], a: 0 },
+            { q: "Which geometrical instrument is not required for standard geometric constructions?", o: ["Ruler", "Compass", "Protractor", "Divider"], a: 2 },
+            { q: "To find the center of a given circle, we need to draw:", o: ["Two parallel chords", "Two non-parallel chords", "A tangent", "A diameter"], a: 1 },
+            { q: "The perpendicular bisector of a line segment divides it into:", o: ["Two equal parts at 90°", "Two unequal parts", "Two equal parts at 45°", "Three parts"], a: 0 },
+            { q: "To construct a tangent from a point P on the circle, we construct an angle of:", o: ["90° at P with radius", "60° at P with radius", "45° at P", "30° at P"], a: 0 },
+            { q: "Is it possible to divide a line segment in the ratio √3 : 1/2 geometrically?", o: ["Yes", "No", "Maybe", "Undefined"], a: 1 },
+            { q: "To construct a triangle similar to a given triangle with scale factor 2/5, the new vertices lie:", o: ["Inside the given triangle", "Outside the given triangle", "On the triangle", "None"], a: 0 },
+            { q: "The sum of the ratio parts in dividing a line segment in ratio 4:3 is:", o: ["4", "3", "7", "12"], a: 2 },
+            { q: "Can we construct an angle of 67.5° using compass and ruler?", o: ["Yes", "No", "Only with protractor", "Maybe"], a: 0 },
+            { q: "To construct two tangents from an external point, we need to find the ___ of the line joining the point and the center.", o: ["Midpoint", "Endpoint", "Slope", "Length"], a: 0 },
+            { q: "Which of the following ratios divides a line segment internally?", o: ["3:-2", "-3:2", "3:2", "-1:-1"], a: 2 },
+            { q: "Construction of a triangle is possible if sum of two sides is:", o: ["Less than third side", "Equal to third side", "Greater than third side", "Zero"], a: 2 },
+            { q: "The angle subtended by the two tangents from an external point at the center is ___ to the angle between the tangents.", o: ["Equal", "Complementary", "Supplementary", "Opposite"], a: 2 },
+            { q: "To draw a pair of tangents to a circle which are inclined to each other at an angle of 35°, it is required to draw tangents at end points of those two radii of the circle, the angle between which is:", o: ["145°", "135°", "155°", "125°"], a: 0 },
+            { q: "To construct a triangle with sides 3cm, 4cm, 8cm is:", o: ["Possible", "Not possible", "Unique", "Ambiguous"], a: 1 },
+            { q: "In the division of a line segment AB of length 12 cm in the ratio 3:1, the length of the larger part is:", o: ["3 cm", "6 cm", "9 cm", "12 cm"], a: 2 },
+            { q: "Which of the following can be the scale factor for a similar triangle larger than the original?", o: ["2/3", "0.5", "5/4", "1"], a: 2 },
+            { q: "If we want to divide a line segment in the ratio 4:3, we draw a ray making an acute angle and mark points. The 7th point is joined to:", o: ["The end of the line segment", "The beginning of the line segment", "The 4th point", "The 3rd point"], a: 0 },
+            { q: "The intersection of the perpendicular bisectors of the sides of a triangle is called:", o: ["Incenter", "Circumcenter", "Centroid", "Orthocenter"], a: 1 },
+            { q: "The intersection of the angle bisectors of a triangle is called:", o: ["Incenter", "Circumcenter", "Centroid", "Orthocenter"], a: 0 },
+            { q: "To construct a 135° angle, we bisect the angle between:", o: ["90° and 180°", "60° and 120°", "90° and 120°", "0° and 90°"], a: 0 },
+            { q: "In a similar triangle construction with scale factor 7/4, the ray BX has __ points.", o: ["4", "7", "3", "11"], a: 1 },
+            { q: "Tangent can be drawn from a point P to a circle of radius 4 cm if distance of P from center is:", o: ["3 cm", "2 cm", "4 cm", "5 cm"], a: 3 },
+            { q: "When constructing a triangle similar to a given triangle, if scale factor is m/n with m < n, then the new triangle is:", o: ["Congruent", "Smaller", "Larger", "Isosceles"], a: 1 },
+            { q: "Geometrical construction requires:", o: ["Precision", "Approximation", "Estimation", "Guessing"], a: 0 },
+            { q: "To bisect a line segment of length 7 cm, the radius of the compass arc should be:", o: ["Less than 3.5 cm", "Exactly 3.5 cm", "More than 3.5 cm", "Any radius"], a: 2 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Construction Master! You know every step! 📏";
+            else if(accuracy >= 70) feedback.innerText = "Good job! You understand the logic. 📐";
+            else if(accuracy >= 50) feedback.innerText = "Not bad, but revise the scale factors. 🔍";
+            else feedback.innerText = "Construction needs logic. Try again! 🔥";
+        }
+    </script>
+</body>
+</html>

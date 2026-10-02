@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VVI Questions 2026 - Quiz Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme Premium */
+            --bg-body: #f0f2f5;
+            --bg-blob: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --card-shadow: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --glow-color: rgba(66, 153, 225, 0.5);
+            
+            /* Gradients */
+            --grad-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --grad-fire: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+            --grad-gold: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --grad-ocean: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --grad-royal: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            
+            --transition-speed: 0.4s;
+        }
+
+        .dark-mode {
+            /* Dark Theme Premium (Cyberpunk/Deep) */
+            --bg-body: #0f172a;
+            --bg-blob: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 15px 50px -12px rgba(0,0,0,0.5);
+            --glow-color: rgba(56, 189, 248, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-body);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+        /* Ambient Background Blobs */
+        body::before {
+            content: ''; position: fixed; top: -10%; left: -10%; width: 60%; height: 60%;
+            background: radial-gradient(circle, var(--glow-color) 0%, transparent 70%);
+            filter: blur(80px); opacity: 0.4; z-index: -1; animation: floatBlob 10s infinite alternate;
+        }
+        body::after {
+            content: ''; position: fixed; bottom: -10%; right: -10%; width: 60%; height: 60%;
+            background: radial-gradient(circle, var(--grad-primary) 0%, transparent 70%);
+            filter: blur(80px); opacity: 0.2; z-index: -1; animation: floatBlob 12s infinite alternate-reverse;
+        }
+
+        @keyframes floatBlob { from { transform: translate(0,0); } to { transform: translate(20px, 40px); } }
+
+        /* --- CONTAINER TRANSITIONS --- */
+        .page-wrapper {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pageEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes pageEnter {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-exit-active {
+            animation: pageExit 0.4s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes pageExit {
+            to { opacity: 0; transform: scale(0.95); filter: blur(5px); }
+        }
+
+        /* --- HEADER --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 35px; padding: 10px 5px;
+        }
+        
+        .header-content h1 { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .header-content span { 
+            font-size: 11px; text-transform: uppercase; letter-spacing: 2px; 
+            font-weight: 700; background: var(--grad-fire); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); font-size: 20px;
+            backdrop-filter: blur(10px); box-shadow: var(--card-shadow);
+            cursor: pointer; transition: all 0.3s ease; text-decoration: none;
+        }
+        .back-btn:active { transform: scale(0.90); }
+
+        /* --- LIST STYLES --- */
+        .vvi-list { display: flex; flex-direction: column; gap: 18px; padding-bottom: 60px; }
+
+        .vvi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex; align-items: center; gap: 16px;
+            text-decoration: none;
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* Stagger Animation Setup */
+            opacity: 0; animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stagger Delays */
+        .vvi-card:nth-child(1) { animation-delay: 0.1s; }
+        .vvi-card:nth-child(2) { animation-delay: 0.15s; }
+        .vvi-card:nth-child(3) { animation-delay: 0.2s; }
+        .vvi-card:nth-child(4) { animation-delay: 0.25s; }
+        .vvi-card:nth-child(5) { animation-delay: 0.3s; }
+        .vvi-card:nth-child(6) { animation-delay: 0.35s; }
+        .vvi-card:nth-child(7) { animation-delay: 0.4s; }
+
+        .vvi-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px -10px var(--glow-color);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .vvi-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%); transition: 0.5s;
+        }
+        .vvi-card:hover::before { transform: translateX(100%); }
+
+        /* Icon Styling */
+        .icon-box {
+            width: 56px; height: 56px; border-radius: 18px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 26px; color: #fff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden;
+        }
+        
+        .icon-box.subj { background: var(--grad-gold); }
+        .icon-box.sci { background: var(--grad-primary); }
+        .icon-box.sst { background: var(--grad-ocean); }
+        .icon-box.math { background: linear-gradient(135deg, #3B2667 0%, #BC78EC 100%); }
+        .icon-box.eng { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); }
+        .icon-box.hin { background: var(--grad-fire); }
+        .icon-box.san { background: var(--grad-royal); }
+
+        /* Text Styling */
+        .card-content { flex: 1; }
+        .card-content h3 { font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .card-content p { font-size: 13px; color: var(--text-sub); font-weight: 500; }
+
+        /* Badge & Arrow */
+        .meta-info {
+            display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+        }
+        .badge {
+            font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 12px;
+            text-transform: uppercase;
+        }
+        
+        .badge.hot { background: rgba(255, 8, 68, 0.15); color: #ff0844; }
+        .badge.new { background: rgba(67, 233, 123, 0.15); color: #10b981; }
+        .badge.vvi { background: rgba(118, 75, 162, 0.15); color: #764ba2; }
+
+        .arrow-icon { font-size: 18px; color: var(--text-sub); opacity: 0.5; transition: 0.3s; }
+        .vvi-card:hover .arrow-icon { transform: translateX(5px); color: var(--text-main); opacity: 1; }
+
+        /* --- BRANDING FOOTER --- */
+        .Topperwa-branding {
+            text-align: center; margin-top: 20px; padding-bottom: 20px;
+            opacity: 0.6; transition: opacity 0.3s;
+        }
+        .Topperwa-branding:hover { opacity: 1; }
+        .brand-logo {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--card-bg); padding: 8px 16px; border-radius: 50px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            backdrop-filter: blur(5px);
+        }
+        .brand-icon { 
+            width: 20px; height: 20px; background: var(--text-main); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; color: var(--bg-body); font-size: 10px; font-weight: bold;
+        }
+        .brand-text { font-size: 12px; font-weight: 600; color: var(--text-main); letter-spacing: 0.5px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper" id="mainContainer">
+        
+        <div class="header">
+            <a href="index.html" class="back-btn" onclick="handleExit(event, 'index.html')">❮</a>
+            <div class="header-content" style="text-align: right;">
+                <span>Mission 2026</span>
+                <h1>Select Subject</h1>
+            </div>
+        </div>
+
+        <div class="vvi-list">
+
+            <a href="subjective_qna.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box subj">✍️</div>
+                <div class="card-content">
+                    <h3>Subjective Q&A</h3>
+                    <p>Short & Long Questions</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge vvi">Mixed</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="science_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box sci">⚛️</div>
+                <div class="card-content">
+                    <h3>Science</h3>
+                    <p>Phy, Chem & Bio</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge hot">5 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="social_science_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box sst">🌍</div>
+                <div class="card-content">
+                    <h3>Social Science</h3>
+                    <p>History, Civics, Geo</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge hot">5 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="math_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box math">➗</div>
+                <div class="card-content">
+                    <h3>Mathematics</h3>
+                    <p>Objective 100 Qns</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge new">4 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="english_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box eng">📖</div>
+                <div class="card-content">
+                    <h3>English</h3>
+                    <p>Panorama & Grammar</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge vvi">3 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="hindi_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box hin">🪔</div>
+                <div class="card-content">
+                    <h3>Hindi</h3>
+                    <p>Godhuli + Varnika</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge vvi">3 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+            <a href="sanskrit_vvi.html" class="vvi-card" onclick="handleExit(event, this.href)">
+                <div class="icon-box san">📜</div>
+                <div class="card-content">
+                    <h3>Sanskrit</h3>
+                    <p>Piyusham Book</p>
+                </div>
+                <div class="meta-info">
+                    <div class="badge vvi">3 Sets</div>
+                    <div class="arrow-icon">➜</div>
+                </div>
+            </a>
+
+        </div>
+
+        <div class="Topperwa-branding">
+            <div class="brand-logo">
+                <div class="brand-icon">E</div>
+                <span class="brand-text">Powered by Topperwa</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Check Theme
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Smooth Exit Animation Function
+        function handleExit(e, url) {
+            e.preventDefault();
+            const container = document.getElementById('mainContainer');
+            
+            // Add exit class
+            container.classList.add('page-exit-active');
+            
+            // Wait for animation then navigate
+            setTimeout(() => {
+                window.location.href = url;
+            }, 400); // Matches animation duration
+        }
+    </script>
+</body>
+</html>

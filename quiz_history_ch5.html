@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 5 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Industrial Purple) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #ede7f6; color: #512da8; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #6a11cb; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #d1c4e9; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #6a11cb; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #4a0072; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #6a11cb; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #6a11cb; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 5 QUESTIONS (अर्थव्यवस्था और आजीविका) ▼▼▼
+    const questions = [
+        { question: "1. स्पिनिंग जेनी का आविष्कार कब हुआ?", answers: [ { text: "1769", correct: false }, { text: "1770", correct: true }, { text: "1773", correct: false }, { text: "1775", correct: false } ] },
+        { question: "2. 'सेफ्टी लैंप' का आविष्कार किसने किया?", answers: [ { text: "जेम्स हरग्रीव्स", correct: false }, { text: "जॉन के", correct: false }, { text: "क्रोम्पटन", correct: false }, { text: "हम्फ्री डेवी", correct: true } ] },
+        { question: "3. बंबई में सर्वप्रथम सूती कपड़ों के मिलों की स्थापना कब हुई?", answers: [ { text: "1851", correct: false }, { text: "1854", correct: true }, { text: "1914", correct: false }, { text: "1885", correct: false } ] },
+        { question: "4. 1917 ई० में भारत में पहली जूट मिल किस शहर में स्थापित हुई?", answers: [ { text: "कलकत्ता", correct: true }, { text: "दिल्ली", correct: false }, { text: "बंबई", correct: false }, { text: "पटना", correct: false } ] },
+        { question: "5. भारत में कोयला उद्योग का आरंभ कब हुआ?", answers: [ { text: "1907", correct: false }, { text: "1914", correct: true }, { text: "1916", correct: false }, { text: "1919", correct: false } ] },
+        { question: "6. जमशेदजी टाटा ने 'टाटा आयरन एंड स्टील कंपनी' (TISCO) की स्थापना कब की?", answers: [ { text: "1854", correct: false }, { text: "1907", correct: true }, { text: "1915", correct: false }, { text: "1923", correct: false } ] },
+        { question: "7. भारत में टाटा हाइड्रो इलेक्ट्रिक पावर स्टेशन की स्थापना कब हुई?", answers: [ { text: "1910", correct: true }, { text: "1951", correct: false }, { text: "1955", correct: false }, { text: "1962", correct: false } ] },
+        { question: "8. इंग्लैंड में सभी स्त्री एवं पुरुषों को वयस्क मताधिकार कब प्राप्त हुआ?", answers: [ { text: "1838", correct: false }, { text: "1881", correct: false }, { text: "1918", correct: true }, { text: "1928", correct: false } ] },
+        { question: "9. अखिल भारतीय ट्रेड यूनियन कांग्रेस (AITUC) की स्थापना कब हुई?", answers: [ { text: "1848", correct: false }, { text: "1881", correct: false }, { text: "1885", correct: false }, { text: "1920", correct: true } ] },
+        { question: "10. भारत के लिए पहला फैक्ट्री एक्ट कब पारित हुआ?", answers: [ { text: "1838", correct: false }, { text: "1858", correct: false }, { text: "1881", correct: true }, { text: "1911", correct: false } ] },
+        { question: "11. वैज्ञानिक समाजवाद का प्रतिपादन किसने किया?", answers: [ { text: "लुई ब्लॉ", correct: false }, { text: "कार्ल मार्क्स", correct: true }, { text: "रॉबर्ट ओवन", correct: false }, { text: "लाला लाजपत राय", correct: false } ] },
+        { question: "12. फ्लाइंग शटल का आविष्कार किसने किया था?", answers: [ { text: "जॉन के", correct: true }, { text: "जेम्स हरग्रीव्स", correct: false }, { text: "एडमंड कार्टराइट", correct: false }, { text: "आर्कराइट", correct: false } ] },
+        { question: "13. वाष्प इंजन का आविष्कार किसने किया था?", answers: [ { text: "जेम्स वाट", correct: true }, { text: "हमद", correct: false }, { text: "जॉन के", correct: false }, { text: "न्यूकॉमन", correct: false } ] },
+        { question: "14. भारत में न्यूनतम मजदूरी कानून किस वर्ष पारित हुआ?", answers: [ { text: "1881", correct: false }, { text: "1926", correct: false }, { text: "1947", correct: false }, { text: "1948", correct: true } ] },
+        { question: "15. औद्योगिक क्रांति सर्वप्रथम किस देश में हुई?", answers: [ { text: "इंग्लैंड", correct: true }, { text: "जर्मनी", correct: false }, { text: "फ्रांस", correct: false }, { text: "अमेरिका", correct: false } ] },
+        { question: "16. स्पिरिट ऑफ लॉ (The Spirit of Law) की रचना किसने की?", answers: [ { text: "मोंटेस्क्यू", correct: true }, { text: "रूसो", correct: false }, { text: "वॉल्टेयर", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "17. जनसंख्या का घनत्व सबसे अधिक कहाँ होता है?", answers: [ { text: "ग्राम", correct: false }, { text: "कस्बा", correct: false }, { text: "नगर", correct: false }, { text: "महानगर", correct: true } ] },
+        { question: "18. लंदन में अनिवार्य प्राथमिक शिक्षा कब लागू हुई?", answers: [ { text: "1850", correct: false }, { text: "1855", correct: false }, { text: "1860", correct: false }, { text: "1870", correct: true } ] },
+        { question: "19. पूंजीपति वर्ग के द्वारा किस वर्ग का शोषण हुआ?", answers: [ { text: "श्रमिक वर्ग", correct: false }, { text: "मध्यम वर्ग", correct: false }, { text: "कृषक वर्ग", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "20. अंतर्राष्ट्रीय श्रमिक संगठन (ILO) की स्थापना किस वर्ष हुई?", answers: [ { text: "1917", correct: false }, { text: "1919", correct: true }, { text: "1921", correct: false }, { text: "1923", correct: false } ] },
+        { question: "21. राउरकेला इस्पात उद्योग है?", answers: [ { text: "ओडिशा में", correct: true }, { text: "झारखंड में", correct: false }, { text: "मध्य प्रदेश में", correct: false }, { text: "पश्चिम बंगाल में", correct: false } ] },
+        { question: "22. विश्व में सर्वप्रथम मुद्रण की शुरुआत कहाँ हुई?", answers: [ { text: "भारत", correct: false }, { text: "जापान", correct: false }, { text: "चीन", correct: true }, { text: "अमेरिका", correct: false } ] },
+        { question: "23. रेशम मार्ग (Silk Route) कहाँ से आरंभ होता था?", answers: [ { text: "भारत", correct: false }, { text: "चीन", correct: true }, { text: "इराक", correct: false }, { text: "अफगानिस्तान", correct: false } ] },
+        { question: "24. भारत में राष्ट्रीय श्रम आयोग की स्थापना किस वर्ष हुई?", answers: [ { text: "1948", correct: false }, { text: "1958", correct: false }, { text: "1962", correct: true }, { text: "1965", correct: false } ] },
+        { question: "25. बाड़ाबंदी आंदोलन कहाँ हुआ था?", answers: [ { text: "इंग्लैंड", correct: true }, { text: "फ्रांस", correct: false }, { text: "जर्मनी", correct: false }, { text: "रूस", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🏭 शानदार! औद्योगीकरण की अच्छी समझ है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर तारीखें और याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 इस चैप्टर में बहुत से सन (Years) हैं, रिवीजन करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

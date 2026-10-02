@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Master - Class 10 BSEB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #8B5CF6;
+            --accent: #06b6d4;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --answer-bg: #f1f5f9;
+            --border: rgba(255,255,255,0.1);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .dark-mode {
+            --card-bg: rgba(30, 41, 59, 0.9);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --answer-bg: #0f172a;
+            --primary: #818cf8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            padding: 15px; 
+            padding-bottom: 80px;
+        }
+
+        /* Modern Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 15px;
+            border-radius: 16px;
+            border: var(--glass-border);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Back Button Style */
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.95); }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand h1 { font-size: 18px; font-weight: 700; color: white; line-height: 1.1; margin: 0; }
+        .brand span { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 400; }
+
+        .controls { display: flex; gap: 8px; }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .icon-btn:active { transform: scale(0.95); }
+
+        /* Section Headings */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            margin: 25px 5px 15px;
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .section-line { flex-grow: 1; height: 1px; background: rgba(255,255,255,0.2); }
+
+        /* Question Cards */
+        .qa-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            border: var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .qa-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+
+        .q-badge {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            margin-top: 8px;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Answer Styling */
+        .answer-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--answer-bg);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            line-height: 1.7;
+            border: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .answer-box strong { color: var(--secondary); font-weight: 700; }
+        .answer-box ul { padding-left: 20px; margin: 8px 0; }
+        .answer-box li { margin-bottom: 5px; }
+        
+        .answer-content {
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 13px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="subjective_qna.html" class="back-btn">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
+            <div class="brand">
+                <h1>Science Hub</h1>
+                <span>Class 10 • BSEB 2026</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="icon-btn" onclick="toggleLang()" id="langBtn" title="Change Language">En</button>
+            <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-star" style="color:#FFD700; margin-right:8px;"></i> 
+        Short Answer (Original) 
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Optics</span>
+        <div class="question-text">Q1. Why is a Concave Lens called a Diverging Lens?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Concept:</strong> A concave lens is thinner at the center and thicker at the edges.<br><br>
+            <strong>Reason:</strong> When a parallel beam of light falls on it, the lens refracts the light rays outwards (away from the principal axis). Since the rays spread out or "diverge" after passing through, it is called a Diverging Lens.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Electricity</span>
+        <div class="question-text">Q2. State Joule's Law of Heating.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Statement:</strong> The heat (H) produced in a resistor is:<br>
+            1. Directly proportional to the square of current (I²).<br>
+            2. Directly proportional to the resistance (R).<br>
+            3. Directly proportional to the time (t) current flows.<br>
+            <br>
+            <strong>Formula:</strong> H = I²Rt
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Magnetism</span>
+        <div class="question-text">Q3. State Maxwell's Right-Hand Thumb Rule.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            Imagine holding a current-carrying straight conductor in your <strong>right hand</strong>:<br>
+            <ul>
+                <li>If the <strong>Thumb</strong> points in the direction of Current.</li>
+                <li>Then the <strong>Wrapped Fingers</strong> show the direction of Magnetic Field lines.</li>
+            </ul>
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Reactions</span>
+        <div class="question-text">Q4. What is a Combination Reaction? Give an example.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Definition:</strong> A reaction in which two or more reactants combine to form a single new product.<br><br>
+            <strong>Example (Burning Coal):</strong><br>
+            C(s) + O₂(g) → CO₂(g)
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Acids</span>
+        <div class="question-text">Q5. Why does distilled water not conduct electricity, whereas rain water does?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Distilled Water:</strong> It is a pure covalent compound with no free ions. Hence, no conduction.<br><br>
+            <strong>Rain Water:</strong> It dissolves gases like CO₂ and SO₂ from air to form carbonic/sulphuric acid. These acids dissociate into ions (H⁺), which conduct electricity.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Metals</span>
+        <div class="question-text">Q6. What is Roasting?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Process:</strong> Heating sulphide ores strongly in the presence of excess air to convert them into oxides.<br><br>
+            <strong>Reaction:</strong><br>
+            2ZnS + 3O₂ → 2ZnO + 2SO₂ (Heat)
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Digestion</span>
+        <div class="question-text">Q7. What are Villi and what is their function?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Structure:</strong> Villi are finger-like projections on the inner wall of the small intestine.<br><br>
+            <strong>Function:</strong> They increase surface area for maximum absorption of digested food into the blood. They are richly supplied with blood vessels.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Excretion</span>
+        <div class="question-text">Q8. What is Dialysis?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Artificial Kidney:</strong> Dialysis (Hemodialysis) is a medical procedure used to remove nitrogenous wastes (urea) and excess fluid from the blood when a person's kidneys are not functioning properly.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Nervous System</span>
+        <div class="question-text">Q9. What is a Neurotransmitter?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            A <strong>neurotransmitter</strong> is a chemical messenger (e.g., Acetylcholine) that carries signals across the synapse (gap) from the axon tip of one neuron to the dendrite of the next neuron.
+        </div></div>
+    </div>
+
+
+    <div class="section-title">
+        <i class="fa-solid fa-fire" style="color:#ff6b6b; margin-right:8px;"></i> 
+        Long Answer (Most Important)
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q10. Explain the Human Eye defects Myopia and Hypermetropia with causes and correction.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>1. Myopia (Near-sightedness):</strong><br>
+            A person can see nearby objects clearly but distant objects appear blurry.<br>
+            * <strong>Causes:</strong> Excessive curvature of eye lens (high power) or elongation of the eyeball.<br>
+            * <strong>Image Formation:</strong> Image forms *in front* of the retina.<br>
+            * <strong>Correction:</strong> By using a <strong>Concave Lens</strong> of suitable power.<br><br>
+            
+            <strong>2. Hypermetropia (Far-sightedness):</strong><br>
+            A person can see distant objects clearly but nearby objects appear blurry.<br>
+            * <strong>Causes:</strong> Focal length of eye lens is too long or eyeball becomes too small.<br>
+            * <strong>Image Formation:</strong> Image forms *behind* the retina.<br>
+            * <strong>Correction:</strong> By using a <strong>Convex Lens</strong>.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q11. Describe the principle and working of an Electric Motor.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Principle:</strong> An electric motor works on the principle that when a current-carrying coil is placed in a magnetic field, it experiences a force (Lorentz force) that rotates it.<br><br>
+            <strong>Construction:</strong><br>
+            1. <strong>Armature:</strong> A rectangular coil (ABCD).<br>
+            2. <strong>Field Magnet:</strong> Strong permanent magnet.<br>
+            3. <strong>Split Ring (Commutator):</strong> Reverses current direction every half rotation.<br>
+            4. <strong>Brushes:</strong> Carbon brushes pass current to the ring.<br><br>
+            <strong>Working:</strong> Current flows ABCD. Force on arm AB is downward, CD is upward (Fleming’s Left Hand Rule). The coil rotates anti-clockwise. The commutator reverses current, maintaining continuous rotation.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q12. Derive the expression for equivalent resistance in Series Combination.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            Let three resistors R₁, R₂, R₃ be connected in series.<br>
+            <strong>Key Concept:</strong> Current (I) is same, Voltage (V) divides.<br><br>
+            Total Voltage V = V₁ + V₂ + V₃ ... (i)<br>
+            According to Ohm's Law (V=IR):<br>
+            V₁ = I R₁<br>
+            V₂ = I R₂<br>
+            V₃ = I R₃<br><br>
+            Substituting in (i):<br>
+            IR_eq = IR₁ + IR₂ + IR₃<br>
+            Taking I common and cancelling:<br>
+            <strong>R_eq = R₁ + R₂ + R₃</strong>
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q13. Explain the Dispersion of Light by a Glass Prism. What is a Spectrum?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Dispersion:</strong> The splitting of white light into its component colors (seven colors) when passing through a transparent medium like a prism is called dispersion.<br><br>
+            <strong>Cause:</strong> Different colors have different speeds in glass. Red bends the least, Violet bends the most.<br><br>
+            <strong>Spectrum:</strong> The band of seven colors obtained on a screen is called a Spectrum. The sequence is <strong>VIBGYOR</strong> (Violet, Indigo, Blue, Green, Yellow, Orange, Red).
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q14. State Ohm's Law and describe an experiment to verify it.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Ohm's Law:</strong> At constant temperature, the current (I) flowing through a conductor is directly proportional to the potential difference (V) across its ends.<br>
+            <strong>V = IR</strong><br><br>
+            <strong>Experimental Verification:</strong><br>
+            1. Set up a circuit with a resistor, ammeter (series), voltmeter (parallel), battery, and rheostat.<br>
+            2. Vary the current using the rheostat and note readings of I and V.<br>
+            3. Plot a graph of V vs I.<br>
+            4. <strong>Result:</strong> The graph is a straight line passing through the origin, proving V/I is constant (R).
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q15. What is a Solenoid? How does it behave like a magnet?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Solenoid:</strong> A coil of many circular turns of insulated copper wire wrapped closely in the shape of a cylinder.<br><br>
+            <strong>Behavior:</strong><br>
+            * When current flows, magnetic field lines inside are parallel straight lines (uniform field).<br>
+            * One end acts as the North Pole and the other as the South Pole.<br>
+            * It behaves exactly like a bar magnet. The strength can be increased by inserting a soft iron core (Electromagnet).
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Physics • Long • 5 Marks</span>
+        <div class="question-text">Q16. Draw a ray diagram for image formation by a Concave Mirror when object is at 'C'.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Object Position:</strong> At Centre of Curvature (C).<br>
+            <strong>Ray Diagram Logic:</strong><br>
+            1. Ray parallel to principal axis → passes through Focus (F).<br>
+            2. Ray passing through Focus → becomes parallel to axis.<br>
+            3. Intersection occurs exactly at C.<br><br>
+            <strong>Nature of Image:</strong> Real, Inverted, and Same Size as the object.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q17. Explain the cleansing action of Soap (Micelle Formation).</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Structure of Soap:</strong> A soap molecule has two ends:<br>
+            1. <strong>Hydrophilic Head:</strong> Ionic end (dissolves in water).<br>
+            2. <strong>Hydrophobic Tail:</strong> Carbon chain (dissolves in oil/dirt).<br><br>
+            <strong>Mechanism:</strong><br>
+            * When soap is in water, the molecules arrange in a cluster called a <strong>Micelle</strong>.<br>
+            * The tails stick to the oily dirt (center), and heads face outward into the water.<br>
+            * Agitation pulls the dirt out in the form of an emulsion, washing it away.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q18. Write the preparation and uses of Plaster of Paris (POP).</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Chemical Name:</strong> Calcium Sulphate Hemihydrate (CaSO₄·½H₂O).<br><br>
+            <strong>Preparation:</strong> Heating Gypsum at 373 K (100°C).<br>
+            CaSO₄·2H₂O → CaSO₄·½H₂O + 1½H₂O<br><br>
+            <strong>Uses:</strong><br>
+            1. Setting fractured bones (Medical).<br>
+            2. Making toys and statues.<br>
+            3. Making surfaces smooth before painting.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q19. Differentiate between Metals and Non-metals (Chemical Properties).</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <table style="width:100%; border-collapse: collapse; margin-top:5px;">
+                <tr><td style="border-bottom:1px solid #ccc; font-weight:bold;">Metals</td><td style="border-bottom:1px solid #ccc; font-weight:bold;">Non-Metals</td></tr>
+                <tr><td>Form Basic Oxides (e.g., MgO).</td><td>Form Acidic/Neutral Oxides (e.g., SO₂).</td></tr>
+                <tr><td>Lose electrons (Electropositive).</td><td>Gain electrons (Electronegative).</td></tr>
+                <tr><td>React with dilute acids to give H₂.</td><td>Do not react with dilute acids.</td></tr>
+            </table>
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q20. What is an Homologous Series? Give characteristics.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Definition:</strong> A series of carbon compounds that have the same functional group and similar chemical properties.<br><br>
+            <strong>Characteristics:</strong><br>
+            1. Successive members differ by -CH₂- group.<br>
+            2. They differ in molecular mass by 14u.<br>
+            3. They have similar chemical properties but graduating physical properties.<br>
+            <strong>Example:</strong> Alkanes (Methane CH₄, Ethane C₂H₆).
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q21. Explain the Electrolytic Refining of Copper.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Setup:</strong><br>
+            * <strong>Anode:</strong> Impure Copper block.<br>
+            * <strong>Cathode:</strong> Thin strip of Pure Copper.<br>
+            * <strong>Electrolyte:</strong> Copper Sulphate (CuSO₄) solution.<br><br>
+            <strong>Process:</strong> On passing current, pure Cu from Anode dissolves into electrolyte and deposits on the Cathode. Impurities settle at the bottom as 'Anode Mud'.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q22. What is Bleaching Powder? How is it prepared?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Formula:</strong> CaOCl₂ (Calcium Oxychloride).<br><br>
+            <strong>Preparation:</strong> By the action of Chlorine gas on dry slaked lime.<br>
+            Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O<br><br>
+            <strong>Uses:</strong> Bleaching cotton/linen, disinfecting drinking water, oxidizing agent.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Chemistry • Long • 5 Marks</span>
+        <div class="question-text">Q23. Describe the reaction of Ethanol with Sodium and hot Conc. H₂SO₄.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>1. With Sodium (Na):</strong><br>
+            Ethanol reacts to form Sodium Ethoxide and Hydrogen gas.<br>
+            2C₂H₅OH + 2Na → 2C₂H₅ONa + H₂↑<br><br>
+            <strong>2. Dehydration (Hot Conc. H₂SO₄ at 443K):</strong><br>
+            Ethanol loses water to form Ethene (Unsaturated hydrocarbon).<br>
+            C₂H₅OH → CH₂=CH₂ + H₂O
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q24. Draw a labeled diagram of the Human Digestive System and explain the role of Stomach.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>[Diagram Required in Exam]</strong><br>
+            The alimentary canal consists of Mouth, Oesophagus, Stomach, Small Intestine, Large Intestine.<br><br>
+            <strong>Role of Stomach:</strong><br>
+            * The stomach walls secrete <strong>Gastric Juice</strong> containing:<br>
+            1. <strong>HCl:</strong> Kills bacteria and makes medium acidic for enzyme action.<br>
+            2. <strong>Pepsin:</strong> Breaks down proteins into simpler molecules.<br>
+            3. <strong>Mucus:</strong> Protects the stomach lining from acid.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q25. Explain the process of Nutrition in Amoeba (Holozoic).</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            Amoeba is unicellular. Steps of nutrition:<br>
+            1. <strong>Ingestion:</strong> It extends finger-like Pseudopodia to engulf food forming a Food Vacuole.<br>
+            2. <strong>Digestion:</strong> Enzymes enter the vacuole and break down food.<br>
+            3. <strong>Absorption:</strong> Digested food diffuses into the cytoplasm.<br>
+            4. <strong>Assimilation:</strong> Used for energy and growth.<br>
+            5. <strong>Egestion:</strong> Undigested residue is expelled by cell membrane rupture.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q26. Describe the structure and function of a Nephron.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Nephron</strong> is the structural and functional filtration unit of the Kidney.<br><br>
+            <strong>Structure:</strong><br>
+            * <strong>Bowman’s Capsule:</strong> Cup-shaped end containing Glomerulus (capillary bunch).<br>
+            * <strong>Tubular Part:</strong> PCT, Henle’s Loop, DCT, Collecting Duct.<br><br>
+            <strong>Function (Urine Formation):</strong><br>
+            1. <strong>Filtration:</strong> Blood is filtered in Bowman's capsule.<br>
+            2. <strong>Reabsorption:</strong> Useful substances (glucose, water) are reabsorbed in the tubule.<br>
+            3. <strong>Secretion:</strong> Wastes are added to forming urine.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q27. Differentiate between Aerobic and Anaerobic Respiration.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <table style="width:100%; border-collapse: collapse;">
+                <tr><td style="border-bottom:1px solid #ccc; font-weight:bold;">Aerobic</td><td style="border-bottom:1px solid #ccc; font-weight:bold;">Anaerobic</td></tr>
+                <tr><td>Occurs in presence of Oxygen.</td><td>Occurs in absence of Oxygen.</td></tr>
+                <tr><td>Complete breakdown of glucose.</td><td>Partial breakdown.</td></tr>
+                <tr><td>End products: CO₂, H₂O, Energy.</td><td>End products: Ethanol/Lactic Acid, CO₂.</td></tr>
+                <tr><td>Releases large energy (38 ATP).</td><td>Releases less energy (2 ATP).</td></tr>
+            </table>
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q28. Explain Double Circulation in Humans.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            Blood passes through the heart twice in one complete cycle.<br><br>
+            <strong>1. Pulmonary Circulation:</strong> Deoxygenated blood moves from Right Ventricle → Lungs → Left Atrium (gets Oxygenated).<br>
+            <strong>2. Systemic Circulation:</strong> Oxygenated blood moves from Left Ventricle → Body Organs → Right Atrium (gets Deoxygenated).<br><br>
+            <strong>Significance:</strong> It prevents mixing of oxygenated and deoxygenated blood, ensuring high energy supply.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q29. Draw the longitudinal section of a Flower and name parts.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>[Diagram Required]</strong><br>
+            Main Parts:<br>
+            1. <strong>Sepals:</strong> Green leaf-like parts protecting the bud.<br>
+            2. <strong>Petals:</strong> Colorful parts to attract insects.<br>
+            3. <strong>Stamen (Male):</strong> Consists of Anther (pollen) and Filament.<br>
+            4. <strong>Pistil/Carpel (Female):</strong> Consists of Stigma (sticky top), Style (tube), and Ovary (base containing ovules).
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q30. Explain Mendel's Law of Dominance with a Monohybrid Cross.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Law:</strong> In a cross between two parents pure for contrasting traits, only one form of the trait (Dominant) appears in the F1 generation, while the other (Recessive) remains hidden.<br><br>
+            <strong>Example (Tall vs Dwarf):</strong><br>
+            Parents: TT (Tall) x tt (Short)<br>
+            F1 Generation: All Tt (Tall).<br>
+            Here, Tallness is dominant over shortness.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q31. How is the sex of a child determined in human beings?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            Sex determination is genetic.<br>
+            * <strong>Male:</strong> XY chromosomes. Produces two types of sperms (50% X, 50% Y).<br>
+            * <strong>Female:</strong> XX chromosomes. Produces only X type eggs.<br><br>
+            <strong>Process:</strong><br>
+            * If sperm carrying X fertilizes egg (X) → Girl (XX).<br>
+            * If sperm carrying Y fertilizes egg (X) → Boy (XY).<br>
+            Thus, the father determines the sex of the child.
+        </div></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">Biology • Long • 5 Marks</span>
+        <div class="question-text">Q32. What is a Reflex Arc? Trace the path.</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">Show Answer <i class="fa-solid fa-chevron-down"></i></button>
+        <div class="answer-box"><div class="answer-content">
+            <strong>Reflex Arc:</strong> The pathway taken by nerve impulses in a reflex action (sudden involuntary response).<br><br>
+            <strong>Path:</strong><br>
+            1. <strong>Receptor:</strong> Detects stimulus (e.g., Heat).<br>
+            2. <strong>Sensory Neuron:</strong> Carries signal to Spinal Cord.<br>
+            3. <strong>Relay Neuron:</strong> Processes signal in Spinal Cord.<br>
+            4. <strong>Motor Neuron:</strong> Carries signal to muscle.<br>
+            5. <strong>Effector:</strong> Muscle contracts (Hand withdraws).
+        </div></div>
+    </div>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const icon = document.querySelector('button[onclick="toggleTheme()"] i');
+            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        // Apply saved theme
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('button[onclick="toggleTheme()"] i').className = 'fa-solid fa-sun';
+        }
+
+        // Toggle Answer Logic
+        function toggleAnswer(btn) {
+            const answerBox = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            
+            if (answerBox.style.display === "block") {
+                answerBox.style.display = "none";
+                btn.innerHTML = 'Show Answer <i class="fa-solid fa-chevron-down"></i>';
+                btn.style.background = "linear-gradient(90deg, var(--primary), var(--secondary))";
+            } else {
+                answerBox.style.display = "block";
+                btn.innerHTML = 'Hide Answer <i class="fa-solid fa-chevron-up"></i>';
+                btn.style.background = "var(--text-main)"; 
+            }
+        }
+
+        // Language Toggle (Mock)
+        function toggleLang() {
+            const btn = document.getElementById('langBtn');
+            if(btn.innerText === 'En') {
+                btn.innerText = 'Hi';
+                alert("Hindi translation feature coming soon! Defaulting to English.");
+            } else {
+                btn.innerText = 'En';
+            }
+        }
+    </script>
+
+</body>
+</html>

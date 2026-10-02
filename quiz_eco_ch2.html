@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economics Chapter 2 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Income Gold & Green) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #11998e; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #c8e6c9; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #11998e; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #00695c; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #11998e; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #11998e; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="economics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="economics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ ECONOMICS CHAPTER 2 QUESTIONS (राज्य एवं राष्ट्र की आय) ▼▼▼
+    const questions = [
+        { question: "1. भारत में सबसे पहले राष्ट्रीय आय का आकलन किसने किया था?", answers: [ { text: "महात्मा गाँधी", correct: false }, { text: "दादाभाई नौरोजी", correct: true }, { text: "जवाहरलाल नेहरू", correct: false }, { text: "सरदार पटेल", correct: false } ] },
+        { question: "2. दादाभाई नौरोजी ने 1868 ई० में भारत की प्रति व्यक्ति आय कितनी बताई थी?", answers: [ { text: "20 रुपये", correct: true }, { text: "25 रुपये", correct: false }, { text: "30 रुपये", correct: false }, { text: "50 रुपये", correct: false } ] },
+        { question: "3. भारत में वित्तीय वर्ष (Financial Year) कहा जाता है?", answers: [ { text: "1 जनवरी से 31 दिसंबर", correct: false }, { text: "1 जुलाई से 30 जून", correct: false }, { text: "1 अप्रैल से 31 मार्च", correct: true }, { text: "1 सितंबर से 31 अगस्त", correct: false } ] },
+        { question: "4. बिहार में प्रति व्यक्ति गरीबी में गुजर रही है?", answers: [ { text: "41.4%", correct: true }, { text: "50%", correct: false }, { text: "60%", correct: false }, { text: "30%", correct: false } ] },
+        { question: "5. कार्यों के बदले में जो पारिश्रमिक मिलता है उसे क्या कहते हैं?", answers: [ { text: "व्यय", correct: false }, { text: "आय", correct: true }, { text: "बचत", correct: false }, { text: "पूंजी", correct: false } ] },
+        { question: "6. बिहार के किस जिले की प्रति व्यक्ति आय सबसे कम है?", answers: [ { text: "नालंदा", correct: false }, { text: "रोहतास", correct: false }, { text: "शिवहर", correct: true }, { text: "गया", correct: false } ] },
+        { question: "7. बिहार के किस जिले की प्रति व्यक्ति आय सर्वाधिक है?", answers: [ { text: "पटना", correct: true }, { text: "गया", correct: false }, { text: "मुंगेर", correct: false }, { text: "भागलपुर", correct: false } ] },
+        { question: "8. उत्पादन एवं आय गणना विधि आर्थिक दृष्टिकोण से है?", answers: [ { text: "सहज", correct: false }, { text: "वैज्ञानिक", correct: false }, { text: "व्यावहारिक", correct: false }, { text: "उपर्युक्त तीनों", correct: true } ] },
+        { question: "9. भारत में किस राज्य की प्रति व्यक्ति आय सर्वाधिक है?", answers: [ { text: "बिहार", correct: false }, { text: "गोवा", correct: true }, { text: "पंजाब", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "10. भारत में किस राज्य की प्रति व्यक्ति आय सबसे कम है?", answers: [ { text: "ओडिशा", correct: false }, { text: "झारखंड", correct: false }, { text: "बिहार", correct: true }, { text: "बंगाल", correct: false } ] },
+        { question: "11. 'पोवर्टी एंड अन-ब्रिटिश रूल इन इंडिया' पुस्तक किसने लिखी?", answers: [ { text: "प्रो० केन्स", correct: false }, { text: "प्रो० मार्शल", correct: false }, { text: "दादाभाई नौरोजी", correct: true }, { text: "अमर्त्य सेन", correct: false } ] },
+        { question: "12. केंद्रीय सांख्यिकी संगठन (CSO) की स्थापना कब हुई थी?", answers: [ { text: "1951", correct: false }, { text: "1954", correct: true }, { text: "1956", correct: false }, { text: "1960", correct: false } ] },
+        { question: "13. राष्ट्रीय आय का अर्थ है?", answers: [ { text: "सरकार की आय", correct: false }, { text: "पारिवारिक आय", correct: false }, { text: "सार्वजनिक उपक्रमों की आय", correct: false }, { text: "उत्पादन के साधनों की आय", correct: true } ] },
+        { question: "14. भारत में राष्ट्रीय आय की गणना कौन करता है?", answers: [ { text: "रिज़र्व बैंक ऑफ़ इंडिया", correct: false }, { text: "केंद्रीय सांख्यिकी संगठन (CSO)", correct: true }, { text: "वित्त विभाग", correct: false }, { text: "नीति आयोग", correct: false } ] },
+        { question: "15. y = c + i फार्मूला किसने दिया था?", answers: [ { text: "प्रो० केन्स", correct: true }, { text: "प्रो० फिशर", correct: false }, { text: "मार्शल", correct: false }, { text: "पिगू", correct: false } ] },
+        { question: "16. कुल उत्पादन एवं उत्पादन में किए गए खर्च का अंतर क्या कहलाता है?", answers: [ { text: "प्रति व्यक्ति आय", correct: false }, { text: "सकल घरेलू उत्पाद", correct: false }, { text: "शुद्ध राष्ट्रीय उत्पाद", correct: true }, { text: "कुल घरेलू उत्पाद", correct: false } ] },
+        { question: "17. जिस देश की राष्ट्रीय आय अधिक होती है, वह देश क्या कहलाता है?", answers: [ { text: "अविकसित", correct: false }, { text: "विकसित", correct: true }, { text: "अर्द्ध-विकसित", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "18. राष्ट्रीय आय में सम्मिलित रहती है?", answers: [ { text: "घरेलू उद्योगों की आय", correct: false }, { text: "विदेशों से प्राप्त आय", correct: false }, { text: "A और B दोनों", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "19. आय तथा उपभोग का अंतर क्या कहलाता है?", answers: [ { text: "विनियम", correct: false }, { text: "मुद्रा", correct: false }, { text: "बचत", correct: true }, { text: "कीमत", correct: false } ] },
+        { question: "20. राष्ट्रीय आय के मापन में कौन सी कठिनाइयां आती हैं?", answers: [ { text: "आंकड़ों को एकत्र करने में कठिनाई", correct: false }, { text: "दोहरी गणना की संभावना", correct: false }, { text: "मूल्य मापने में कठिनाई", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "21. सकल घरेलू उत्पाद (GDP) में किसे शामिल किया जाता है?", answers: [ { text: "देश की सीमा के अंदर उत्पादित वस्तुएं", correct: true }, { text: "विदेशों में उत्पादित वस्तुएं", correct: false }, { text: "दोनों", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "22. प्रत्यक्ष कर (Direct Tax) के अंतर्गत निम्न में से किसे शामिल किया जाता है?", answers: [ { text: "आयकर", correct: true }, { text: "उत्पाद कर", correct: false }, { text: "बिक्री कर", correct: false }, { text: "सेवा कर", correct: false } ] },
+        { question: "23. सन् 2008-09 के अनुसार भारत की औसत प्रति व्यक्ति आय कितनी थी?", answers: [ { text: "25,494 रुपये", correct: true }, { text: "22,553 रुपये", correct: false }, { text: "6,610 रुपये", correct: false }, { text: "54,850 रुपये", correct: false } ] },
+        { question: "24. तीसा (Great Depression) की भयानक आर्थिक मंदी की अवधि क्या थी?", answers: [ { text: "1920-30", correct: false }, { text: "1929-33", correct: true }, { text: "1918-25", correct: false }, { text: "1998-2009", correct: false } ] },
+        { question: "25. 'गरीबी के कुचक्र' (Vicious Circle of Poverty) को किसने परिभाषित किया?", answers: [ { text: "रैग्नर नर्क्स", correct: true }, { text: "प्रो० केन्स", correct: false }, { text: "मार्शल", correct: false }, { text: "राजेन्द्र प्रसाद", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "💰 शानदार! राष्ट्रीय आय के कॉन्सेप्ट आपके क्लियर हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर दादाभाई नौरोजी वाला प्रश्न याद रखें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन करें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

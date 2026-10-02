@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanskrit Master - Class 10 BSEB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Tiro+Devanagari+Hindi:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Sanskrit Theme: Deep Saffron to Purple */
+            --primary: #FF6D00;
+            --secondary: #FFAB00;
+            --accent: #D50000;
+            --bg-gradient: linear-gradient(135deg, #2c0b00 0%, #4a192c 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #2d1b0e;
+            --text-muted: #6d4c41;
+            --answer-bg: #fff8e1; /* Light Cream for Sanskrit feel */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode {
+            --card-bg: rgba(35, 25, 20, 0.95);
+            --text-main: #fff3e0;
+            --text-muted: #bcaaa4;
+            --answer-bg: #1e130c;
+            --primary: #ff9100;
+            --bg-gradient: linear-gradient(135deg, #1a0f0a 0%, #150a10 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            padding: 15px; 
+            padding-bottom: 80px;
+        }
+
+        /* Hindi Font Class */
+        .hindi-text { font-family: 'Tiro Devanagari Hindi', serif; }
+
+        /* Modern Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 15px;
+            border-radius: 16px;
+            border: var(--glass-border);
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 12px; }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.95); }
+
+        .brand h1 { font-size: 18px; font-weight: 700; color: white; line-height: 1.1; margin: 0; }
+        .brand span { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 400; }
+
+        .controls { display: flex; gap: 8px; }
+
+        .icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        /* Section Title */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            margin: 30px 5px 15px;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .section-line { flex-grow: 1; height: 1px; background: rgba(255,255,255,0.3); }
+
+        /* Cards */
+        .qa-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            border: var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        
+        .qa-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 5px;
+            background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+
+        .q-badge {
+            background: rgba(255, 109, 0, 0.1);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            font-family: 'Tiro Devanagari Hindi', serif;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 109, 0, 0.3);
+        }
+
+        /* Answer Styling */
+        .answer-box {
+            display: none;
+            margin-top: 15px;
+            padding: 18px;
+            background: var(--answer-bg);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-main);
+            line-height: 1.8;
+            border: 1px solid rgba(0,0,0,0.05);
+            font-family: 'Tiro Devanagari Hindi', serif;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .answer-box strong { color: var(--accent); font-weight: 700; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left">
+            <a href="subjective_qna.html" class="back-btn">
+                <i class="fa-solid fa-chevron-left"></i>
+            </a>
+            <div class="brand">
+                <h1>Sanskrit Hub</h1>
+                <span>Class 10 • BSEB 2026</span>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="icon-btn" onclick="toggleLang()" id="langBtn" title="Change Language">En</button>
+            <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-om" style="color:#FFD700; margin-right:8px;"></i> 
+        Short Answer (Original) 
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">मंगलम्</span>
+        <div class="question-text">Q1. 'मंगलम्' पाठ के आधार पर सत्य की महत्ता बताएँ।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> 'मंगलम्' पाठ में महर्षि वेदव्यास कहते हैं कि सत्य की ही हमेशा विजय होती है, झूठ की नहीं।<br>
+            1. सत्य के रास्ते पर चलकर ही ऋषिगण <strong>देवलोक (मोक्ष)</strong> को प्राप्त करते हैं।<br>
+            2. ईश्वर का मुख भी <strong>सत्य (हिरण्मयेन पात्रेण)</strong> से ढका हुआ है, जिसे केवल सत्यवान ही देख सकता है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">पाटलिपुत्र वैभवम्</span>
+        <div class="question-text">Q2. पटना के 'कौमुदी महोत्सव' का वर्णन करें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> पाटलिपुत्र में गुप्त वंश के शासनकाल में 'कौमुदी महोत्सव' बहुत धूमधाम से मनाया जाता था।<br>
+            * यह <strong>शरद ऋतु</strong> में आयोजित होता था।<br>
+            * उस समय सभी नगरवासी आनंदमग्न रहते थे।<br>
+            * यह आजकल के <strong>दुर्गा पूजा</strong> जैसा ही एक भव्य उत्सव था।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">अलसकथा</span>
+        <div class="question-text">Q3. 'अलसकथा' पाठ में वास्तविक आलसियों की पहचान कैसे हुई?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> जब आलसशाला में आग लगाई गई, तो धूर्त आलसी भाग गए। लेकिन चार वास्तविक आलसी आग लगने पर भी सोए रहे:<br>
+            1. पहले ने कहा- 'यह कैसा शोर है?'<br>
+            2. दूसरे ने कहा- 'लगता है घर में आग लगी है'।<br>
+            3. तीसरे ने कहा- 'कोई दयालु व्यक्ति नहीं जो भीगे वस्त्र हम पर डाल दे?'<br>
+            4. चौथे ने कहा- <strong>'अरे वाचाल! चुप नहीं रह सकते?'</strong><br>
+            इस प्रकार उनके वार्तालाप से असली आलसियों की पहचान हुई।
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-fire" style="color:#FF6D00; margin-right:8px;"></i> 
+        Long Answer (Most Important)
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">पाटलिपुत्र वैभवम्</span>
+        <div class="question-text">Q4. भगवान बुद्ध ने पाटलिपुत्र (पटना) के बारे में क्या भविष्यवाणी की थी?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> भगवान बुद्ध ने 'पाटलिग्राम' के बारे में भविष्यवाणी की थी कि:<br>
+            1. यह गाँव भविष्य में एक <strong>महानगर</strong> बनेगा।<br>
+            2. परन्तु, इस नगर को हमेशा <strong>आग, बाढ़ और कलह (लड़ाई-झगड़े)</strong> का भय बना रहेगा।<br>
+            आज हम देखते हैं कि पटना एक महानगर है, लेकिन बाढ़ और अन्य समस्याओं से ग्रसित भी रहता है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">संस्कृत साहित्य लेखिका</span>
+        <div class="question-text">Q5. संस्कृत साहित्य के संवर्धन में महिलाओं के योगदान का वर्णन करें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> वैदिक काल से ही महिलाओं ने संस्कृत साहित्य में योगदान दिया है।<br>
+            * <strong>ऋग्वेद</strong> में 24 और अथर्ववेद में 5 ऋषिकाओं का उल्लेख है (जैसे यमी, अपाला, इन्द्राणी)।<br>
+            * <strong>गार्गी</strong> और <strong>मैत्रेयी</strong> विदुषी महिलाएं थीं।<br>
+            * विजयनगर की रानी <strong>गंगा देवी</strong> ने 'मधुराविजयम्' और <strong>तिरुमलाम्बा</strong> ने 'वरदाम्बिका परिणय' की रचना कर साहित्य को समृद्ध किया।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">भारतीय संस्कार</span>
+        <div class="question-text">Q6. 'भारतीय संस्कार' पाठ के आधार पर संस्कारों का वर्गीकरण करें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> भारतीय संस्कृति में कुल <strong>16 संस्कार</strong> माने गए हैं, जिन्हें 5 भागों में बांटा गया है:<br>
+            1. <strong>जन्म पूर्व संस्कार:</strong> 3 (गर्भाधान, पुंसवन, सीमन्तोन्नयन)।<br>
+            2. <strong>शैशव संस्कार:</strong> 6 (जातकर्म, नामकरण, निष्क्रमण, अन्नप्राशन, चूड़ाकर्म, कर्णवेध)।<br>
+            3. <strong>शिक्षा संस्कार:</strong> 5 (अक्षरारम्भ, उपनयन, वेदारम्भ, केशान्त, समावर्तन)।<br>
+            4. <strong>विवाह संस्कार:</strong> 1 (गृहस्थ जीवन का प्रवेश द्वार)।<br>
+            5. <strong>मृत्यु संस्कार:</strong> 1 (अन्त्येष्टि संस्कार)।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">कर्मवीर कथा</span>
+        <div class="question-text">Q7. रामप्रवेश राम की चारित्रिक विशेषताएं लिखें (सफलता की कहानी)।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> रामप्रवेश राम 'कर्मवीर कथा' का नायक है। वह एक दलित और गरीब परिवार से था।<br>
+            * वह <strong>परिश्रमी और लगनशील</strong> था।<br>
+            * शिक्षक की प्रेरणा से उसने पढ़ाई की और विपरीत परिस्थितियों में भी केंद्रीय लोक सेवा परीक्षा (UPSC) में <strong>उच्च स्थान</strong> प्राप्त किया।<br>
+            * यह कहानी सिद्ध करती है कि <strong>परिश्रम</strong> से कोई भी लक्ष्य पाया जा सकता है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">स्वामी दयानन्द</span>
+        <div class="question-text">Q8. मध्यकाल में भारतीय समाज में फैली कुरीतियों का वर्णन करें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> स्वामी दयानन्द के समय (मध्यकाल) भारतीय समाज अनेक बुराइयों से ग्रस्त था:<br>
+            1. <strong>जातिवाद</strong> और छुआछूत की भावना।<br>
+            2. <strong>विधवा विवाह</strong> का निषेध और सती प्रथा।<br>
+            3. <strong>बाल विवाह</strong> और स्त्री शिक्षा का अभाव।<br>
+            4. धार्मिक अंधविश्वास और मूर्तिपूजा का पाखंड।<br>
+            स्वामी दयानन्द ने 'आर्य समाज' की स्थापना कर इनका विरोध किया।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">व्याघ्रपथिक कथा</span>
+        <div class="question-text">Q9. वृद्ध बाघ ने पथिक को फंसाने के लिए क्या तर्क दिया?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> बूढ़े बाघ ने पथिक को विश्वास दिलाने के लिए कहा:<br>
+            * "मैं जवानी में बहुत हिंसक था, मैंने कई मनुष्यों और गायों को मारा, जिसके पाप से मेरा वंश नष्ट हो गया।"<br>
+            * "अब मैं <strong>धार्मिक</strong> हो गया हूँ, स्नान करके दान देना चाहता हूँ।"<br>
+            * "मैं बूढ़ा हूँ, मेरे नाखून और दांत गल गए हैं, तो तुम मुझसे क्यों डरते हो?"<br>
+            इस प्रकार उसने पथिक को लोभ में फंसा लिया।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">विश्वशांति</span>
+        <div class="question-text">Q10. विश्व में अशांति के क्या कारण हैं? निवारण के उपाय बताएं।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>कारण:</strong> विश्व अशांति के दो मुख्य कारण हैं - <strong>द्वेष (Ea)</strong> और <strong>असहिष्णुता</strong>। एक देश दूसरे की उन्नति देखकर जलता है।<br><br>
+            <strong>निवारण:</strong><br>
+            * मन में <strong>परोपकार</strong> की भावना लानी होगी।<br>
+            * ज्ञान का सही उपयोग करना होगा (विध्वंस के लिए नहीं)।<br>
+            * 'वसुधैव कुटुम्बकम' (पूरी पृथ्वी परिवार है) का भाव रखना होगा।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">शास्त्रकाराः</span>
+        <div class="question-text">Q11. वेदांग कितने हैं? उनके नाम और प्रवर्तकों के नाम लिखें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> वेदांग (वेदों के अंग) <strong>छः</strong> हैं:<br>
+            1. <strong>शिक्षा:</strong> (उच्चारण प्रक्रिया) - पाणिनी।<br>
+            2. <strong>कल्प:</strong> (कर्मकांड) - बौधायन/भारद्वाज।<br>
+            3. <strong>व्याकरण:</strong> (भाषा नियम) - पाणिनी।<br>
+            4. <strong>निरुक्त:</strong> (शब्द अर्थ) - यास्क।<br>
+            5. <strong>छंद:</strong> (सूत्र) - पिंगल।<br>
+            6. <strong>ज्योतिष:</strong> (गणित/भविष्य) - लगध।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">कर्णस्य दानवीरता</span>
+        <div class="question-text">Q12. कर्ण ने कवच-कुंडल देने से पहले शक्र (इन्द्र) को क्या-क्या देने का प्रस्ताव रखा?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> जब इन्द्र ने 'महत्तरां भिक्षां याचे' (बड़ी भिक्षा) मांगी, तो कर्ण ने क्रमशः प्रस्ताव दिए:<br>
+            1. हजारों गायें।<br>
+            2. हजारों घोड़े और हाथी।<br>
+            3. अपर्याप्त सोना।<br>
+            4. पृथ्वी जीतकर।<br>
+            5. अपना सिर (काटकर देने को तैयार हुआ)।<br>
+            अंत में, जब इन्द्र ने कुछ स्वीकार नहीं किया, तो उसने अपने शरीर के रक्षक <strong>कवच-कुंडल</strong> काटकर दे दिए।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">नीतिश्लोकाः</span>
+        <div class="question-text">Q13. 'नीतिश्लोकाः' के आधार पर नर्क के द्वार कौन-कौन से हैं?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> महात्मा विदुर के अनुसार नर्क (नाश) के तीन द्वार हैं:<br>
+            1. <strong>काम</strong> (अत्यधिक इच्छा/वासना)<br>
+            2. <strong>क्रोध</strong> (गुस्सा)<br>
+            3. <strong>लोभ</strong> (लालच)<br>
+            अतः अपने कल्याण चाहने वाले व्यक्ति को इन तीनों का त्याग कर देना चाहिए।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">भारत महिमा</span>
+        <div class="question-text">Q14. भारत भूमि की क्या विशेषताएं हैं? (भारत महिमा पाठ)</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> 'भारत महिमा' पाठ के अनुसार:<br>
+            * भारत भूमि <strong>निर्मल और ममतामयी</strong> है।<br>
+            * यहाँ विभिन्न जाति और धर्म के लोग <strong>एकता</strong> के भाव से रहते हैं।<br>
+            * यहाँ की नदियाँ, पर्वत और सागर इसकी शोभा बढ़ाते हैं।<br>
+            * देवता भी इस पवित्र भूमि पर जन्म लेने के लिए तरसते हैं।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">शैशव संस्कार</span>
+        <div class="question-text">Q15. शैशव संस्कारों पर प्रकाश डालें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> शैशव (बचपन) के कुल 6 संस्कार हैं:<br>
+            1. <strong>जातकर्म:</strong> जन्म के तुरंत बाद।<br>
+            2. <strong>नामकरण:</strong> बच्चे का नाम रखना।<br>
+            3. <strong>निष्क्रमण:</strong> घर से पहली बार बाहर निकलना।<br>
+            4. <strong>अन्नप्राशन:</strong> पहली बार अनाज खिलाना।<br>
+            5. <strong>चूड़ाकर्म (मुंडन):</strong> सिर के बाल हटाना।<br>
+            6. <strong>कर्णवेध:</strong> कान छेदना।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">मंदाकिनी वर्णनम्</span>
+        <div class="question-text">Q16. श्री राम ने सीता को मंदाकिनी नदी का वर्णन कैसे किया?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> वनवास के दौरान चित्रकूट पर्वत के पास बहती मंदाकिनी नदी को दिखाकर राम सीता से कहते हैं:<br>
+            * "हे सीते! देखो, यह नदी प्राकृतिक संपदा से घिरी हुई है।"<br>
+            * "इसके पानी में रंग-बिरंगे फूल तैर रहे हैं।"<br>
+            * "ऋषि-मुनि इसमें स्नान कर रहे हैं और सूर्य की उपासना कर रहे हैं।"<br>
+            * "यह नदी मन को मोहने वाली है।"
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">मंदाकिनी वर्णनम्</span>
+        <div class="question-text">Q17. 'ऊर्ध्वबाहवः' कौन हैं और वे क्या कर रहे हैं?</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> 'ऊर्ध्वबाहवः' वे ऋषि-मुनि हैं जो अपनी बाहों (हाथों) को ऊपर उठाकर सूर्य देव की उपासना कर रहे हैं। वे मंदाकिनी नदी में स्नान करके नियमपूर्वक आदित्य (सूर्य) का उपस्थान कर रहे हैं।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">विविध</span>
+        <div class="question-text">Q18. पंडित (ज्ञानी) किसे कहा गया है? (विदुर नीति)</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> जिसके कार्य में सर्दी, गर्मी, भय, प्रेम, समृद्धि या असमृद्धि बाधा नहीं डालते, वही सच्चा <strong>पंडित</strong> (ज्ञानी) है। जो सभी जीवों के तत्वों को जानता है और अपने कर्मों को कुशलता से करता है, वही पंडित कहलाता है।
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge">व्याकरण/लेखन</span>
+        <div class="question-text">Q19. विवाह संस्कार का वर्णन करें।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">उत्तर देखें 👇</button>
+        <div class="answer-box">
+            <strong>उत्तर:</strong> विवाह संस्कार से ही मनुष्य गृहस्थ जीवन में प्रवेश करता है। इसमें कई मुख्य कर्मकांड होते हैं:<br>
+            * वाग्दान (वचन देना), मंडप निर्माण, वधु के घर वर का स्वागत।<br>
+            * पाणिग्रहण (हाथ थामना), अग्निस्थापन।<br>
+            * <strong>सप्तपदी</strong> (सात फेरे) और सिन्दूरदान।<br>
+            इन विधियों के बाद ही विवाह पूर्ण माना जाता है।
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-envelope" style="color:#4CAF50; margin-right:8px;"></i> 
+        Sanskrit Letters (VVI)
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#2E7D32; background:#E8F5E9;">Letter • 4 Marks</span>
+        <div class="question-text">Q20. बड़े भाई के विवाह में शामिल होने के लिए अवकाश हेतु प्रधानाध्यापक को आवेदन पत्र।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">प्रारूप देखें 👇</button>
+        <div class="answer-box">
+            <strong>सेवायाम्,</strong><br>
+            श्रीमन्तः प्रधानाचार्य महोदयाः,<br>
+            (विद्यालयस्य नाम), (नगरम्)<br><br>
+            <strong>विषयः - दिनद्वयस्य अवकाशार्थम् प्रार्थना-पत्रम्।</strong><br><br>
+            महाशयाः,<br>
+            सविनयं निवेदनम् अस्ति यत् मम ज्येष्ठभ्रातुः विवाहः श्वः (कल) भविष्यति। वरयात्रा (बरात) देहली-नगरं गमिष्यति। अहम् अपि तत्र गन्तुम् इच्छामि। अतः अहम् विद्यालयं आगन्तुम् असमर्थः अस्मि।<br><br>
+            अतः प्रार्थये यत् मह्यम् दिनद्वयस्य अवकाशं दत्वा माम् अनुगृह्णन्तु।<br><br>
+            भवताम् आज्ञाकारी शिष्यः,<br>
+            नाम - (आपका नाम)<br>
+            कक्षा - दशम
+        </div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#2E7D32; background:#E8F5E9;">Letter • 4 Marks</span>
+        <div class="question-text">Q21. पिता जी को पत्र लिखकर 500 रुपये की मांग करें (पुस्तक खरीदने हेतु)।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">प्रारूप देखें 👇</button>
+        <div class="answer-box">
+            <strong>पूज्याः पितृमहोदयाः,</strong><br>
+            सादरं प्रणामः।<br>
+            अत्र कुशलं तत्रास्तु। मम परीक्षा समीपे अस्ति। मम पठन-पाठनं सम्यक् प्रचलति। मह्यम् कानिचित् पुस्तकानि क्रेतव्यानि सन्ति।<br><br>
+            अतः कृपया पञ्चशत (500) रुप्यकाणि प्रेषयन्तु। मातृचरणयोः मम प्रणामः।<br><br>
+            भवताम् प्रियः पुत्रः,<br>
+            नाम - (आपका नाम)<br>
+            स्थानम् - (परीक्षा भवन)
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fa-solid fa-pen-nib" style="color:#9C27B0; margin-right:8px;"></i> 
+        Anuched (Paragraphs)
+        <div class="section-line"></div>
+    </div>
+
+    <div class="qa-card">
+        <span class="q-badge" style="color:#6A1B9A; background:#F3E5F5;">Paragraph • 7 Marks</span>
+        <div class="question-text">Q22. 'हिमालयः' या 'अस्माकं देशः' पर अनुच्छेद (7 वाक्य)।</div>
+        <button class="toggle-btn" onclick="toggleAnswer(this)">अनुच्छेद देखें 👇</button>
+        <div class="answer-box">
+            <strong>हिमालयः (हिमालय):</strong><br>
+            1. हिमालयः भारतस्य उत्तरे दिशायां स्थितः अस्ति। (हिमालय भारत के उत्तर में है।)<br>
+            2. अयम् पर्वतानां राजा कथ्यते। (यह पर्वतों का राजा कहलाता है।)<br>
+            3. हिमालयः अस्माकं प्रहरी इव रक्षति। (यह प्रहरी की तरह हमारी रक्षा करता है।)<br>
+            4. अनेकाः नद्यः हिमालयात् निस्सरन्ति। (अनेक नदियां हिमालय से निकलती हैं।)<br>
+            5. अत्र अनेकानि तीर्थस्थलानि सन्ति। (यहाँ अनेक तीर्थस्थल हैं।)<br>
+            6. हिमालयस्य शोभा मनोहरा अस्ति। (हिमालय की शोभा मनोहर है।)<br>
+            7. वयं हिमालयं नमामः। (हम हिमालय को नमन करते हैं।)
+        </div>
+    </div>
+
+    <script>
+        // Theme Logic
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const icon = document.querySelector('button[onclick="toggleTheme()"] i');
+            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('button[onclick="toggleTheme()"] i').className = 'fa-solid fa-sun';
+        }
+
+        // Toggle Answer Logic
+        function toggleAnswer(btn) {
+            const answerBox = btn.nextElementSibling;
+            
+            if (answerBox.style.display === "block") {
+                answerBox.style.display = "none";
+                btn.innerHTML = 'उत्तर देखें 👇';
+                btn.style.background = "linear-gradient(90deg, var(--primary), var(--secondary))";
+            } else {
+                answerBox.style.display = "block";
+                btn.innerHTML = 'उत्तर छिपाएं 👆';
+                btn.style.background = "var(--text-main)"; 
+            }
+        }
+
+        // Mock Language Toggle
+        function toggleLang() {
+            const btn = document.getElementById('langBtn');
+            if(btn.innerText === 'En') {
+                alert("Exam Mode: Sanskrit answers should be written in Hindi/Sanskrit script for BSEB Boards. English translation is hidden to prevent confusion.");
+            }
+        }
+    </script>
+
+</body>
+</html>

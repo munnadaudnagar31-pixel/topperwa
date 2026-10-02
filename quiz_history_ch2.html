@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 2 - Live Test</title>
+    <style>
+        /* --- SAME MODERN UI STYLE --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        .timer-box { background: #e3f2fd; color: #1565c0; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #00c6fb; width: 0%; transition: width 0.3s ease; }
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #e2e6ea; }
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #00c6fb; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #0099cc; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #00c6fb; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(0, 198, 251, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #00c6fb; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10; // Time Limit
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 2 QUESTIONS (समाजवाद एवं साम्यवाद) ▼▼▼
+    const questions = [
+        { question: "1. रूस में कृषक दास प्रथा का अंत कब हुआ?", answers: [ { text: "1861", correct: true }, { text: "1862", correct: false }, { text: "1863", correct: false }, { text: "1864", correct: false } ] },
+        { question: "2. रूस में जार का अर्थ क्या होता था?", answers: [ { text: "पीने का बर्तन", correct: false }, { text: "पानी रखने का मिट्टी का पात्र", correct: false }, { text: "रूस का सामंत", correct: false }, { text: "रूस का सम्राट", correct: true } ] },
+        { question: "3. कार्ल मार्क्स का जन्म कहाँ हुआ था?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "जर्मनी", correct: true }, { text: "इटली", correct: false }, { text: "रूस", correct: false } ] },
+        { question: "4. साम्यवादी शासन का पहला प्रयोग कहाँ हुआ?", answers: [ { text: "रूस", correct: true }, { text: "जापान", correct: false }, { text: "चीन", correct: false }, { text: "क्यूबा", correct: false } ] },
+        { question: "5. निम्नांकित में कौन यूरोपियन समाजवादी नहीं था?", answers: [ { text: "लुई ब्लॉ", correct: false }, { text: "सेंट साइमन", correct: false }, { text: "कार्ल मार्क्स", correct: true }, { text: "रॉबर्ट ओवन", correct: false } ] },
+        { question: "6. 'वार एंड पीस' (War and Peace) किसकी रचना है?", answers: [ { text: "कार्ल मार्क्स", correct: false }, { text: "टॉलस्टाय", correct: true }, { text: "दोस्तोंवस्की", correct: false }, { text: "एंजल्स", correct: false } ] },
+        { question: "7. बोल्शेविक क्रांति कब हुई?", answers: [ { text: "फरवरी 1917", correct: false }, { text: "नवंबर 1917", correct: true }, { text: "अप्रैल 1917", correct: false }, { text: "1905", correct: false } ] },
+        { question: "8. लाल सेना का गठन किसने किया था?", answers: [ { text: "कार्ल मार्क्स", correct: false }, { text: "स्टालिन", correct: false }, { text: "ट्रॉटस्की", correct: true }, { text: "केरेन्सकी", correct: false } ] },
+        { question: "9. लेनिन की मृत्यु कब हुई?", answers: [ { text: "1921", correct: false }, { text: "1922", correct: false }, { text: "1923", correct: false }, { text: "1924", correct: true } ] },
+        { question: "10. ब्रेस्ट-लिटोव्स्क की संधि किन देशों के बीच हुई थी?", answers: [ { text: "रूस और इटली", correct: false }, { text: "रूस और फ्रांस", correct: false }, { text: "रूस और इंग्लैंड", correct: false }, { text: "रूस और जर्मनी", correct: true } ] },
+        { question: "11. 'रासपुटीन' कौन था?", answers: [ { text: "भ्रष्ट पादरी", correct: true }, { text: "वैज्ञानिक", correct: false }, { text: "समाज सुधारक", correct: false }, { text: "दार्शनिक", correct: false } ] },
+        { question: "12. नई आर्थिक नीति (NEP) कब लागू हुई?", answers: [ { text: "1921", correct: true }, { text: "1923", correct: false }, { text: "1920", correct: false }, { text: "1924", correct: false } ] },
+        { question: "13. 'दास कैपिटल' की रचना किसने की?", answers: [ { text: "एंजल्स", correct: false }, { text: "दोस्तोंवस्की", correct: false }, { text: "टॉलस्टाय", correct: false }, { text: "कार्ल मार्क्स", correct: true } ] },
+        { question: "14. समाजवादियों की बाइबिल किसे कहा जाता है?", answers: [ { text: "दास कैपिटल", correct: true }, { text: "वार एंड पीस", correct: false }, { text: "स्पार्क", correct: false }, { text: "कम्युनिस्ट घोषणापत्र", correct: false } ] },
+        { question: "15. मजदूर दिवस कब मनाया जाता है?", answers: [ { text: "1 अप्रैल", correct: false }, { text: "1 मई", correct: true }, { text: "15 अप्रैल", correct: false }, { text: "8 मार्च", correct: false } ] },
+        { question: "16. अंतर्राष्ट्रीय महिला दिवस कब मनाया जाता है?", answers: [ { text: "4 जून", correct: false }, { text: "1 दिसंबर", correct: false }, { text: "15 अप्रैल", correct: false }, { text: "8 मार्च", correct: true } ] },
+        { question: "17. 'चेका' क्या था?", answers: [ { text: "सेना की टुकड़ी", correct: false }, { text: "पुलिस दस्ता", correct: true }, { text: "पादरी वर्ग", correct: false }, { text: "श्रमिक वर्ग", correct: false } ] },
+        { question: "18. रॉबर्ट ओवन कहाँ का निवासी था?", answers: [ { text: "फ्रांस", correct: false }, { text: "जर्मनी", correct: false }, { text: "ब्रिटेन", correct: true }, { text: "ऑस्ट्रिया", correct: false } ] },
+        { question: "19. वैज्ञानिक समाजवाद का जनक किसे माना जाता है?", answers: [ { text: "सेंट साइमन", correct: false }, { text: "कार्ल मार्क्स", correct: true }, { text: "रॉबर्ट ओवन", correct: false }, { text: "लुई ब्लॉ", correct: false } ] },
+        { question: "20. रूस की संसद को क्या कहा जाता है?", answers: [ { text: "पार्लियामेंट", correct: false }, { text: "संसद", correct: false }, { text: "ड्यूमा", correct: true }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "21. प्रथम इंटरनेशनल की बैठक कहाँ हुई थी?", answers: [ { text: "रूस में", correct: false }, { text: "फ्रांस में", correct: false }, { text: "जर्मनी में", correct: false }, { text: "लंदन में", correct: true } ] },
+        { question: "22. 1917 की पहली रूसी क्रांति को किस नाम से जाना जाता है?", answers: [ { text: "फरवरी क्रांति", correct: true }, { text: "मार्च क्रांति", correct: false }, { text: "अक्टूबर क्रांति", correct: false }, { text: "नवंबर क्रांति", correct: false } ] },
+        { question: "23. कम्युनिस्ट मेनिफेस्टो (साम्यवादी घोषणापत्र) का प्रकाशन किस वर्ष हुआ था?", answers: [ { text: "1844", correct: false }, { text: "1848", correct: true }, { text: "1864", correct: false }, { text: "1867", correct: false } ] },
+        { question: "24. खूनी रविवार किस वर्ष हुआ था?", answers: [ { text: "1905", correct: true }, { text: "1815", correct: false }, { text: "1861", correct: false }, { text: "1917", correct: false } ] },
+        { question: "25. स्टालिन की मृत्यु कब हुई?", answers: [ { text: "1951", correct: false }, { text: "1952", correct: false }, { text: "1953", correct: true }, { text: "1954", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌟 बहुत ही शानदार प्रदर्शन!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 अच्छा है, पर और बेहतर हो सकता है।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 आपको Chapter 2 दोबारा पढ़ने की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

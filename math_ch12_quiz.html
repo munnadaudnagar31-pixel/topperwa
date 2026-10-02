@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-12: Areas Related to Circles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Areas Related to Circles</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Areas Related to Circles) ---
+        const questions = [
+            { q: "The area of a circle with radius 'r' is given by:", o: ["2πr", "πr²", "2πr²", "πd"], a: 1 },
+            { q: "The circumference of a circle is:", o: ["πr²", "2πr", "πd/2", "πr"], a: 1 },
+            { q: "Area of a sector of angle θ (in degrees) of a circle with radius r is:", o: ["(θ/180) × πr²", "(θ/360) × πr²", "(θ/180) × 2πr", "(θ/360) × 2πr"], a: 1 },
+            { q: "Length of an arc of a sector of angle θ of a circle with radius r is:", o: ["(θ/360) × πr²", "(θ/360) × 2πr", "(θ/180) × πr²", "(θ/180) × 2πr"], a: 1 },
+            { q: "If the radius of a circle is doubled, its area becomes:", o: ["2 times", "4 times", "8 times", "Same"], a: 1 },
+            { q: "If the circumference of a circle is equal to its area numerically, then the radius is:", o: ["1 unit", "2 units", "4 units", "π units"], a: 1 },
+            { q: "The angle subtended by the minute hand of a clock in 15 minutes is:", o: ["30°", "60°", "90°", "120°"], a: 2 },
+            { q: "The perimeter of a semicircular protractor of radius r is:", o: ["πr", "πr + 2r", "2πr", "πr + r"], a: 1 },
+            { q: "Area of a quadrant of a circle is:", o: ["πr²/2", "πr²/4", "πr²/3", "πr²"], a: 1 },
+            { q: "The ratio of circumferences of two circles is 2:3. The ratio of their areas is:", o: ["2:3", "4:9", "3:2", "9:4"], a: 1 },
+            { q: "If the area of a circle is 154 cm², then its radius is:", o: ["7 cm", "14 cm", "3.5 cm", "10 cm"], a: 0 },
+            { q: "A wheel makes 1000 revolutions in covering a distance of 88 km. The radius of the wheel is:", o: ["7 m", "14 m", "10 m", "20 m"], a: 1 },
+            { q: "The area of the largest triangle that can be inscribed in a semicircle of radius r is:", o: ["r²", "2r²", "r", "1/2 r²"], a: 0 },
+            { q: "The difference between the circumference and radius of a circle is 37 cm. The radius is:", o: ["7 cm", "14 cm", "10 cm", "3.5 cm"], a: 0 },
+            { q: "Area of a ring (annulus) with outer radius R and inner radius r is:", o: ["π(R-r)²", "π(R²-r²)", "2π(R-r)", "π(R²+r²)"], a: 1 },
+            { q: "The length of the minute hand of a clock is 14 cm. The area swept by the minute hand in 5 minutes is:", o: ["154/3 cm²", "154 cm²", "77 cm²", "308/3 cm²"], a: 0 },
+            { q: "Angle subtended by minute hand in 1 minute is:", o: ["1°", "5°", "6°", "10°"], a: 2 },
+            { q: "If the perimeter and area of a circle are numerically equal, the radius of the circle is:", o: ["2 units", "π units", "4 units", "7 units"], a: 0 },
+            { q: "The area of a circle is 38.5 cm². Its circumference is:", o: ["22 cm", "11 cm", "44 cm", "33 cm"], a: 0 },
+            { q: "If the sum of the circumferences of two circles with radii R1 and R2 is equal to the circumference of a circle of radius R, then:", o: ["R1 + R2 = R", "R1² + R2² = R²", "R1 + R2 < R", "R1 + R2 > R"], a: 0 },
+            { q: "If the sum of the areas of two circles with radii R1 and R2 is equal to the area of a circle of radius R, then:", o: ["R1 + R2 = R", "R1² + R2² = R²", "R1 + R2 < R", "R1 + R2 > R"], a: 1 },
+            { q: "The area of a square inscribed in a circle of radius r is:", o: ["r²", "2r²", "4r²", "πr²"], a: 1 },
+            { q: "The radius of a circle whose circumference is equal to the sum of the circumferences of two circles of diameters 36 cm and 20 cm is:", o: ["56 cm", "28 cm", "42 cm", "16 cm"], a: 1 },
+            { q: "The diameter of a circle whose area is equal to the sum of the areas of two circles of radii 24 cm and 7 cm is:", o: ["31 cm", "25 cm", "62 cm", "50 cm"], a: 3 },
+            { q: "Area of the segment of a circle is:", o: ["Area of sector - Area of triangle", "Area of sector + Area of triangle", "Area of circle - Area of sector", "None"], a: 0 },
+            { q: "In a circle of radius 21 cm, an arc subtends an angle of 60° at the centre. The length of the arc is:", o: ["22 cm", "11 cm", "33 cm", "44 cm"], a: 0 },
+            { q: "A horse is tied to a pole with 28 m long rope. The area of the field where the horse can graze is:", o: ["2464 m²", "616 m²", "1232 m²", "308 m²"], a: 0 },
+            { q: "The perimeter of a sector of a circle of radius 5.2 cm is 16.4 cm. The area of the sector is:", o: ["15.6 cm²", "16.5 cm²", "14.4 cm²", "12.2 cm²"], a: 0 },
+            { q: "If the diameter of a semicircular protractor is 14 cm, then its perimeter is:", o: ["36 cm", "22 cm", "44 cm", "28 cm"], a: 0 },
+            { q: "The circumference of a circle exceeds its diameter by 16.8 cm. The radius of the circle is:", o: ["3.92 cm", "3.5 cm", "3 cm", "4 cm"], a: 0 },
+            { q: "Find the area of the quadrant of a circle whose circumference is 22 cm.", o: ["77/8 cm²", "77/4 cm²", "77/2 cm²", "77 cm²"], a: 0 },
+            { q: "A chord of a circle of radius 10 cm subtends a right angle at the centre. The area of the minor sector is:", o: ["25π", "50π", "100π", "25"], a: 0 },
+            { q: "The area of a circle is 220 cm². The area of a square inscribed in it is:", o: ["120 cm²", "140 cm²", "130 cm²", "150 cm²"], a: 1 },
+            { q: "If the area of a circle is numerically equal to twice its circumference, then the diameter of the circle is:", o: ["4 units", "8 units", "2 units", "16 units"], a: 1 },
+            { q: "A steel wire when bent in the form of a square encloses an area of 121 cm². If the same wire is bent in the form of a circle, then the area of the circle is:", o: ["154 cm²", "144 cm²", "132 cm²", "121 cm²"], a: 0 },
+            { q: "The radius of a wheel is 0.25 m. How many revolutions will it make in covering 11 km?", o: ["2800", "4000", "5500", "7000"], a: 3 },
+            { q: "If the perimeter of a circle is equal to that of a square, then the ratio of their areas is:", o: ["14:11", "22:7", "1:1", "11:14"], a: 0 },
+            { q: "It is proposed to build a single circular park equal in area to the sum of areas of two circular parks of diameters 16 m and 12 m in a locality. The radius of the new park would be:", o: ["10 m", "15 m", "20 m", "24 m"], a: 0 },
+            { q: "The area of the circle that can be inscribed in a square of side 6 cm is:", o: ["36π cm²", "18π cm²", "12π cm²", "9π cm²"], a: 3 },
+            { q: "The area of the square that can be inscribed in a circle of radius 8 cm is:", o: ["256 cm²", "128 cm²", "64√2 cm²", "64 cm²"], a: 1 },
+            { q: "If the area of a sector of a circle of radius 6 cm is 9π cm², then the angle of the sector is:", o: ["60°", "90°", "120°", "30°"], a: 1 },
+            { q: "In a circle of radius 21 cm, an arc subtends an angle of 60° at the centre. The area of the sector formed by the arc is:", o: ["231 cm²", "230 cm²", "232 cm²", "240 cm²"], a: 0 },
+            { q: "A cow is tied with a rope of length 14 m at the corner of a rectangular field. The area of the field in which the cow can graze is:", o: ["154 m²", "144 m²", "132 m²", "150 m²"], a: 0 },
+            { q: "The area of the largest circle that can be drawn inside a rectangle with sides 18 cm by 14 cm is:", o: ["49 cm²", "154 cm²", "378 cm²", "1078 cm²"], a: 1 },
+            { q: "Ratio of area of a circle to the area of a square inscribed in it is:", o: ["π:2", "2:π", "1:1", "π:1"], a: 0 },
+            { q: "If the radius of a circle is diminished by 10%, then its area is diminished by:", o: ["10%", "19%", "20%", "36%"], a: 1 },
+            { q: "If the circumference of a circle increases from 4π to 8π, then its area is:", o: ["Halved", "Doubled", "Tripled", "Quadrupled"], a: 3 },
+            { q: "A circular park has a path of uniform width around it. The difference between outer and inner circumferences is 132 m. Its width is:", o: ["20 m", "21 m", "22 m", "24 m"], a: 1 },
+            { q: "The boundary of a sector consists of:", o: ["Two radii and an arc", "Two radii and a chord", "A chord and an arc", "None"], a: 0 },
+            { q: "Area of the major sector is:", o: ["Area of circle - Area of minor sector", "Area of circle + Area of minor sector", "Area of minor sector", "None"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Area Expert! You know your sectors well! 🥧";
+            else if(accuracy >= 70) feedback.innerText = "Great job! Keep practicing the formulas. 📏";
+            else if(accuracy >= 50) feedback.innerText = "Good start. Watch out for calculation errors. ✍️";
+            else feedback.innerText = "Formulas are key. Review Chapter 12! 🔄";
+        }
+    </script>
+</body>
+</html>

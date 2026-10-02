@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Kavya Ch-4: स्वदेशी</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL HINDI THEME (Saffron) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            --header-gradient: linear-gradient(135deg, #e65100 0%, #ff6f00 100%);
+            --card-bg: #ffffff;
+            --text-main: #3e2723;
+            --text-sub: #e65100;
+            --option-bg: #fff8e1;
+            --correct-color: #2e7d32; /* Green */
+            --wrong-color: #c62828;   /* Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Tiro Devanagari Hindi', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            background: var(--header-gradient);
+            padding: 20px 25px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10; box-shadow: 0 4px 15px rgba(230, 81, 0, 0.3);
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%; transition: 0.2s;
+        }
+        .close-btn:active { transform: scale(0.9); }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 18px; border-radius: 30px;
+            font-family: 'Poppins', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: #ffe0b2; }
+        .progress-bar { height: 100%; background: #ef6c00; width: 0%; transition: width 0.3s ease; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 650px;
+            padding: 30px; border-radius: 24px; box-shadow: 0 15px 40px rgba(230, 81, 0, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px; position: relative;
+            border-top: 5px solid #ff6f00;
+        }
+
+        /* Literature Decoration */
+        .question-card::before {
+            content: '“'; position: absolute; top: 10px; left: 20px; font-size: 60px;
+            color: #fff3e0; font-family: 'Lora', serif; z-index: 0;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+        .q-count { font-size: 13px; font-weight: 700; color: #fff; background: #e65100; padding: 4px 12px; border-radius: 20px; }
+        .q-subject { font-size: 13px; font-weight: 700; color: #e65100; letter-spacing: 1px; }
+
+        .question-text { 
+            font-size: 19px; font-weight: 600; margin-bottom: 25px; line-height: 1.6; 
+            color: #3e2723; position: relative; z-index: 1;
+        }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 16px; color: #4e342e; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        
+        .option-circle {
+            width: 28px; height: 28px; border-radius: 50%; border: 2px solid #ffcc80;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; 
+            font-size: 14px; color: #ff9800; font-weight: 700; transition: 0.2s;
+        }
+
+        .option-btn:active { transform: scale(0.98); background: #ffe0b2; }
+        
+        /* Correct State */
+        .option-btn.correct { background: #e8f5e9; border-color: var(--correct-color); color: #1b5e20; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); color: white; content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #ffebee; border-color: var(--wrong-color); color: var(--wrong-color); animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); color: white; }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: var(--header-gradient);
+            color: white; border: none; width: 100%; max-width: 650px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(230, 81, 0, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px; background: #fff3e0;
+            border-radius: 30px; padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(230, 81, 0, 0.15);
+        }
+
+        .score-circle {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: white; border: 8px solid #e65100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .score-num { font-size: 38px; font-weight: 800; color: #e65100; line-height: 1; }
+        .score-label { font-size: 11px; color: #ef6c00; font-weight: 700; margin-top: 5px; letter-spacing: 1px; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 30px; }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .stat-val { font-size: 18px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 10px; color: #5d4037; font-weight: 600; text-transform: uppercase; }
+
+        .green-text { color: #2e7d32; }
+        .red-text { color: #c62828; }
+        .blue-text { color: #1565c0; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 16px; border-radius: 16px;
+            font-weight: 700; font-size: 16px; margin-bottom: 12px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #e65100; color: white; box-shadow: 0 5px 15px rgba(230, 81, 0, 0.3); }
+        .btn-secondary { background: #ffe0b2; color: #e65100; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="hindi_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box">
+            <span>⏳</span> <span id="time-left">10:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">1 / 30</span>
+                <span class="q-subject">स्वदेशी</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#e65100; margin-bottom: 10px;">Quiz Complete!</h2>
+            <p style="color:#ef6c00; font-size:14px; margin-bottom: 25px;">स्वदेशी</p>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 30</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#5d4037; font-size:14px; margin-bottom:25px; line-height:1.4;">बहुत अच्छा!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='hindi_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 30 MCQs from 'Swadeshi' ---
+        const questions = [
+            { q: "'स्वदेशी' कविता के कवि कौन हैं?", o: ["बद्रीनारायण चौधरी 'प्रेमघन'", "घनानंद", "सुमित्रानंदन पंत", "रामधारी सिंह दिनकर"], a: 0 },
+            { q: "प्रेमघन किस युग के कवि थे?", o: ["भारतेन्दु युग", "छायावादी युग", "द्विवेदी युग", "रीतिकाल"], a: 0 },
+            { q: "प्रेमघन का जन्म कब हुआ था?", o: ["1855 ई०", "1850 ई०", "1860 ई०", "1856 ई०"], a: 0 },
+            { q: "प्रेमघन का जन्म कहाँ हुआ था?", o: ["मिर्जापुर (उत्तर प्रदेश)", "इलाहाबाद", "बनारस", "लखनऊ"], a: 0 },
+            { q: "प्रेमघन ने किस समाज की स्थापना की थी?", o: ["रसिक समाज", "ब्रह्म समाज", "आर्य समाज", "प्रार्थना समाज"], a: 0 },
+            { q: "कवि के अनुसार, अब भारत में क्या दिखाई नहीं देता?", o: ["भारतीयता", "धन", "बेरोजगारी", "गरीबी"], a: 0 },
+            { q: "सबै बिदेसी _____ , चाल-चलन और बानी।", o: ["बस्तु (वस्तु)", "मनुष्य", "किताब", "कपड़े"], a: 0 },
+            { q: "भारत के लोग अब किस भाषा को पसंद करते हैं?", o: ["अंग्रेजी", "हिंदी", "संस्कृत", "उर्दू"], a: 0 },
+            { q: "कवि के अनुसार, हिंदुस्तानी नाम सुनकर अब लोग क्या करते हैं?", o: ["सकुचाते (लजाते) हैं", "गर्व करते हैं", "हँसते हैं", "रोते हैं"], a: 0 },
+            { q: "कवि ने 'डफाली' किसे कहा है?", o: ["अंग्रेजों की खुशामद करने वाले नेताओं को", "बाजा बजाने वाले को", "गरीबों को", "किसानों को"], a: 0 },
+            { q: "जिनसे अपनी _____ नहीं सँभलती, वे देश क्या सँभालेंगे?", o: ["धोती", "पगड़ी", "टोपी", "गाड़ी"], a: 0 },
+            { q: "बाजार में किस तरह की वस्तुओं की भरमार है?", o: ["अंग्रेजी", "स्वदेशी", "चीनी", "जापानी"], a: 0 },
+            { q: "कवि ने भारतीयों को क्या कहा है?", o: ["दास वृत्ति की चाह रखने वाले", "स्वाभिमानी", "वीर", "विद्वान"], a: 0 },
+            { q: "प्रेमघन अपना आदर्श किसे मानते थे?", o: ["भारतेन्दु हरिश्चंद्र", "महात्मा गाँधी", "विवेकानंद", "कबीर"], a: 0 },
+            { q: "हिन्दुस्तानी लोग अब क्या देखकर घिन करते हैं?", o: ["देसी वस्तुओं को", "विदेशी वस्तुओं को", "गंदगी को", "झूठ को"], a: 0 },
+            { q: "कवि के अनुसार, भारत के लोग क्या बन गए हैं?", o: ["क्रिस्तान (अंग्रेजियत में रंगे हुए)", "साधु", "नेता", "विद्वान"], a: 0 },
+            { q: "प्रेमघन ने किस मासिक पत्रिका का संपादन किया?", o: ["आनंद कादम्बिनी", "हंस", "प्रदीप", "सरस्वती"], a: 0 },
+            { q: "पढ़ी विद्या परदेस की, बुद्धि बिदेसी पाय - यह पंक्ति किस पाठ की है?", o: ["स्वदेशी", "जनतंत्र का जन्म", "भारतमाता", "अक्षर ज्ञान"], a: 0 },
+            { q: "कवि ने किस वर्ग की आलोचना की है?", o: ["सुविधाभोगी और अंग्रेजीदां वर्ग की", "गरीबों की", "किसानों की", "व्यापारियों की"], a: 0 },
+            { q: "प्रेमघन की रचनाएँ किस नाम से संगृहीत हैं?", o: ["प्रेमघन सर्वस्व", "प्रेम सागर", "भारत दुर्दशा", "आनंद मठ"], a: 0 },
+            { q: "देस नगर बानक बनो सब _____ ।", o: ["अंग्रेजी", "हिंदी", "देसी", "विदेशी"], a: 0 },
+            { q: "कवि को भारत में भारतीयता क्यों नहीं मिलती?", o: ["क्योंकि सब अंग्रेजों की नकल कर रहे हैं", "लोग भारत छोड़ गए", "लोग अनपढ़ हैं", "पता नहीं"], a: 0 },
+            { q: "चारों वर्णों के लोगों ने किसकी दासता स्वीकार कर ली है?", o: ["अंग्रेजों की", "राजा की", "धन की", "धर्म की"], a: 0 },
+            { q: "प्रेमघन की मृत्यु कब हुई?", o: ["1922 ई०", "1920 ई०", "1925 ई०", "1930 ई०"], a: 0 },
+            { q: "भारत के लोगों की 'मति' (बुद्धि) और 'गति' कैसी हो गई है?", o: ["विदेशी", "देसी", "तीव्र", "धीमी"], a: 0 },
+            { q: "'जीर्ण जनपद' किसकी रचना है?", o: ["प्रेमघन", "निराला", "दिनकर", "पंत"], a: 0 },
+            { q: "स्वदेशी कविता किस छंद में लिखी गई है?", o: ["दोहा", "चौपाई", "सवैया", "सोरठा"], a: 0 },
+            { q: "कवि के अनुसार, भारतीय अब क्या नहीं पहचान पाते?", o: ["एक-दूसरे को (मुसलमान-हिंदू का भेद मिट गया, पर पहचान खो गई)", "रास्ता", "घर", "पैसे"], a: 0 },
+            { q: "प्रेमघन ने साहित्य सम्मलेन के किस अधिवेशन की अध्यक्षता की थी?", o: ["कलकत्ता अधिवेशन", "मिर्जापुर अधिवेशन", "काशी अधिवेशन", "दिल्ली अधिवेशन"], a: 0 },
+            { q: "हाट (बाजार) में क्या भरा पड़ा है?", o: ["अंग्रेजी सामान", "फल-सब्जी", "खिलौने", "हिंदी किताबें"], a: 0 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer
+        let timeLeft = 600; // 10 Minutes
+        let timerInterval;
+
+        // Elements
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 60) {
+                        timerDisplay.style.color = '#c62828';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index);
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                // VIBRATION (Android)
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "स्वदेशी प्रेमी! आपने कवि की पीड़ा समझी! 🇮🇳";
+            else if(accuracy >= 70) feedback.innerText = "बहुत बढ़िया! भारतीयता बनाए रखें। 👍";
+            else if(accuracy >= 50) feedback.innerText = "अच्छा है। अंग्रेजी मोह त्यागें! 🇬🇧❌";
+            else feedback.innerText = "धोती सँभालना सीखें (पढ़ाई करें)! 😉";
+        }
+    </script>
+</body>
+</html>

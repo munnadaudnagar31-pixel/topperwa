@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Biology Ch-4 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (BIOLOGY - PINK/RED) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #FFF0F5 0%, #FFF5F7 100%);
+            --header-gradient: linear-gradient(135deg, #ec008c 0%, #fc6767 100%);
+            --card-bg: #ffffff;
+            --text-main: #4a1c30;
+            --text-sub: #905d70;
+            --option-bg: #FFF0F6;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(236, 0, 140, 0.15);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #4a1c30; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #666; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(236, 0, 140, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #ec008c;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #ec008c; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="biology_chapters.html" class="close-btn">✕</a>
+        <span>Ch-4: Heredity & Evolution</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #ec008c; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are a Genetics Genius!</p>
+        <a href="biology_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#ec008c; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Heredity and Evolution) ---
+        const questions = [
+            { q: "Who is known as the Father of Genetics?", o: ["Charles Darwin", "Gregor Johann Mendel", "Lamarck", "Watson and Crick"], a: 1 },
+            { q: "Mendel conducted his experiments on:", o: ["Potato plant", "Rose plant", "Garden Pea plant", "Sunflower"], a: 2 },
+            { q: "The scientific name of the garden pea is:", o: ["Homo sapiens", "Pisum sativum", "Mangifera indica", "Canis lupus"], a: 1 },
+            { q: "A segment of DNA providing information for a protein is called:", o: ["Nucleus", "Chromosome", "Gene", "RNA"], a: 2 },
+            { q: "Which of the following is a dominant trait in pea plants?", o: ["Dwarf height", "Wrinkled seed", "White flower", "Tall height"], a: 3 },
+            { q: "Which of the following is a recessive trait in pea plants?", o: ["Violet flower", "Round seed", "Green seed", "Yellow seed"], a: 2 },
+            { q: "The genotypic ratio of a Monohybrid cross in F2 generation is:", o: ["3:1", "1:2:1", "9:3:3:1", "1:1"], a: 1 },
+            { q: "The phenotypic ratio of a Monohybrid cross in F2 generation is:", o: ["3:1", "1:2:1", "9:3:3:1", "1:1"], a: 0 },
+            { q: "The phenotypic ratio of a Dihybrid cross in F2 generation is:", o: ["3:1", "1:2:1", "9:3:3:1", "1:1:1:1"], a: 2 },
+            { q: "If a tall plant (TT) is crossed with a dwarf plant (tt), the offspring in F1 generation will be:", o: ["All tall", "All dwarf", "50% tall, 50% dwarf", "75% tall, 25% dwarf"], a: 0 },
+            { q: "In human males, the sex chromosomes are:", o: ["XX", "XY", "XO", "YY"], a: 1 },
+            { q: "In human females, the sex chromosomes are:", o: ["XX", "XY", "XO", "YY"], a: 0 },
+            { q: "The sex of a child is determined by:", o: ["The mother's chromosomes", "The father's chromosomes", "Both mother and father", "Environment"], a: 1 },
+            { q: "The number of pairs of chromosomes in humans is:", o: ["22", "23", "46", "21"], a: 1 },
+            { q: "How many autosomes are present in a human sperm?", o: ["22", "23", "44", "46"], a: 0 },
+            { q: "Which of the following determines the sex of a child?", o: ["X chromosome from mother", "X chromosome from father", "Y chromosome from father", "Y chromosome from mother"], a: 2 },
+            { q: "A zygote which has an X-chromosome inherited from the father will develop into a:", o: ["Boy", "Girl", "Either boy or girl", "Twins"], a: 1 },
+            { q: "Exchange of genetic material takes place in:", o: ["Vegetative propagation", "Asexual reproduction", "Sexual reproduction", "Budding"], a: 2 },
+            { q: "The theory of Natural Selection was proposed by:", o: ["Mendel", "Lamarck", "Charles Darwin", "Einstein"], a: 2 },
+            { q: "The organs which have the same basic structure but different functions are called:", o: ["Analogous organs", "Homologous organs", "Vestigial organs", "Fossils"], a: 1 },
+            { q: "The organs which have different structure but similar functions are called:", o: ["Analogous organs", "Homologous organs", "Vestigial organs", "Fossils"], a: 0 },
+            { q: "The wing of a bat and the wing of a bird are examples of:", o: ["Homologous organs", "Analogous organs", "Vestigial organs", "Fossils"], a: 1 },
+            { q: "The forelimbs of a frog, a lizard, a bird and a human are examples of:", o: ["Homologous organs", "Analogous organs", "Vestigial organs", "Artificial selection"], a: 0 },
+            { q: "Organs which are non-functional in present-day organisms but were functional in ancestors are called:", o: ["Homologous organs", "Analogous organs", "Vestigial organs", "Fossils"], a: 2 },
+            { q: "Vermiform appendix in humans is an example of:", o: ["Homologous organ", "Analogous organ", "Vestigial organ", "Essential organ"], a: 2 },
+            { q: "The preserved traces of living organisms that lived in the past are called:", o: ["Species", "Fossils", "Genes", "Chromosomes"], a: 1 },
+            { q: "The age of fossils can be estimated by:", o: ["Carbon dating method", "Weighing them", "Measuring their length", "Counting bones"], a: 0 },
+            { q: "Which of the following is an example of a fossil?", o: ["Ammonite", "Trilobite", "Dinosaur skull", "All of the above"], a: 3 },
+            { q: "Archaeopteryx is a connecting link between:", o: ["Fishes and Amphibians", "Amphibians and Reptiles", "Reptiles and Birds", "Birds and Mammals"], a: 2 },
+            { q: "Wild cabbage has been evolved into cabbage, broccoli, cauliflower, etc. by:", o: ["Natural selection", "Artificial selection", "Genetic drift", "Geographical isolation"], a: 1 },
+            { q: "Broccoli has been developed from wild cabbage by selecting for:", o: ["Swollen parts", "Arrested flower development", "Large leaves", "Sterile flowers"], a: 1 },
+            { q: "Cauliflower has been developed from wild cabbage by selecting for:", o: ["Sterile flowers", "Large leaves", "Swollen stem", "Long roots"], a: 0 },
+            { q: "The change in the frequency of some genes in a population which provides diversity without any survival advantage is called:", o: ["Natural selection", "Genetic drift", "Speciation", "Evolution"], a: 1 },
+            { q: "Micro-evolution takes place due to change in:", o: ["Gene frequency", "Diet", "Body size", "Hair color"], a: 0 },
+            { q: "A trait that is acquired during the lifetime of an individual is:", o: ["Inherited", "Not inherited", "Passed to next generation", "Genetically controlled"], a: 1 },
+            { q: "Which of the following traits cannot be passed on to the progeny?", o: ["Eye colour", "Height", "Knowledge/Skills", "Skin colour"], a: 2 },
+            { q: "The origin of a new species from an existing one is called:", o: ["Evolution", "Speciation", "Genetic drift", "Mutation"], a: 1 },
+            { q: "The earliest members of the human species, Homo sapiens, can be traced back to:", o: ["West Asia", "Australia", "Africa", "East Asia"], a: 2 },
+            { q: "Planaria eyes are:", o: ["Complex", "Simple eye-spots", "Absent", "Compound"], a: 1 },
+            { q: "Which of these is not a part of Darwin's theory?", o: ["Survival of the fittest", "Struggle for existence", "Natural selection", "Inheritance of acquired characters"], a: 3 },
+            { q: "Inheritance of acquired characters was proposed by:", o: ["Darwin", "Lamarck", "Mendel", "Weismann"], a: 1 },
+            { q: "Differences in characteristics among individuals of a species is called:", o: ["Evolution", "Speciation", "Variation", "Heredity"], a: 2 },
+            { q: "Sex determination in reptiles depends on:", o: ["Temperature", "X chromosome", "Y chromosome", "Size of egg"], a: 0 },
+            { q: "DNA is found in the:", o: ["Cytoplasm", "Nucleus", "Cell membrane", "Ribosome"], a: 1 },
+            { q: "A cross between two individuals results in a ratio of 9:3:3:1. This is a:", o: ["Monohybrid cross", "Dihybrid cross", "Test cross", "Back cross"], a: 1 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

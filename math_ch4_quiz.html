@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Ch-4: Quadratic Equations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (Royal Blue) --- */
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --option-bg: #F0F4F8;
+            --correct-color: #00C853; /* Success Green */
+            --wrong-color: #D50000;   /* Error Red */
+            --timer-bg: rgba(255, 255, 255, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER with TIMER --- */
+        .quiz-header {
+            padding: 20px; display: flex; align-items: center; justify-content: space-between;
+            color: white; z-index: 10;
+        }
+        .close-btn { 
+            font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.9; 
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        
+        .timer-box {
+            background: var(--timer-bg); padding: 8px 16px; border-radius: 20px;
+            font-family: 'Roboto Mono', monospace; font-size: 16px; font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; gap: 8px;
+        }
+        .timer-icon { font-size: 14px; }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); margin-top: 5px; }
+        .progress-bar { height: 100%; background: #00E5FF; width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px #00E5FF; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease-out; margin-bottom: 90px;
+        }
+
+        .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .q-count { font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .q-subject { font-size: 12px; font-weight: 700; color: #2a5298; background: #e3f2fd; padding: 2px 8px; border-radius: 6px; }
+
+        .question-text { font-size: 19px; font-weight: 700; margin-bottom: 25px; line-height: 1.5; color: #2c3e50; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 18px 20px;
+            border-radius: 16px; font-size: 16px; color: #455a64; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative; display: flex; align-items: center;
+        }
+        
+        .option-circle {
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd8dc;
+            margin-right: 15px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 12px; color: white;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        
+        /* Correct State */
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.correct .option-circle { background: var(--correct-color); border-color: var(--correct-color); content: '✓'; }
+        
+        /* Wrong State */
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; animation: shake 0.4s; }
+        .option-btn.wrong .option-circle { background: var(--wrong-color); border-color: var(--wrong-color); }
+
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; z-index: 20;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border: none; width: 100%; max-width: 600px; padding: 16px; 
+            border-radius: 18px; font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3); transition: 0.2s; display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+            background: white; position: fixed; top: 0; left: 0; width: 100%; z-index: 50;
+        }
+        
+        .result-card {
+            width: 100%; max-width: 400px;
+            background: #f8f9fa; border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: white; border: 10px solid #2a5298;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(0,0,0,0.1); position: relative;
+        }
+        .score-num { font-size: 42px; font-weight: 800; color: #1e3c72; line-height: 1; }
+        .score-label { font-size: 12px; color: #888; font-weight: 600; margin-top: 5px; }
+
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px;
+        }
+        .stat-box { background: white; padding: 15px 5px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 20px; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 11px; color: #888; font-weight: 600; }
+
+        .green-text { color: #00C853; }
+        .red-text { color: #D50000; }
+        .blue-text { color: #2962FF; }
+
+        .action-btn {
+            display: block; width: 100%; padding: 15px; border-radius: 15px;
+            font-weight: 700; font-size: 16px; margin-bottom: 10px; cursor: pointer; border: none;
+        }
+        .btn-primary { background: #1e3c72; color: white; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3); }
+        .btn-secondary { background: #e3f2fd; color: #1e3c72; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="math_chapters.html" class="close-btn">✕</a>
+        <div class="timer-box" id="timer-display">
+            <span class="timer-icon">⏱</span> <span id="time-left">30:00</span>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <div class="q-meta">
+                <span class="q-count" id="q-number">Question 1/50</span>
+                <span class="q-subject">Quadratic Equations</span>
+            </div>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="result-card">
+            <h2 style="color:#1e3c72; margin-bottom: 20px;">Quiz Result</h2>
+            
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">OUT OF 50</span>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-val green-text" id="correct-count">0</span>
+                    <span class="stat-lbl">Correct</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val red-text" id="wrong-count">0</span>
+                    <span class="stat-lbl">Wrong</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val blue-text" id="accuracy-percent">0%</span>
+                    <span class="stat-lbl">Accuracy</span>
+                </div>
+            </div>
+
+            <p id="feedback-text" style="color:#666; font-size:14px; margin-bottom:25px; line-height:1.4;">Keep practicing!</p>
+
+            <button class="action-btn btn-primary" onclick="window.location.href='math_chapters.html'">Back to Chapters</button>
+            <button class="action-btn btn-secondary" onclick="location.reload()">Retry Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 50 MATH QUESTIONS (Quadratic Equations) ---
+        const questions = [
+            { q: "The standard form of a quadratic equation is:", o: ["ax + b = 0", "ax² + bx + c = 0, a≠0", "ax³ + bx² + cx + d = 0", "ax² + bx = 0"], a: 1 },
+            { q: "Which of the following is a quadratic equation?", o: ["x² - 3√x + 2 = 0", "x + 1/x = 5", "x² + 5x + 7 = 0", "(x + 1)(x + 2) = x(x + 5)"], a: 2 },
+            { q: "The roots of the equation x² - 9 = 0 are:", o: ["3, 3", "3, -3", "-3, -3", "9, -9"], a: 1 },
+            { q: "The discriminant of the quadratic equation ax² + bx + c = 0 is:", o: ["b² + 4ac", "b² - 4ac", "b - 4ac", "b² - 2ac"], a: 1 },
+            { q: "If the discriminant D = 0, then the roots are:", o: ["Real and distinct", "Real and equal", "Not real", "None of these"], a: 1 },
+            { q: "If the discriminant D > 0, then the roots are:", o: ["Real and distinct", "Real and equal", "Not real", "Imaginary"], a: 0 },
+            { q: "If the discriminant D < 0, then the roots are:", o: ["Real", "Rational", "No real roots", "Integers"], a: 2 },
+            { q: "The roots of x² - 4x + 4 = 0 are:", o: ["2, -2", "2, 2", "-2, -2", "4, 1"], a: 1 },
+            { q: "The value of k for which the quadratic equation 2x² + kx + 3 = 0 has two real equal roots is:", o: ["±√6", "±2√6", "±√24", "4"], a: 1 },
+            { q: "The sum of the roots of the equation x² - 5x + 6 = 0 is:", o: ["5", "-5", "6", "-6"], a: 0 },
+            { q: "The product of the roots of the equation x² - 5x + 6 = 0 is:", o: ["5", "-5", "6", "-6"], a: 2 },
+            { q: "If one root of the quadratic equation 2x² + kx - 6 = 0 is 2, the value of k is:", o: ["1", "-1", "2", "-2"], a: 1 },
+            { q: "Which constant should be added and subtracted to solve the quadratic equation 4x² - √3x - 5 = 0 by the method of completing the square?", o: ["3/16", "9/16", "3/4", "√3/4"], a: 0 },
+            { q: "The nature of the roots of the quadratic equation 2x² - 4x + 3 = 0 is:", o: ["Real and distinct", "Real and equal", "No real roots", "Real"], a: 2 },
+            { q: "The degree of a quadratic equation is:", o: ["0", "1", "2", "3"], a: 2 },
+            { q: "If x = 1 is a common root of the equations ax² + ax + 3 = 0 and x² + x + b = 0, then ab equals:", o: ["3", "3.5", "6", "-3"], a: 0 },
+            { q: "A quadratic equation whose roots are 1 and -1 is:", o: ["x² - 1 = 0", "x² + 1 = 0", "x² - 2x + 1 = 0", "x² + 2x + 1 = 0"], a: 0 },
+            { q: "The roots of the equation 3x² - 2x + 1/3 = 0 are:", o: ["1/3, 1/3", "1/2, 1/2", "1/3, -1/3", "1, 1"], a: 0 },
+            { q: "Find the roots of x(x+1) + 8 = (x+2)(x-2).", o: ["-12", "12", "8", "-8"], a: 0 },
+            { q: "The value of √6 + √6 + √6 + ... is:", o: ["2", "3", "4", "6"], a: 1 },
+            { q: "If the sum of a number and its reciprocal is 10/3, find the number.", o: ["3", "1/3", "3 or 1/3", "10"], a: 2 },
+            { q: "The discriminant of 2x² - 4x + 3 = 0 is:", o: ["-8", "8", "-4", "4"], a: 0 },
+            { q: "If roots of the equation kx² - 10x + 3 = 0 are reciprocal to each other, then k is:", o: ["3", "-3", "1/3", "-1/3"], a: 0 },
+            { q: "Roots of the equation x² + 7x + 10 = 0 are:", o: ["-5, -2", "5, 2", "-5, 2", "5, -2"], a: 0 },
+            { q: "If 1/2 is a root of the equation x² + kx - 5/4 = 0, then k is:", o: ["2", "-2", "1/2", "-1/2"], a: 0 },
+            { q: "The altitude of a right triangle is 7 cm less than its base. If the hypotenuse is 13 cm, find the other two sides.", o: ["5 cm, 12 cm", "4 cm, 12 cm", "6 cm, 13 cm", "7 cm, 14 cm"], a: 0 },
+            { q: "Which of the following equations has two distinct real roots?", o: ["2x² - 3√2x + 9/4 = 0", "x² + x - 5 = 0", "x² + 3x + 2√2 = 0", "5x² - 3x + 1 = 0"], a: 1 },
+            { q: "The positive root of √(3x² + 6) = 9 is:", o: ["3", "5", "4", "7"], a: 1 },
+            { q: "If the roots of the equation ax² + bx + c = 0 are equal, then c =", o: ["-b/2a", "b/2a", "-b²/4a", "b²/4a"], a: 3 },
+            { q: "If the equation x² + 4x + k = 0 has real and distinct roots, then:", o: ["k < 4", "k > 4", "k ≥ 4", "k ≤ 4"], a: 0 },
+            { q: "Quadratic formula for finding roots of ax² + bx + c = 0 is:", o: ["(-b ± √(b²-4ac))/2a", "(-b ± √(b²-4ac))/a", "(-b ± √(b²-2ac))/2a", "(-b ± √(b²+4ac))/2a"], a: 0 },
+            { q: "The product of two consecutive positive integers is 306. The quadratic equation is:", o: ["x² + x - 306 = 0", "x² + x + 306 = 0", "x² - x - 306 = 0", "2x² + x - 306 = 0"], a: 0 },
+            { q: "Rohans mother is 26 years older than him. The product of their ages 3 years from now will be 360. Quadratic equation is:", o: ["x² + 32x - 273 = 0", "x² + 32x + 273 = 0", "x² - 32x - 273 = 0", "x² + 26x - 360 = 0"], a: 0 },
+            { q: "A train travels a distance of 480 km at a uniform speed. If the speed had been 8 km/h less, it would have taken 3 hours more. Quadratic equation is:", o: ["x² - 8x - 1280 = 0", "x² - 8x - 3840 = 0", "x² + 8x - 1280 = 0", "3x² - 24x - 3840 = 0"], a: 0 },
+            { q: "If the sum of roots of kx² + 2x + 3k = 0 is equal to their product, then k =", o: ["1/3", "-1/3", "2/3", "-2/3"], a: 3 },
+            { q: "If x = -2 is a root of the equation kx² + x - 2 = 0, then k =", o: ["1", "-1", "2", "-2"], a: 0 },
+            { q: "Values of k for which the quadratic equation 2x² - kx + k = 0 has equal roots is:", o: ["0 only", "4", "8 only", "0, 8"], a: 3 },
+            { q: "Which of the following is not a quadratic equation?", o: ["2(x - 1)² = 4x² - 2x + 1", "2x - x² = x² + 5", "(√2x + √3)² + x² = 3x² - 5x", "(x² + 2x)² = x⁴ + 3 + 4x³"], a: 2 },
+            { q: "If the equation (m² + n²)x² - 2(mp + nq)x + p² + q² = 0 has equal roots, then:", o: ["mp = nq", "mq = np", "mn = pq", "mq = √np"], a: 1 },
+            { q: "The roots of the equation 7x² + x - 1 = 0 are:", o: ["Real and distinct", "Real and equal", "Not real", "None"], a: 0 },
+            { q: "If p and q are the roots of the equation x² - px + q = 0, then:", o: ["p=1, q=-2", "p=0, q=1", "p=-2, q=0", "p=-2, q=1"], a: 0 },
+            { q: "Find the discriminant of 3x² - 2x + 1/3 = 0.", o: ["0", "1", "2", "3"], a: 0 },
+            { q: "If (x+4)(x-4) = 9, then x =", o: ["±5", "±4", "5", "4"], a: 0 },
+            { q: "Solve for x: 4x² - 9 = 0.", o: ["3/2", "-3/2", "±3/2", "±2/3"], a: 2 },
+            { q: "The ratio of the sum and product of the roots of the equation 7x² - 12x + 18 = 0 is:", o: ["7:12", "7:18", "2:3", "3:2"], a: 2 },
+            { q: "If one root of 5x² + 13x + k = 0 is reciprocal of the other, then k =", o: ["0", "5", "1/6", "6"], a: 1 },
+            { q: "If the roots of the equation (a-b)x² + (b-c)x + (c-a) = 0 are equal, then:", o: ["2a = b+c", "2b = a+c", "2c = a+b", "b = a+c"], a: 1 },
+            { q: "The roots of quadratic equation x² - 3x - m(m+3) = 0, where m is a constant, are:", o: ["m, m+3", "-m, m+3", "m, -(m+3)", "-m, -(m+3)"], a: 1 },
+            { q: "Find the roots of 4√3x² + 5x - 2√3 = 0.", o: ["-2/√3, √3/4", "2/√3, -√3/4", "√3/2, -√3/2", "None"], a: 0 },
+            { q: "Is the following equation quadratic? (x - 2)(x + 1) = (x - 1)(x + 3)", o: ["Yes", "No", "Cant say", "Undefined"], a: 1 }
+        ];
+
+        // --- QUIZ LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let wrongCount = 0;
+        let isAnswered = false;
+        
+        // Timer Variables
+        let timeLeft = 1800; // 30 Minutes
+        let timerInterval;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // Screens
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+        const header = document.getElementById('header');
+
+        // Start Quiz
+        startTimer();
+        loadQuestion();
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                } else {
+                    timeLeft--;
+                    let minutes = Math.floor(timeLeft / 60);
+                    let seconds = timeLeft % 60;
+                    timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    
+                    if(timeLeft < 300) { // Last 5 mins warning
+                        document.querySelector('.timer-box').style.background = 'rgba(213, 0, 0, 0.4)';
+                        document.querySelector('.timer-box').style.borderColor = '#ff5252';
+                    }
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1} / ${questions.length}`;
+            qText.innerText = q.q;
+            
+            // Update Progress Bar
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                
+                const circle = document.createElement('div');
+                circle.className = 'option-circle';
+                circle.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const text = document.createElement('span');
+                text.innerText = opt;
+
+                btn.appendChild(circle);
+                btn.appendChild(text);
+                
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            quizUI.scrollTo(0, 0);
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+                wrongCount++;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            header.style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            
+            resultUI.style.display = 'flex';
+            
+            const total = questions.length;
+            const accuracy = Math.round((score / total) * 100);
+            
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('correct-count').innerText = score;
+            document.getElementById('wrong-count').innerText = wrongCount;
+            document.getElementById('accuracy-percent').innerText = `${accuracy}%`;
+            
+            const feedback = document.getElementById('feedback-text');
+            if(accuracy >= 90) feedback.innerText = "Excellent! Quadratic Master! 🎓";
+            else if(accuracy >= 70) feedback.innerText = "Good! Work on word problems. 📝";
+            else if(accuracy >= 50) feedback.innerText = "Average. Remember the formulas. 📉";
+            else feedback.innerText = "Practice more! You can do it. 🔥";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 100 VVI Questions 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E5CFF;
+            --secondary: #5620FF;
+            --accent: #00C6FF;
+            --text: #1B2559;
+            --bg: #F4F7FE;
+            --card: #ffffff;
+            --success: #05CD99;
+            --error: #EE5D50;
+        }
+
+        .dark-mode {
+            --primary: #5620FF;
+            --secondary: #2E5CFF;
+            --text: #ffffff;
+            --bg: #0b1437;
+            --card: #111C44;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; display: flex; flex-direction: column; transition: 0.3s; }
+
+        /* --- Header --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--card); padding: 15px 20px; border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px;
+        }
+        .timer {
+            font-family: 'Roboto Mono', monospace; font-size: 18px; font-weight: 700;
+            color: var(--primary); background: rgba(46, 92, 255, 0.1); padding: 8px 15px; border-radius: 12px;
+        }
+        .back-btn { text-decoration: none; font-size: 20px; color: var(--text); font-weight: 700; }
+
+        /* --- Layout --- */
+        .quiz-layout {
+            display: grid; grid-template-columns: 1fr 300px; gap: 20px;
+            max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+
+        /* --- Question Card --- */
+        .q-card {
+            background: var(--card); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative;
+            min-height: 400px; display: flex; flex-direction: column;
+        }
+        
+        .q-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
+        .q-badge { background: linear-gradient(90deg, var(--primary), var(--accent)); color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        
+        .q-text { font-size: 18px; font-weight: 600; margin-bottom: 30px; line-height: 1.6; }
+        
+        /* Options */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn {
+            background: var(--bg); border: 2px solid transparent; padding: 15px;
+            border-radius: 15px; text-align: left; font-size: 15px; color: var(--text);
+            cursor: pointer; transition: 0.2s; font-weight: 500; position: relative;
+        }
+        .option-btn:hover { border-color: var(--primary); background: rgba(46, 92, 255, 0.05); }
+        
+        .option-btn.selected { border-color: var(--primary); background: rgba(46, 92, 255, 0.1); }
+        .option-btn.correct { background: rgba(5, 205, 153, 0.2); border-color: var(--success); color: #008a62; }
+        .option-btn.wrong { background: rgba(238, 93, 80, 0.2); border-color: var(--error); color: #c43226; }
+
+        /* --- Navigator (Right Side) --- */
+        .navigator {
+            background: var(--card); border-radius: 25px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: fit-content;
+        }
+        .nav-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+            max-height: 500px; overflow-y: auto; padding-right: 5px;
+        }
+        .nav-btn {
+            width: 40px; height: 40px; border-radius: 10px; border: none;
+            background: var(--bg); color: var(--text); font-weight: 600;
+            cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .nav-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(46, 92, 255, 0.3); }
+        .nav-btn.solved { background: var(--success); color: white; }
+        .nav-btn.wrong-mark { background: var(--error); color: white; }
+
+        /* --- Footer Controls --- */
+        .controls {
+            margin-top: auto; display: flex; gap: 15px; justify-content: flex-end; padding-top: 20px;
+        }
+        .ctrl-btn {
+            padding: 12px 30px; border-radius: 15px; border: none;
+            font-weight: 700; cursor: pointer; font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-next { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(46, 92, 255, 0.25); }
+        .btn-prev { background: transparent; border: 2px solid var(--bg); color: var(--text); }
+
+        /* --- Result Modal --- */
+        .result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .result-box {
+            background: var(--card); padding: 40px; border-radius: 30px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .quiz-layout { grid-template-columns: 1fr; }
+            .navigator { display: none; } /* Hidden on mobile to save space */
+            .options-grid { grid-template-columns: 1fr; }
+            .q-text { font-size: 16px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="most_expected_questions.html" class="back-btn">❮ Math Hub</a>
+        <div class="timer" id="timer">00:00</div>
+        <button onclick="submitQuiz()" class="ctrl-btn btn-next" style="padding: 8px 20px; background: var(--error);">Finish</button>
+    </div>
+
+    <div class="quiz-layout">
+        <div class="q-card">
+            <div class="q-header">
+                <span class="q-badge" id="subjectTag">Topic</span>
+                <span style="font-weight:600; opacity:0.6;">Q: <span id="currentQNum">1</span>/100</span>
+            </div>
+            
+            <div class="q-text" id="questionText">Loading...</div>
+            
+            <div class="options-grid" id="optionsContainer">
+                </div>
+
+            <div class="controls">
+                <button class="ctrl-btn btn-prev" onclick="prevQ()">Previous</button>
+                <button class="ctrl-btn btn-next" onclick="nextQ()">Next ➜</button>
+            </div>
+        </div>
+
+        <div class="navigator">
+            <h4 style="margin-bottom:15px; opacity:0.7;">Question Palette</h4>
+            <div class="nav-grid" id="navGrid">
+                </div>
+        </div>
+    </div>
+
+    <div class="result-overlay" id="resultScreen">
+        <div class="result-box">
+            <div style="font-size:50px; margin-bottom:10px;">🏆</div>
+            <h2 style="color:var(--text);">Test Completed!</h2>
+            <p style="color:var(--text); opacity:0.7; margin-bottom:20px;">100 Questions Analysis</p>
+            
+            <div style="background:var(--bg); padding:15px; border-radius:15px; margin-bottom:25px;">
+                <h1 style="color:var(--primary); font-size:40px; margin:0;" id="finalScore">0%</h1>
+                <span style="font-size:12px; font-weight:600; letter-spacing:1px;">SCORE</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button onclick="location.reload()" class="ctrl-btn btn-next" style="width:100%">Replay</button>
+                <a href="index.html" class="ctrl-btn btn-prev" style="width:100%; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA: 100 ANALYZED QUESTIONS ---
+        const questions = [
+            // --- Real Numbers (1-8) ---
+            { q: "Which of the following is an irrational number?", options: ["√9", "√20", "√25", "√49"], ans: 1, topic: "Real Numbers" },
+            { q: "If p and q are two prime numbers, then their HCF is:", options: ["1", "2", "0", "pq"], ans: 0, topic: "Real Numbers" },
+            { q: "The decimal expansion of 17/8 will be:", options: ["Terminating", "Non-terminating", "Recurring", "None"], ans: 0, topic: "Real Numbers" },
+            { q: "Which of the following is a prime number?", options: ["27", "35", "13", "56"], ans: 2, topic: "Real Numbers" },
+            { q: "The value of 0.3 (bar on 3) in p/q form is:", options: ["3/10", "1/3", "3/100", "3/90"], ans: 1, topic: "Real Numbers" },
+            { q: "π is a/an:", options: ["Rational Number", "Irrational Number", "Integer", "None"], ans: 1, topic: "Real Numbers" },
+            { q: "LCM of 2, 5 and 10 is:", options: ["10", "20", "5", "2"], ans: 0, topic: "Real Numbers" },
+            { q: "Product of two numbers is equal to:", options: ["HCF + LCM", "HCF - LCM", "HCF × LCM", "HCF / LCM"], ans: 2, topic: "Real Numbers" },
+
+            // --- Polynomials (9-17) ---
+            { q: "If α and β are zeroes of x² - 3x + 5, then α + β = ?", options: ["3", "-3", "5", "-5"], ans: 0, topic: "Polynomials" },
+            { q: "The degree of polynomial 4x³ - 2x² + 8x - 1 is:", options: ["1", "2", "3", "0"], ans: 2, topic: "Polynomials" },
+            { q: "A quadratic polynomial whose zeroes are 2 and -2 is:", options: ["x² - 4", "x² + 4", "x² - 2x - 2", "x² - 2"], ans: 0, topic: "Polynomials" },
+            { q: "If P(x) = x² - 2x + 1, then P(1) = ?", options: ["0", "1", "2", "-1"], ans: 0, topic: "Polynomials" },
+            { q: "Graph of a linear polynomial is a:", options: ["Straight Line", "Parabola", "Circle", "Ellipse"], ans: 0, topic: "Polynomials" },
+            { q: "If roots of a polynomial are reciprocal to each other, then:", options: ["a = c", "a = b", "b = c", "a = -c"], ans: 0, topic: "Polynomials" },
+            { q: "Maximum number of zeroes of a cubic polynomial is:", options: ["1", "2", "3", "4"], ans: 2, topic: "Polynomials" },
+            { q: "Product of zeroes (αβ) of ax² + bx + c is:", options: ["-b/a", "c/a", "b/a", "-c/a"], ans: 1, topic: "Polynomials" },
+            { q: "Zeroes of x² - 15 are:", options: ["±√15", "±15", "±√5", "None"], ans: 0, topic: "Polynomials" },
+
+            // --- Linear Equations (18-25) ---
+            { q: "The pair of equations x + 2y = 3 and 2x + 4y = 6 has:", options: ["Unique solution", "No solution", "Infinitely many solutions", "None"], ans: 2, topic: "Linear Eq" },
+            { q: "If x - y = 2 and x + y = 4, then value of x is:", options: ["3", "1", "2", "4"], ans: 0, topic: "Linear Eq" },
+            { q: "For what value of k, the equations kx - 5y = 2 and 6x + 2y = 7 have no solution?", options: ["-15", "-10", "15", "10"], ans: 0, topic: "Linear Eq" },
+            { q: "The graph of x = 5 is a line parallel to:", options: ["x-axis", "y-axis", "Both", "Origin"], ans: 1, topic: "Linear Eq" },
+            { q: "The point of intersection of x=a and y=b is:", options: ["(a, b)", "(b, a)", "(a, 0)", "(0, b)"], ans: 0, topic: "Linear Eq" },
+            { q: "Condition for unique solution is:", options: ["a1/a2 ≠ b1/b2", "a1/a2 = b1/b2", "a1/a2 = c1/c2", "None"], ans: 0, topic: "Linear Eq" },
+            { q: "If 2x + 3y = 11 and 2x - 4y = -24, then y = ?", options: ["5", "4", "3", "2"], ans: 0, topic: "Linear Eq" },
+            { q: "Equation of x-axis is:", options: ["x = 0", "y = 0", "x = y", "x + y = 0"], ans: 1, topic: "Linear Eq" },
+
+            // --- Quadratic Equations (26-33) ---
+            { q: "Discriminant (D) of equation x² - 4x + 2 = 0 is:", options: ["8", "12", "16", "20"], ans: 0, topic: "Quadratic Eq" },
+            { q: "If roots of ax² + bx + c = 0 are equal, then:", options: ["b² = 4ac", "b² < 4ac", "b² > 4ac", "b = 0"], ans: 0, topic: "Quadratic Eq" },
+            { q: "The sum of roots of 2x² - 4x + 6 = 0 is:", options: ["2", "-2", "3", "1"], ans: 0, topic: "Quadratic Eq" },
+            { q: "Which of the following is a quadratic equation?", options: ["x + 1/x = 5", "x² + 3x + 1 = 0", "x³ + 1 = 0", "2x + 3 = 0"], ans: 1, topic: "Quadratic Eq" },
+            { q: "If one root of x² - kx + 4 = 0 is 2, then k is:", options: ["4", "2", "-4", "-2"], ans: 0, topic: "Quadratic Eq" },
+            { q: "Roots of x² - 9 = 0 are:", options: ["3, 3", "-3, -3", "3, -3", "9, 9"], ans: 2, topic: "Quadratic Eq" },
+            { q: "If D < 0, roots are:", options: ["Real & Equal", "Real & Unequal", "Imaginary", "None"], ans: 2, topic: "Quadratic Eq" },
+            { q: "Factor of x² + 5x + 6 is:", options: ["(x+2)(x+3)", "(x-2)(x-3)", "(x+1)(x+6)", "None"], ans: 0, topic: "Quadratic Eq" },
+
+            // --- A.P. (34-41) ---
+            { q: "Common difference of A.P.: 4, 10, 16, 22... is:", options: ["4", "6", "2", "8"], ans: 1, topic: "Arithmetic Prog" },
+            { q: "The 10th term of A.P.: 2, 7, 12... is:", options: ["47", "50", "45", "52"], ans: 0, topic: "Arithmetic Prog" },
+            { q: "Sum of first n natural numbers is:", options: ["n(n+1)/2", "n²", "n(n-1)/2", "2n"], ans: 0, topic: "Arithmetic Prog" },
+            { q: "If n'th term of an AP is 3n + 5, then its common difference is:", options: ["3", "5", "8", "2"], ans: 0, topic: "Arithmetic Prog" },
+            { q: "Which term of AP 21, 18, 15... is 0?", options: ["7th", "8th", "9th", "10th"], ans: 1, topic: "Arithmetic Prog" },
+            { q: "Sum of first n odd numbers is:", options: ["n²", "n²+1", "2n+1", "n³"], ans: 0, topic: "Arithmetic Prog" },
+            { q: "11th term of AP: -3, -1/2, 2... is:", options: ["28", "22", "-38", "-48"], ans: 1, topic: "Arithmetic Prog" },
+            { q: "If a, b, c are in AP, then b = ?", options: ["(a+c)/2", "a+c", "ac", "a/c"], ans: 0, topic: "Arithmetic Prog" },
+
+            // --- Triangles (42-49) ---
+            { q: "All equilateral triangles are:", options: ["Congruent", "Similar", "Both", "None"], ans: 1, topic: "Geometry" },
+            { q: "If ∆ABC ~ ∆DEF and area(∆ABC)/area(∆DEF) = 9/4, then AB/DE = ?", options: ["3/2", "9/4", "81/16", "2/3"], ans: 0, topic: "Geometry" },
+            { q: "In ∆ABC, DE || BC. If AD/DB = 3/5 and AC = 4.8cm, then AE = ?", options: ["1.8 cm", "2.4 cm", "1.2 cm", "3.0 cm"], ans: 0, topic: "Geometry" },
+            { q: "Pythagoras theorem relates to:", options: ["Right triangle", "Equilateral triangle", "Isosceles triangle", "Circle"], ans: 0, topic: "Geometry" },
+            { q: "The sum of angles of a triangle is:", options: ["90°", "180°", "360°", "270°"], ans: 1, topic: "Geometry" },
+            { q: "In ∆ABC, if AB=6√3cm, AC=12cm, BC=6cm, then ∠B is:", options: ["120°", "60°", "90°", "45°"], ans: 2, topic: "Geometry" },
+            { q: "Sides of two similar triangles are in ratio 4:9. Areas are in ratio:", options: ["2:3", "4:9", "81:16", "16:81"], ans: 3, topic: "Geometry" },
+            { q: "Centroid of a triangle divides median in ratio:", options: ["1:1", "2:1", "3:1", "1:2"], ans: 1, topic: "Geometry" },
+
+            // --- Coordinate Geometry (50-58) ---
+            { q: "Distance of point P(3, 4) from origin is:", options: ["3", "4", "5", "7"], ans: 2, topic: "Coord Geo" },
+            { q: "Mid-point of line joining (2, 4) and (6, 8) is:", options: ["(4, 6)", "(3, 5)", "(8, 12)", "(2, 2)"], ans: 0, topic: "Coord Geo" },
+            { q: "The coordinates of the origin are:", options: ["(1, 1)", "(0, 1)", "(1, 0)", "(0, 0)"], ans: 3, topic: "Coord Geo" },
+            { q: "Area of triangle formed by points (0,0), (2,0), (0,3) is:", options: ["3", "6", "1.5", "5"], ans: 0, topic: "Coord Geo" },
+            { q: "If points (1, 2), (0, 0) and (a, b) are collinear, then:", options: ["a = b", "2a = b", "a = 2b", "a + b = 0"], ans: 1, topic: "Coord Geo" },
+            { q: "Distance between (2, 3) and (4, 1) is:", options: ["2√2", "2", "3", "4"], ans: 0, topic: "Coord Geo" },
+            { q: "Point (-3, -5) lies in which quadrant?", options: ["1st", "2nd", "3rd", "4th"], ans: 2, topic: "Coord Geo" },
+            { q: "X-coordinate is also known as:", options: ["Ordinate", "Abscissa", "Origin", "None"], ans: 1, topic: "Coord Geo" },
+            { q: "Y-coordinate of a point on x-axis is:", options: ["0", "1", "-1", "x"], ans: 0, topic: "Coord Geo" },
+
+            // --- Trigonometry (59-73) ---
+            { q: "Value of sin 30° is:", options: ["1", "1/2", "√3/2", "1/√2"], ans: 1, topic: "Trigonometry" },
+            { q: "If tan A = 4/3, then sin A = ?", options: ["3/5", "4/5", "3/4", "5/4"], ans: 1, topic: "Trigonometry" },
+            { q: "The value of sin² θ + cos² θ is:", options: ["0", "1", "-1", "2"], ans: 1, topic: "Trigonometry" },
+            { q: "9 sec² A - 9 tan² A = ?", options: ["1", "9", "8", "0"], ans: 1, topic: "Trigonometry" },
+            { q: "Value of tan 45° is:", options: ["0", "1", "∞", "√3"], ans: 1, topic: "Trigonometry" },
+            { q: "cos 60° × cos 30° - sin 60° × sin 30° = ?", options: ["0", "1", "1/2", "√3"], ans: 0, topic: "Trigonometry" },
+            { q: "If sin θ = cos θ, then θ = ?", options: ["30°", "45°", "60°", "90°"], ans: 1, topic: "Trigonometry" },
+            { q: "Value of (1 + tan² A) is:", options: ["sec² A", "cosec² A", "cot² A", "tan² A"], ans: 0, topic: "Trigonometry" },
+            { q: "Maximum value of sin θ is:", options: ["0", "1", "-1", "∞"], ans: 1, topic: "Trigonometry" },
+            { q: "If √3 tan θ = 1, then θ = ?", options: ["30°", "45°", "60°", "90°"], ans: 0, topic: "Trigonometry" },
+            { q: "sin(90° - A) is equal to:", options: ["sin A", "cos A", "tan A", "cot A"], ans: 1, topic: "Trigonometry" },
+            { q: "Value of cos 0° is:", options: ["0", "1", "∞", "-1"], ans: 1, topic: "Trigonometry" },
+            { q: "If A + B = 90°, then cos A = ?", options: ["cos B", "sin A", "sin B", "tan B"], ans: 2, topic: "Trigonometry" },
+            { q: "Reciprocal of sin A is:", options: ["cos A", "sec A", "cosec A", "cot A"], ans: 2, topic: "Trigonometry" },
+            { q: "Value of 2 tan 30° / (1 + tan² 30°) is:", options: ["sin 60°", "cos 60°", "tan 60°", "sin 30°"], ans: 0, topic: "Trigonometry" },
+
+            // --- Circles & Construction (74-81) ---
+            { q: "Number of tangents drawn from an external point to a circle is:", options: ["1", "2", "3", "Infinite"], ans: 1, topic: "Circles" },
+            { q: "Angle between tangent and radius at point of contact is:", options: ["45°", "60°", "90°", "180°"], ans: 2, topic: "Circles" },
+            { q: "Length of tangents drawn from external point are:", options: ["Equal", "Unequal", "Parallel", "None"], ans: 0, topic: "Circles" },
+            { q: "Longest chord of a circle is called:", options: ["Radius", "Diameter", "Secant", "Tangent"], ans: 1, topic: "Circles" },
+            { q: "Area of sector of angle θ is:", options: ["(θ/360)×2πr", "(θ/360)×πr²", "(θ/180)×πr²", "2πr"], ans: 1, topic: "Circles" },
+            { q: "A line intersecting a circle in two points is called:", options: ["Tangent", "Secant", "Chord", "Radius"], ans: 1, topic: "Circles" },
+            { q: "The angle in a semi-circle is:", options: ["45°", "60°", "90°", "120°"], ans: 2, topic: "Circles" },
+            { q: "If tangents PA and PB from a point P are inclined at 80°, then angle POA is:", options: ["50°", "60°", "70°", "80°"], ans: 0, topic: "Circles" },
+
+            // --- Mensuration (82-90) ---
+            { q: "Volume of a cube with side 'a' is:", options: ["a²", "a³", "6a²", "4a²"], ans: 1, topic: "Mensuration" },
+            { q: "Total surface area of a solid hemisphere is:", options: ["2πr²", "3πr²", "4πr²", "πr²"], ans: 1, topic: "Mensuration" },
+            { q: "Volume of a cylinder is:", options: ["πr²h", "1/3 πr²h", "2πrh", "πrl"], ans: 0, topic: "Mensuration" },
+            { q: "If radius of a sphere is doubled, its volume becomes:", options: ["2 times", "4 times", "8 times", "16 times"], ans: 2, topic: "Mensuration" },
+            { q: "Volume of a cone is:", options: ["πr²h", "1/3 πr²h", "2/3 πr²h", "4/3 πr³"], ans: 1, topic: "Mensuration" },
+            { q: "Curved surface area of cylinder is:", options: ["2πrh", "πrh", "2πr(r+h)", "πr²"], ans: 0, topic: "Mensuration" },
+            { q: "Slant height (l) of a cone is given by:", options: ["√(h²+r²)", "√(h²-r²)", "h+r", "h-r"], ans: 0, topic: "Mensuration" },
+            { q: "Number of balls of radius 1cm made from sphere of radius 8cm:", options: ["64", "512", "8", "256"], ans: 1, topic: "Mensuration" },
+            { q: "Total surface area of a cube is:", options: ["a³", "6a²", "4a²", "a²"], ans: 1, topic: "Mensuration" },
+
+            // --- Statistics & Probability (91-100) ---
+            { q: "Mode of data: 2, 3, 2, 5, 2, 6 is:", options: ["2", "3", "5", "6"], ans: 0, topic: "Statistics" },
+            { q: "Relationship between Mean, Median and Mode is:", options: ["Mode = 3Median - 2Mean", "Mode = 2Median - 3Mean", "Mean = Mode - Median", "None"], ans: 0, topic: "Statistics" },
+            { q: "Probability of an impossible event is:", options: ["1", "0", "1/2", "-1"], ans: 1, topic: "Probability" },
+            { q: "Maximum probability of an event can be:", options: ["0", "1", "100", "0.5"], ans: 1, topic: "Probability" },
+            { q: "A die is thrown. Probability of getting an even number is:", options: ["1/2", "1/3", "1/6", "2/3"], ans: 0, topic: "Probability" },
+            { q: "Which of these cannot be a probability?", options: ["2/3", "-1.5", "15%", "0.7"], ans: 1, topic: "Probability" },
+            { q: "Sum of probabilities of all elementary events is:", options: ["0", "1", "100", "Infinite"], ans: 1, topic: "Probability" },
+            { q: "Class mark is equal to:", options: ["(Upper+Lower)/2", "Upper-Lower", "(Upper-Lower)/2", "None"], ans: 0, topic: "Statistics" },
+            { q: "The probability of a sure event is:", options: ["0", "1", "0.5", "Infinite"], ans: 1, topic: "Probability" },
+            { q: "If P(E) = 0.05, then P(not E) is:", options: ["0.05", "0.95", "0.5", "0.9"], ans: 1, topic: "Probability" }
+        ];
+
+        // --- STATE & LOGIC ---
+        let currentQ = 0;
+        let answers = new Array(questions.length).fill(null);
+        let time = 0;
+        let timerInterval;
+
+        // Init
+        window.onload = function() {
+            initNav();
+            loadQ(0);
+            startTimer();
+            if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+        };
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                time++;
+                let m = Math.floor(time / 60).toString().padStart(2, '0');
+                let s = (time % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+            }, 1000);
+        }
+
+        function initNav() {
+            const grid = document.getElementById('navGrid');
+            questions.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.innerText = i + 1;
+                btn.onclick = () => loadQ(i);
+                btn.id = `nav-${i}`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function loadQ(index) {
+            currentQ = index;
+            const q = questions[index];
+            
+            document.getElementById('currentQNum').innerText = index + 1;
+            document.getElementById('subjectTag').innerText = q.topic;
+            document.getElementById('questionText').innerText = q.q;
+
+            // Update Nav Active State
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${index}`).classList.add('active');
+
+            // Render Options
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                
+                // If already answered
+                if(answers[index] !== null) {
+                    if(i === questions[index].ans) btn.classList.add('correct');
+                    if(i === answers[index] && i !== questions[index].ans) btn.classList.add('wrong');
+                    btn.disabled = true; // Lock question
+                } else {
+                    btn.onclick = () => selectOption(i, btn);
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function selectOption(optIndex, btn) {
+            answers[currentQ] = optIndex;
+            
+            // Mark Nav
+            const navBtn = document.getElementById(`nav-${currentQ}`);
+            if(optIndex === questions[currentQ].ans) {
+                navBtn.classList.add('solved');
+            } else {
+                navBtn.classList.add('wrong-mark');
+            }
+
+            // Reload to show colors
+            loadQ(currentQ);
+        }
+
+        function nextQ() {
+            if(currentQ < questions.length - 1) loadQ(currentQ + 1);
+        }
+
+        function prevQ() {
+            if(currentQ > 0) loadQ(currentQ - 1);
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            let score = 0;
+            answers.forEach((ans, i) => {
+                if(ans === questions[i].ans) score++;
+            });
+
+            let percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').innerText = percentage + "%";
+            document.getElementById('resultScreen').style.display = 'flex';
+        }
+
+    </script>
+</body>
+</html>

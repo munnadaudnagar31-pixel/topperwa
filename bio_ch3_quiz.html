@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Biology Ch-3 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (BIOLOGY - PINK/RED) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #FFF0F5 0%, #FFF5F7 100%);
+            --header-gradient: linear-gradient(135deg, #ec008c 0%, #fc6767 100%);
+            --card-bg: #ffffff;
+            --text-main: #4a1c30;
+            --text-sub: #905d70;
+            --option-bg: #FFF0F6;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(236, 0, 140, 0.15);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #4a1c30; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #666; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(236, 0, 140, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #ec008c;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #ec008c; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="biology_chapters.html" class="close-btn">✕</a>
+        <span>Ch-3: Reproduction</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #ec008c; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You've mastered Reproduction in Organisms.</p>
+        <a href="biology_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#ec008c; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (How do Organisms Reproduce?) ---
+        const questions = [
+            { q: "Asexual reproduction takes place through budding in:", o: ["Amoeba", "Yeast", "Plasmodium", "Leishmania"], a: 1 },
+            { q: "Which of the following is not a part of the female reproductive system in human beings?", o: ["Ovary", "Uterus", "Vas deferens", "Fallopian tube"], a: 2 },
+            { q: "The anther contains:", o: ["Sepals", "Ovules", "Pistil", "Pollen grains"], a: 3 },
+            { q: "Binary fission occurs in:", o: ["Amoeba", "Paramecium", "Leishmania", "All of these"], a: 3 },
+            { q: "The ability of a cell to divide into several cells during reproduction in Plasmodium is called:", o: ["Budding", "Reduction division", "Binary fission", "Multiple fission"], a: 3 },
+            { q: "Bryophyllum can be propagated vegetatively by the:", o: ["Stem", "Leaf", "Root", "Flower"], a: 1 },
+            { q: "Vegetative propagation refers to formation of new plants from:", o: ["Stem, roots and flowers", "Stem, roots and leaves", "Stem, flowers and fruits", "Stem, leaves and flowers"], a: 1 },
+            { q: "In Rhizopus, tubular thread-like structures bearing sporangia at their tips are called:", o: ["Filaments", "Hyphae", "Rhizoids", "Roots"], a: 1 },
+            { q: "The flower of the Hibiscus plant is:", o: ["Bisexual", "Unisexual", "Neuter", "Very small"], a: 0 },
+            { q: "The process of transfer of pollen grains from the anther to the stigma of a flower is called:", o: ["Fertilization", "Pollination", "Reproduction", "Germination"], a: 1 },
+            { q: "Fertilization in plants occurs in the:", o: ["Embryo sac", "Style", "Pollen tube", "Stigma"], a: 0 },
+            { q: "After fertilization, the ovule develops into:", o: ["Fruit", "Seed", "Flower", "Shoot"], a: 1 },
+            { q: "After fertilization, the ovary develops into:", o: ["Fruit", "Seed", "Flower", "Shoot"], a: 0 },
+            { q: "Which part of the seed contains the future plant?", o: ["Cotyledon", "Seed coat", "Germ cells", "Embryo"], a: 3 },
+            { q: "The period of adolescence when the reproductive tissues begin to mature is called:", o: ["Gestation", "Puberty", "Menopause", "Ovulation"], a: 1 },
+            { q: "In human males, the testes lie in the scrotum, because it helps in the:", o: ["Process of mating", "Formation of sperm", "Easy transfer of gametes", "All the above"], a: 1 },
+            { q: "Which hormone is responsible for the secondary sexual characters in males?", o: ["Estrogen", "Testosterone", "Insulin", "Thyroxin"], a: 1 },
+            { q: "The fertilization of the human egg by the sperm takes place in the:", o: ["Vagina", "Uterus", "Ovary", "Fallopian tube"], a: 3 },
+            { q: "The embryo gets nutrition from the mother's blood with the help of a special tissue called:", o: ["Placenta", "Villi", "Uterus", "Womb"], a: 0 },
+            { q: "If the egg is not fertilized, it lives for about:", o: ["One day", "Three days", "One month", "One week"], a: 0 },
+            { q: "Menstruation usually lasts for:", o: ["1-2 days", "2-8 days", "10-15 days", "30 days"], a: 1 },
+            { q: "Which of the following is a sexually transmitted disease?", o: ["Gonorrhoea", "Jaundice", "Cholera", "Tuberculosis"], a: 0 },
+            { q: "Which of the following is a viral STD?", o: ["Gonorrhoea", "Syphilis", "Warts", "HIV-AIDS"], a: 3 },
+            { q: "Which of the following methods of contraception protects from acquiring STDs?", o: ["Surgery", "Condoms", "Copper-T", "Oral pills"], a: 1 },
+            { q: "Spirogyra reproduces by:", o: ["Budding", "Fragmentation", "Regeneration", "Fission"], a: 1 },
+            { q: "Planaria reproduces by:", o: ["Fragmentation", "Regeneration", "Budding", "Fission"], a: 1 },
+            { q: "The male reproductive part of a flower is:", o: ["Sepal", "Petal", "Stamen", "Carpel"], a: 2 },
+            { q: "The female reproductive part of a flower is:", o: ["Sepal", "Petal", "Stamen", "Carpel (Pistil)"], a: 3 },
+            { q: "Cross-pollination is defined as:", o: ["Transfer of pollen within the same flower", "Transfer of pollen to another flower of same plant", "Transfer of pollen to flower of another plant of same species", "None of these"], a: 2 },
+            { q: "Sperms are produced in:", o: ["Vas deferens", "Testes", "Prostate gland", "Scrotum"], a: 1 },
+            { q: "The temperature of scrotum is lower than body temperature by:", o: ["1-3 °C", "5-7 °C", "10 °C", "Same temperature"], a: 0 },
+            { q: "Which gland secretes fluid to provide nutrition and motility to sperms?", o: ["Prostate gland", "Seminal vesicle", "Cowper's gland", "Both Prostate and Seminal vesicle"], a: 3 },
+            { q: "The release of an egg from the ovary is called:", o: ["Fertilization", "Menstruation", "Ovulation", "Reproduction"], a: 2 },
+            { q: "The breakdown of the endometrial lining of the uterus results in:", o: ["Ovulation", "Fertilization", "Menstruation", "Pregnancy"], a: 2 },
+            { q: "Copper-T is placed in the:", o: ["Vagina", "Uterus", "Oviduct", "Ovary"], a: 1 },
+            { q: "Surgical method of contraception in males is called:", o: ["Tubectomy", "Vasectomy", "Hysterectomy", "None"], a: 1 },
+            { q: "Surgical method of contraception in females is called:", o: ["Tubectomy", "Vasectomy", "Copper-T", "None"], a: 0 },
+            { q: "DNA copying is essential for:", o: ["Respiration", "Reproduction", "Digestion", "Excretion"], a: 1 },
+            { q: "Variations are important for:", o: ["Individual survival", "Species survival", "Both", "None"], a: 1 },
+            { q: "Clones are offspring produced by:", o: ["Sexual reproduction", "Asexual reproduction", "Both", "None"], a: 1 },
+            { q: "The number of chromosomes in human gametes (sperm/egg) is:", o: ["46", "23", "22", "44"], a: 1 },
+            { q: "The number of chromosomes in a human zygote is:", o: ["46", "23", "22", "44"], a: 0 },
+            { q: "Rose plants are usually propagated by:", o: ["Seeds", "Root cutting", "Stem cutting", "Leaf cutting"], a: 2 },
+            { q: "In potato, vegetative propagation takes place by:", o: ["Root", "Leaf", "Stem tuber (Eyes)", "Seeds"], a: 2 },
+            { q: "IUCD stands for:", o: ["Intra Uterine Contraceptive Device", "Internal Uterine Device", "Intra Uterine Common Device", "None"], a: 0 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

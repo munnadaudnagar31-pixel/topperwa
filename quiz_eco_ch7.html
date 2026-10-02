@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Economics Chapter 7 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Safety Orange - Consumer Rights) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #fbe9e7; color: #d84315; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #ff5e62; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #ffccbc; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #ff5e62; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #e64a19; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #ff5e62; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #ff5e62; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="economics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="economics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ ECONOMICS CHAPTER 7 QUESTIONS (उपभोक्ता जागरण एवं संरक्षण) ▼▼▼
+    const questions = [
+        { question: "1. भारत में 'उपभोक्ता संरक्षण अधिनियम' की घोषणा कब हुई?", answers: [ { text: "1980", correct: false }, { text: "1986", correct: true }, { text: "1987", correct: false }, { text: "1988", correct: false } ] },
+        { question: "2. 'उपभोक्ता अधिकार दिवस' कब मनाया जाता है?", answers: [ { text: "17 मार्च", correct: false }, { text: "15 मार्च", correct: true }, { text: "19 अप्रैल", correct: false }, { text: "22 अप्रैल", correct: false } ] },
+        { question: "3. राष्ट्रीय उपभोक्ता हेल्पलाइन नंबर क्या है?", answers: [ { text: "100", correct: false }, { text: "1800-11-4000", correct: true }, { text: "2000-11-4000", correct: false }, { text: "1911", correct: false } ] },
+        { question: "4. स्वर्ण आभूषणों की परिशुद्धता को सुनिश्चित करने के लिए किस मान्यता प्राप्त चिह्न का होना आवश्यक है?", answers: [ { text: "आईएसआई मार्क", correct: false }, { text: "हॉलमार्क", correct: true }, { text: "एगमार्क", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "5. यदि किसी वस्तु या सेवा का मूल्य 20 लाख से अधिक और 1 करोड़ से कम है, तो उपभोक्ता शिकायत कहाँ करेगा?", answers: [ { text: "जिला फोरम में", correct: false }, { text: "राज्य आयोग में", correct: true }, { text: "राष्ट्रीय आयोग में", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "6. यदि किसी वस्तु या सेवा का मूल्य 1 करोड़ से अधिक है, तो उपभोक्ता शिकायत कहाँ करेगा?", answers: [ { text: "जिला फोरम में", correct: false }, { text: "राज्य आयोग में", correct: false }, { text: "राष्ट्रीय आयोग में", correct: true }, { text: "सर्वोच्च न्यायालय में", correct: false } ] },
+        { question: "7. उपभोक्ताओं के शोषण का मुख्य प्रकार है?", answers: [ { text: "मिलावट", correct: false }, { text: "भ्रामक प्रचार", correct: false }, { text: "माप-तौल में कमी", correct: false }, { text: "इनमें सभी", correct: true } ] },
+        { question: "8. 'जागो ग्राहक जागो' किसका नारा है?", answers: [ { text: "उद्योगपति जागरण", correct: false }, { text: "उपभोक्ता जागरण", correct: true }, { text: "कृषक जागरण", correct: false }, { text: "सरकार जागरण", correct: false } ] },
+        { question: "9. 'एगमार्क' (Agmark) किस प्रकार की वस्तुओं के लिए होता है?", answers: [ { text: "सोने-चाँदी", correct: false }, { text: "कृषि उत्पाद", correct: true }, { text: "इलेक्ट्रॉनिक सामान", correct: false }, { text: "औद्योगिक उत्पाद", correct: false } ] },
+        { question: "10. उपभोक्ता द्वारा शिकायत करने के लिए आवेदन शुल्क कितना लगता है?", answers: [ { text: "50 रुपये", correct: false }, { text: "70 रुपये", correct: false }, { text: "10 रुपये", correct: false }, { text: "इनमें से कोई नहीं (निशुल्क)", correct: true } ] },
+        { question: "11. मानवाधिकार आयोग का अध्यक्ष कौन होता है?", answers: [ { text: "राष्ट्रपति", correct: false }, { text: "प्रधानमंत्री", correct: false }, { text: "सर्वोच्च न्यायालय का सेवानिवृत्त मुख्य न्यायाधीश", correct: true }, { text: "राज्यपाल", correct: false } ] },
+        { question: "12. भारत में 'मानवाधिकार सुरक्षा अधिनियम' कब पारित हुआ?", answers: [ { text: "1991", correct: false }, { text: "1993", correct: true }, { text: "1995", correct: false }, { text: "1997", correct: false } ] },
+        { question: "13. हॉलमार्क का शब्द चिह्न (Logo) किस वस्तु की गुणवत्ता का प्रमाण है?", answers: [ { text: "बोतल बंद पेय", correct: false }, { text: "बिजली उपकरण", correct: false }, { text: "सोने के आभूषण", correct: true }, { text: "खाद्य पदार्थ", correct: false } ] },
+        { question: "14. सूचना का अधिकार किस प्रकार का अधिकार है?", answers: [ { text: "वैधानिक", correct: true }, { text: "गैर-कानूनी", correct: false }, { text: "धार्मिक", correct: false }, { text: "परंपरागत", correct: false } ] },
+        { question: "15. भारत में 'सूचना का अधिकार' अधिनियम कब पारित हुआ?", answers: [ { text: "मार्च 2005", correct: false }, { text: "मई 2005", correct: false }, { text: "जून 2005", correct: false }, { text: "अक्टूबर 2005", correct: true } ] },
+        { question: "16. ISI (आईएसआई) का प्रतीक हमारी रक्षा करता है?", answers: [ { text: "नकली और गैर मानक उत्पादों से", correct: true }, { text: "विक्रेताओं से", correct: false }, { text: "धोखेबाजों से", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "17. उपभोक्ता राहत के तरीके हैं?", answers: [ { text: "सामान हटाना", correct: false }, { text: "क्षतिपूर्ति", correct: false }, { text: "मरम्मत", correct: false }, { text: "उपर्युक्त सभी", correct: true } ] },
+        { question: "18. देश में जिला फोरमों (District Forums) की संख्या कितनी है (किताब के अनुसार)?", answers: [ { text: "582", correct: true }, { text: "482", correct: false }, { text: "682", correct: false }, { text: "382", correct: false } ] },
+        { question: "19. किसी वस्तु या सेवा का मूल्य 20 लाख से कम हो, तो शिकायत कहाँ होगी?", answers: [ { text: "जिला फोरम", correct: true }, { text: "राज्य आयोग", correct: false }, { text: "राष्ट्रीय आयोग", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "20. उपभोक्ता आंदोलन के प्रवर्तक माने जाते हैं?", answers: [ { text: "रॉल्फ नादर", correct: true }, { text: "बिल क्लिंटन", correct: false }, { text: "जॉर्ज बुश", correct: false }, { text: "मैकलेगन", correct: false } ] },
+        { question: "21. सर्वप्रथम किस देश में उपभोक्ता अधिकारों की घोषणा हुई?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "संयुक्त राज्य अमेरिका", correct: true }, { text: "भारत", correct: false }, { text: "जापान", correct: false } ] },
+        { question: "22. उपभोक्ता जागरूकता आंदोलन की शुरुआत किस देश में हुई?", answers: [ { text: "इंग्लैंड", correct: true }, { text: "चीन", correct: false }, { text: "जापान", correct: false }, { text: "अमेरिका", correct: false } ] },
+        { question: "23. भारतीय मानक संस्थान (ISI) की स्थापना कब की गई?", answers: [ { text: "1947", correct: true }, { text: "1955", correct: false }, { text: "1969", correct: false }, { text: "1986", correct: false } ] },
+        { question: "24. विश्व उपभोक्ता अधिकार दिवस प्रतिवर्ष कब मनाया जाता है?", answers: [ { text: "15 मार्च", correct: true }, { text: "15 अप्रैल", correct: false }, { text: "15 मई", correct: false }, { text: "10 दिसंबर", correct: false } ] },
+        { question: "25. राष्ट्रीय मानवाधिकार आयोग की स्थापना कब हुई?", answers: [ { text: "1981", correct: false }, { text: "1991", correct: false }, { text: "1993", correct: true }, { text: "1995", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🛡️ सुरक्षित! आप एक जागरूक नागरिक हैं!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर अपने अधिकारों को और जानें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 'जागो ग्राहक जागो' को याद रखें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

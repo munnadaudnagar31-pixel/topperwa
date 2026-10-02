@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Topperwa Mart – BSEB Notes & Books</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;}
+    body{font-family:'Outfit',sans-serif;background:#F0F7FF;padding-bottom:70px;}
+
+    /* Top App Bar (Flipkart-style) */
+    .appbar{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;padding:.75rem 1rem;}
+    .search-bar{background:rgba(255,255,255,.95);border-radius:.6rem;display:flex;align-items:center;padding:.45rem .75rem;gap:.5rem;flex:1;}
+    .search-bar input{border:none;outline:none;background:transparent;font-family:'Outfit',sans-serif;font-size:.875rem;color:#1e293b;flex:1;}
+
+    /* Carousel */
+    .carousel-wrap{overflow:hidden;position:relative;}
+    .carousel-track{display:flex;transition:transform .5s cubic-bezier(.22,.68,0,1.2);}
+    .carousel-slide{min-width:100%;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:1rem;position:relative;overflow:hidden;}
+    .carousel-dots{display:flex;gap:.4rem;justify-content:center;padding:.6rem 0;}
+    .dot{width:6px;height:6px;border-radius:50%;background:#BFDBFE;transition:all .3s;}
+    .dot.active{background:#3B82F6;width:18px;border-radius:999px;}
+
+    /* Category pills */
+    .cat-pill{flex-shrink:0;padding:.4rem .9rem;border-radius:999px;font-size:.78rem;font-weight:600;background:#fff;color:#1D4ED8;border:1.5px solid #BFDBFE;white-space:nowrap;cursor:pointer;transition:all .2s;}
+    .cat-pill.active,.cat-pill:hover{background:#3B82F6;color:#fff;border-color:#3B82F6;}
+    .cat-scroll{display:flex;gap:.5rem;overflow-x:auto;padding:.75rem 1rem;scrollbar-width:none;}
+    .cat-scroll::-webkit-scrollbar{display:none;}
+
+    /* Product card */
+    .product-card{background:#fff;border-radius:1rem;overflow:hidden;border:1px solid #E2E8F0;transition:transform .25s,box-shadow .25s;cursor:pointer;}
+    .product-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(59,130,246,.15);}
+    .product-card:active{transform:scale(.97);}
+    .prod-img{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);height:130px;display:flex;align-items:center;justify-content:center;font-size:3rem;}
+    .star{color:#F59E0B;font-size:.75rem;}
+    .cart-btn{background:#3B82F6;color:#fff;font-weight:700;font-size:.75rem;border-radius:.5rem;padding:.4rem .8rem;transition:background .2s;border:none;cursor:pointer;width:100%;}
+    .cart-btn:hover{background:#1D4ED8;}
+    .cart-btn.added{background:#16A34A;}
+    .badge-new{background:#DCFCE7;color:#16A34A;font-size:.6rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;}
+    .badge-hot{background:#FEE2E2;color:#DC2626;font-size:.6rem;font-weight:700;padding:.15rem .45rem;border-radius:999px;}
+
+    /* Bottom Nav */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #BFDBFE;display:flex;z-index:100;}
+    .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.6rem .25rem;font-size:.6rem;font-weight:600;color:#94A3B8;cursor:pointer;transition:color .2s;}
+    .bnav-item.active,.bnav-item:hover{color:#3B82F6;}
+    .bnav-item i{font-size:1.1rem;}
+    .cart-badge{position:absolute;top:-4px;right:-4px;background:#FF7F50;color:#fff;border-radius:50%;width:16px;height:16px;font-size:.55rem;display:flex;align-items:center;justify-content:center;font-weight:700;}
+
+    /* Toast */
+    #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(60px);background:#1D4ED8;color:#fff;padding:.6rem 1.4rem;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:all .4s cubic-bezier(.22,.68,0,1.2);pointer-events:none;white-space:nowrap;}
+    #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+    /* Section heading */
+    .sec-h{font-size:1rem;font-weight:700;color:#1D4ED8;padding:0 1rem .5rem;display:flex;align-items:center;justify-content:space-between;}
+    .sec-h a{font-size:.75rem;color:#FF7F50;font-weight:600;}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .au{animation:fadeUp .45s cubic-bezier(.22,.68,0,1.2) both;}
+  </style>
+</head>
+<body>
+
+<!-- ── App Bar ── -->
+<div class="appbar">
+  <div class="flex items-center gap-3 mb-2.5">
+    <a href="index.html" class="text-white text-lg"><i class="fas fa-arrow-left"></i></a>
+    <div class="search-bar">
+      <i class="fas fa-search text-blue-400 text-sm"></i>
+      <input type="text" placeholder="Search notes, books, papers…"/>
+    </div>
+    <button class="relative text-white text-lg" onclick="openCart()">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-badge" id="cart-count">0</span>
+    </button>
+  </div>
+  <div class="flex items-center gap-2 text-xs text-blue-100 font-medium">
+    <i class="fas fa-location-dot"></i>
+    <span>Deliver to: Bihar, India</span>
+    <span class="ml-auto text-blue-200">Free delivery on ₹299+</span>
+  </div>
+</div>
+
+<!-- ── Category Scroll ── -->
+<div class="cat-scroll">
+  <button class="cat-pill active" onclick="filterCat('all',this)">🛍️ All</button>
+  <button class="cat-pill" onclick="filterCat('notes',this)">📝 Notes</button>
+  <button class="cat-pill" onclick="filterCat('books',this)">📚 Books</button>
+  <button class="cat-pill" onclick="filterCat('papers',this)">📄 Papers</button>
+  <button class="cat-pill" onclick="filterCat('combo',this)">🎁 Combos</button>
+</div>
+
+<!-- ── Carousel Banner ── -->
+<div class="carousel-wrap mx-4 mb-4 rounded-2xl overflow-hidden">
+  <div class="carousel-track" id="carousel-track">
+    <div class="carousel-slide" style="background:linear-gradient(135deg,#1D4ED8,#3B82F6)">
+      <div class="absolute inset-0 opacity-10 text-8xl flex items-center justify-center">📚</div>
+      <p class="text-white font-extrabold text-xl relative z-10">BSEB 2026 Notes</p>
+      <p class="text-blue-100 text-sm relative z-10">Complete Chapter Notes for Class 10</p>
+      <button class="mt-2 bg-white text-blue-700 font-bold text-xs px-4 py-1.5 rounded-full relative z-10">Shop Now</button>
+    </div>
+    <div class="carousel-slide" style="background:linear-gradient(135deg,#FF7F50,#F97316)">
+      <div class="absolute inset-0 opacity-10 text-8xl flex items-center justify-center">🔥</div>
+      <p class="text-white font-extrabold text-xl relative z-10">VVI Question Banks</p>
+      <p class="text-orange-100 text-sm relative z-10">Most Expected 2026 — All Subjects</p>
+      <button class="mt-2 bg-white text-orange-600 font-bold text-xs px-4 py-1.5 rounded-full relative z-10">Grab Now</button>
+    </div>
+    <div class="carousel-slide" style="background:linear-gradient(135deg,#10B981,#059669)">
+      <div class="absolute inset-0 opacity-10 text-8xl flex items-center justify-center">🎯</div>
+      <p class="text-white font-extrabold text-xl relative z-10">Mega Combo Offer</p>
+      <p class="text-green-100 text-sm relative z-10">All 5 Subjects — Save 40%!</p>
+      <button class="mt-2 bg-white text-green-700 font-bold text-xs px-4 py-1.5 rounded-full relative z-10">View Deal</button>
+    </div>
+  </div>
+  <div class="carousel-dots" id="carousel-dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<!-- ── Products ── -->
+<div class="px-4 space-y-6" id="products-wrap">
+  <!-- Rendered by JS -->
+</div>
+
+<!-- ── Bottom Navigation ── -->
+<div class="bottom-nav">
+  <div class="bnav-item active" onclick="scrollTop()"><i class="fas fa-home"></i>Home</div>
+  <div class="bnav-item" onclick="showToast('🔍 Search coming soon!')"><i class="fas fa-search"></i>Search</div>
+  <div class="bnav-item" onclick="openCart()"><div class="relative inline-block"><i class="fas fa-shopping-cart"></i><span class="cart-badge" id="cart-count-2">0</span></div><br/>Cart</div>
+  <div class="bnav-item" onclick="showToast('💖 Wishlist coming soon!')"><i class="fas fa-heart"></i>Wishlist</div>
+  <a href="index.html" class="bnav-item"><i class="fas fa-graduation-cap"></i>Study</a>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ── Product Data ──────────────────────────────────────────
+  const PRODUCTS = [
+    { id:1, name:'Hindi Complete Notes – Class 10', cat:'notes',  price:49,  mrp:99,  rating:4.5, reviews:234, emoji:'📖', badge:'hot',  desc:'Godhuli + Varnika – All Chapters' },
+    { id:2, name:'Math Formula Booklet',            cat:'notes',  price:29,  mrp:59,  rating:4.8, reviews:412, emoji:'📐', badge:'new',  desc:'All formulas Ch 1–15' },
+    { id:3, name:'Science VVI Question Bank 2026',  cat:'papers', price:59,  mrp:120, rating:4.7, reviews:189, emoji:'⚗️', badge:'hot',  desc:'Physics + Chemistry + Biology' },
+    { id:4, name:'BSEB Class 10 Complete Pack',    cat:'combo',  price:149, mrp:299, rating:4.9, reviews:567, emoji:'🎁', badge:'hot',  desc:'All 5 subjects + 3 model papers' },
+    { id:5, name:'English Grammar Notes',           cat:'notes',  price:39,  mrp:79,  rating:4.3, reviews:98,  emoji:'📝', badge:'',     desc:'Prose, Poetry & Reader' },
+    { id:6, name:'Social Science Notes – SST',     cat:'notes',  price:45,  mrp:89,  rating:4.4, reviews:143, emoji:'🌏', badge:'new',  desc:'History, Geo, Civics, Eco' },
+    { id:7, name:'Model Paper 2026 – All 3 Papers', cat:'papers', price:35,  mrp:70,  rating:4.6, reviews:211, emoji:'📄', badge:'',     desc:'Science, Math & SST predicted' },
+    { id:8, name:'BSEB Reference Book – Math',     cat:'books',  price:89,  mrp:199, rating:4.2, reviews:77,  emoji:'📗', badge:'',     desc:'R.D. Sharma Style BSEB Edition' },
+  ];
+
+  let cart = [];
+  let currentCat = 'all';
+
+  function stars(r) {
+    let s='';
+    for(let i=1;i<=5;i++) s += `<i class="fas fa-star star" style="opacity:${i<=Math.floor(r)?1:i-r<1?0.5:0.2}"></i>`;
+    return s;
+  }
+
+  function discount(p,m) { return Math.round((1-p/m)*100); }
+
+  function renderProducts() {
+    const wrap = document.getElementById('products-wrap');
+    const filtered = currentCat==='all' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===currentCat);
+
+    // Group by category for "all"
+    if (currentCat === 'all') {
+      const cats = [
+        { key:'hot',   label:'🔥 Trending Now',         items: PRODUCTS.filter(p=>p.badge==='hot') },
+        { key:'notes', label:'📝 Class 10 Notes',        items: PRODUCTS.filter(p=>p.cat==='notes') },
+        { key:'books', label:'📚 BSEB Books',            items: PRODUCTS.filter(p=>p.cat==='books') },
+        { key:'papers',label:'📄 Sample Papers',         items: PRODUCTS.filter(p=>p.cat==='papers') },
+        { key:'combo', label:'🎁 Combo Offers',          items: PRODUCTS.filter(p=>p.cat==='combo') },
+      ];
+      wrap.innerHTML = cats.filter(c=>c.items.length).map(c=>`
+        <div>
+          <div class="sec-h">${c.label}<a href="#">See All</a></div>
+          <div class="grid grid-cols-2 gap-3">${c.items.map(productCard).join('')}</div>
+        </div>`).join('');
+    } else {
+      wrap.innerHTML = `<div class="grid grid-cols-2 gap-3">${filtered.map(productCard).join('')}</div>`;
+    }
+  }
+
+  function productCard(p) {
+    const disc = discount(p.price, p.mrp);
+    const badgeHtml = p.badge==='hot' ? '<span class="badge-hot">HOT 🔥</span>' :
+                      p.badge==='new' ? '<span class="badge-new">NEW ✨</span>' : '';
+    return `
+      <div class="product-card au" id="prod-${p.id}">
+        <div class="prod-img">${p.emoji}</div>
+        <div class="p-2.5 space-y-1">
+          ${badgeHtml}
+          <p class="text-xs font-bold text-slate-700 leading-tight line-clamp-2">${p.name}</p>
+          <p class="text-xs text-slate-400">${p.desc}</p>
+          <div class="flex items-center gap-1">${stars(p.rating)}<span class="text-xs text-slate-400">(${p.reviews})</span></div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-blue-700 text-sm">₹${p.price}</span>
+            <span class="text-xs text-slate-400 line-through">₹${p.mrp}</span>
+            <span class="text-xs font-bold text-green-600">${disc}% off</span>
+          </div>
+          <button class="cart-btn" id="btn-${p.id}" onclick="addToCart(${p.id})">
+            <i class="fas fa-cart-plus mr-1"></i> Add to Cart
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function addToCart(id) {
+    const p = PRODUCTS.find(p=>p.id===id);
+    if (!p) return;
+    const existing = cart.find(i=>i.id===id);
+    if (existing) { existing.qty++; } else { cart.push({...p, qty:1}); }
+    const btn = document.getElementById('btn-'+id);
+    btn.classList.add('added');
+    btn.innerHTML = '<i class="fas fa-check mr-1"></i> Added!';
+    setTimeout(()=>{ btn.classList.remove('added'); btn.innerHTML='<i class="fas fa-cart-plus mr-1"></i> Add to Cart'; },2000);
+    updateCartCount();
+    showToast(`🛒 "${p.name}" added to cart!`);
+  }
+
+  function updateCartCount() {
+    const total = cart.reduce((s,i)=>s+i.qty,0);
+    document.getElementById('cart-count').textContent   = total;
+    document.getElementById('cart-count-2').textContent = total;
+  }
+
+  function openCart() {
+    if (cart.length===0) { showToast('🛒 Your cart is empty! Add some items.'); return; }
+    const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const items = cart.map(i=>`• ${i.name} ×${i.qty} — ₹${i.price*i.qty}`).join('\n');
+    alert(`🛒 Your Cart\n\n${items}\n\n💰 Total: ₹${total}\n\n(Full checkout coming soon!)`);
+  }
+
+  function filterCat(cat, btn) {
+    currentCat = cat;
+    document.querySelectorAll('.cat-pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProducts();
+  }
+
+  // ── Carousel ──────────────────────────────────────────────
+  let carIdx = 0;
+  const track = document.getElementById('carousel-track');
+  const dots  = document.getElementById('carousel-dots').querySelectorAll('.dot');
+  function goSlide(idx) {
+    carIdx = (idx + 3) % 3;
+    track.style.transform = `translateX(-${carIdx*100}%)`;
+    dots.forEach((d,i)=>d.classList.toggle('active',i===carIdx));
+  }
+  setInterval(()=>goSlide(carIdx+1), 3500);
+
+  let toastTimer;
+  function showToast(msg) {
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+  }
+  function scrollTop(){window.scrollTo({top:0,behavior:'smooth'});}
+
+  renderProducts();
+</script>
+</body>
+</html>

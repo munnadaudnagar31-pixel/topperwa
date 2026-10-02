@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math VVI Questions 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050511;
+            --card-glass: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-math: #00f2fe;
+            --prob-high: #00ff88;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-dark); color: var(--text-primary);
+            min-height: 100vh; padding: 20px; overflow-x: hidden; position: relative;
+        }
+
+        .bg-texture {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: radial-gradient(circle at 50% 10%, rgba(0, 242, 254, 0.1) 0%, transparent 60%);
+            filter: blur(60px);
+        }
+
+        .page-enter { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .page-exit { animation: fadeOut 0.4s ease-in forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(0.95); filter: blur(5px); } }
+
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; padding-top: 10px; }
+        
+        .back-btn {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-decoration: none; font-size: 20px;
+            backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .title-block { text-align: right; }
+        .title-block h1 { font-size: 20px; font-weight: 700; color: #fff; }
+        .title-block span { font-size: 11px; color: var(--accent-math); letter-spacing: 1px; text-transform: uppercase; font-weight: 600; display: block; }
+
+        .q-list { display: flex; flex-direction: column; gap: 12px; padding-bottom: 80px; }
+        
+        .q-card {
+            background: var(--card-glass); border: 1px solid var(--card-border);
+            border-radius: 16px; overflow: hidden; transition: all 0.3s ease;
+            backdrop-filter: blur(10px); opacity: 0; animation: slideIn 0.5s ease-out forwards;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .q-card:nth-child(1) { animation-delay: 0.05s; } .q-card:nth-child(2) { animation-delay: 0.1s; }
+
+        .q-header { padding: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .q-tags { display: flex; gap: 6px; margin-bottom: 6px; }
+        .badge { font-size: 9px; font-weight: 700; padding: 3px 6px; border-radius: 4px; color: #000; }
+        .b-prob { background: var(--prob-high); box-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
+        .b-topic { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .q-text { font-size: 14px; color: #fff; font-weight: 500; line-height: 1.4; }
+        
+        .toggle-icon { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 10px; transition: transform 0.3s; flex-shrink: 0; }
+        
+        .q-card.active { border-color: var(--accent-math); background: rgba(0, 242, 254, 0.05); }
+        .q-card.active .toggle-icon { transform: rotate(180deg); background: var(--accent-math); color: #000; }
+        .q-solution { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: rgba(0,0,0,0.3); }
+        .q-card.active .q-solution { max-height: 500px; }
+        .sol-inner { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+        .sol-inner strong { color: #fff; }
+
+        .branding {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 30px;
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);
+        }
+        .b-dot { width: 6px; height: 6px; background: var(--accent-math); border-radius: 50%; }
+        .b-logo { font-weight: 800; color: #fff; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-texture"></div>
+
+    <div id="pageContainer" class="page-enter">
+        
+        <div class="header">
+            <a href="model_paper_2026.html" class="back-btn" onclick="navigate(event, 'model_paper_2026.html')">❮</a>
+            <div class="title-block">
+                <span>Subjective 2026</span>
+                <h1>Math Set 1</h1>
+            </div>
+        </div>
+
+        <div class="q-list">
+            
+            <div style="font-size:11px; color:var(--accent-math); letter-spacing:1px; margin-top:5px;">LONG ANSWER (5 MARKS)</div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">100% Fix</span><span class="badge b-topic">Graph</span></div><div class="q-text">1. Solve graphically: x + 3y = 6 and 2x - 3y = 12.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Points: (0,2), (6,0) & (0,-4), (6,0). Intersect at <strong>(6,0)</strong>.</div></div></div>
+            
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">H & D</span></div><div class="q-text">2. Statue 1.6m tall. Angle of elevation of top 60° & top of pedestal 45°. Find pedestal height.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Ans: <strong>0.8(√3 + 1) m</strong>. (Rationalize 1.6/(√3-1)).</div></div></div>
+            
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">Construction</span></div><div class="q-text">3. Construct triangle sides 5,6,7cm & another 7/5 times of it.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Draw base 7cm. Make triangle. Extend base. Draw ray at acute angle, mark 7 pts. Join 5th to end, draw parallel from 7th.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">Theorem</span></div><div class="q-text">4. State and Prove Pythagoras Theorem.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">In a right triangle, square of hypotenuse equals sum of squares of other two sides. Proof uses similar triangles (AA similarity).</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">Mensuration</span></div><div class="q-text">5. Toy is a cone on hemisphere (r=3.5). Total h=15.5. Find TSA.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Cone h=12, l=12.5. TSA = πrl + 2πr². Ans: <strong>214.5 cm²</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">Statistics</span></div><div class="q-text">6. Find Median: CI 0-10 to 50-60. F: 5, 8, 20, 15, 7, 5.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">N=60. Median class 20-30. Use Formula: L + [(N/2 - cf)/f] × h. Ans: <strong>28.5</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">H & D</span></div><div class="q-text">7. Angle of elevation of building from foot of tower 30°, tower from building 60°. Tower 50m. Find Building.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Ans: <strong>16.66 m</strong> (50/3 m).</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-tags"><span class="badge b-prob">VVI</span><span class="badge b-topic">Theorem</span></div><div class="q-text">8. State and Prove Thales (BPT) Theorem.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">If a line is parallel to one side intersecting others, it divides them in same ratio. Use Area of Triangle method.</div></div></div>
+
+            <div style="font-size:11px; color:var(--accent-math); letter-spacing:1px; margin-top:15px;">SHORT ANSWER (2 MARKS)</div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">9. Prove that 3 + 2√5 is irrational.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Assume rational. Rearrange to √5 = (a/b - 3)/2. RHS is rational, LHS irrational. Contradiction.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">10. Find HCF and LCM of 96 and 404 by prime factorization.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">HCF = 4, LCM = 9696.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">11. Find zeroes of quadratic polynomial x² - 2x - 8.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">(x-4)(x+2)=0. Zeroes are <strong>4, -2</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">12. If zeroes of x² - px + 6 are in ratio 3:2, find p.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Ans: p = <strong>±5</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">13. Solve for x & y: 2x + 3y = 11 and 2x - 4y = -24.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">x = -2, y = 5. (Also find m for y=mx+3, m=-1).</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">14. Find roots of 2x² - 7x + 3 = 0 using Quadratic Formula.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">D = 49 - 24 = 25. Roots: (7±5)/4 → <strong>3, 1/2</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">15. Find 31st term of AP whose 11th term is 38 and 16th is 73.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">a=-32, d=7. t31 = a+30d = <strong>178</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">16. Which term of AP 3, 8, 13, 18... is 78?</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">78 = 3 + (n-1)5. Ans: <strong>16th term</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">17. Find sum of first 1000 positive integers.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">n(n+1)/2 = 1000*1001/2 = <strong>500500</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">18. Prove √((1+sinA)/(1-sinA)) = secA + tanA.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Multiply numerator/denominator by √(1+sinA).</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">19. Evaluate: 2tan²45° + cos²30° - sin²60°.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">2(1)² + (√3/2)² - (√3/2)² = <strong>2</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">20. If tan(A+B)=√3 and tan(A-B)=1/√3, find A and B.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">A+B=60, A-B=30. Ans: <strong>A=45°, B=15°</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">21. Find distance between (2,3) and (4,1).</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">√[(4-2)² + (1-3)²] = √[4+4] = <strong>2√2</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">22. Find ratio in which y-axis divides line joining (5,-6) and (-1,-4).</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Use Section Formula (x=0). Ans: <strong>5:1</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">23. Find area of triangle with vertices (2,3), (-1,0), (2,-4).</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">1/2 |x1(y2-y3)...| Ans: <strong>10.5 sq units</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">24. Prove length of tangents from external point are equal.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">RHS Congruence rule (Radius ⊥ Tangent).</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">25. Two concentric circles radii 5cm, 3cm. Find length of chord of larger circle tangent to smaller.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Pythagoras in half chord triangle (3-4-5). Total length = 2*4 = <strong>8cm</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">26. Find area of sector with radius 6cm and angle 60°.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">(θ/360)πr² = 1/6 * 22/7 * 36. Ans: <strong>132/7 cm²</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">27. Metallic sphere radius 4.2cm melted to cylinder radius 6cm. Find h.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Vol Sphere = Vol Cyl. Ans: <strong>2.74 cm</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">28. Probability of getting a King of Red color from 52 cards.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Red Kings (Heart+Diamond) = 2. Prob = 2/52 = <strong>1/26</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">29. Find Mean of: 10, 25, 15, 12, 18.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Sum = 80, N = 5. Mean = 80/5 = <strong>16</strong>.</div></div></div>
+
+            <div class="q-card" onclick="toggleCard(this)"><div class="q-header"><div><div class="q-text">30. Find Mode of: 2, 6, 4, 5, 0, 2, 1, 3, 2, 3.</div></div><div class="toggle-icon">▼</div></div><div class="q-solution"><div class="sol-inner">Most frequent value is 2. Mode = <strong>2</strong>.</div></div></div>
+
+        </div>
+
+        <div class="branding">
+            <div class="b-dot"></div>
+            <span class="b-logo">Topperwa Official</span>
+        </div>
+
+    </div>
+
+    <script>
+        function navigate(e, url) {
+            e.preventDefault();
+            const container = document.getElementById('pageContainer');
+            container.classList.remove('page-enter');
+            container.classList.add('page-exit');
+            setTimeout(() => {
+                window.location.assign(url);
+            }, 400);
+        }
+
+        function toggleCard(card) {
+            card.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

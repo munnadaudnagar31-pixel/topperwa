@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Chapter 1 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Constitution Blue) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e3f2fd; color: #0d47a1; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #1A2980; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #bbdefb; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #1A2980; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #0d47a1; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #1A2980; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(26, 41, 128, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #1A2980; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="civics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="civics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CIVICS CHAPTER 1 QUESTIONS (लोकतंत्र में सत्ता की साझेदारी) ▼▼▼
+    const questions = [
+        { question: "1. भारत में कहाँ महिलाओं के लिए आरक्षण की व्यवस्था है?", answers: [ { text: "लोकसभा", correct: false }, { text: "विधानसभा", correct: false }, { text: "पंचायती राज व्यवस्था", correct: true }, { text: "मंत्रिमंडल", correct: false } ] },
+        { question: "2. सांप्रदायिक राजनीति किस पर आधारित है?", answers: [ { text: "एक धर्म दूसरे से श्रेष्ठ है", correct: true }, { text: "विभिन्न धर्मों के लोग समान नागरिक हैं", correct: false }, { text: "एक धर्म के अनुयायी एक समुदाय बनाते हैं", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "3. निम्नलिखित व्यक्तियों में कौन लोकतंत्र में रंगभेद के विरोधी नहीं थे?", answers: [ { text: "किंग मार्टिन लूथर", correct: false }, { text: "महात्मा गाँधी", correct: false }, { text: "टोमी स्मिथ एवं जॉन कार्लोस", correct: false }, { text: "जेड गुडी", correct: true } ] },
+        { question: "4. भारतीय संविधान के बारे में इनमें से कौन सा कथन सही है?", answers: [ { text: "यह धर्म के आधार पर भेदभाव की मनाही करता है", correct: true }, { text: "यह एक धर्म को राजकीय धर्म बनाता है", correct: false }, { text: "लोगों को कोई भी धर्म मानने की आजादी नहीं है", correct: false }, { text: "महिलाओं को मतदान के अधिकार का अभाव", correct: false } ] },
+        { question: "5. भारत में सर्वोच्च न्यायालय के मुख्य न्यायाधीश की नियुक्ति कौन करता है?", answers: [ { text: "प्रधानमंत्री", correct: false }, { text: "राष्ट्रपति", correct: true }, { text: "संसद", correct: false }, { text: "उपराष्ट्रपति", correct: false } ] },
+        { question: "6. वित्तीय राजधानी के रूप में जानी जाती है?", answers: [ { text: "बेंगलुरु", correct: false }, { text: "नई दिल्ली", correct: false }, { text: "मुंबई", correct: true }, { text: "पटना", correct: false } ] },
+        { question: "7. जब हम 'लैंगिक विभाजन' की बात करते हैं तो हमारा अभिप्राय होता है?", answers: [ { text: "स्त्री और पुरुष के बीच जैविक अंतर", correct: false }, { text: "समाज द्वारा स्त्रियों और पुरुषों को दी गई असमान भूमिकाएँ", correct: true }, { text: "बालक और बालिकाओं की संख्या का अनुपात", correct: false }, { text: "लोकतांत्रिक व्यवस्था में महिलाओं को मतदान का अधिकार न मिलना", correct: false } ] },
+        { question: "8. भारत में सामाजिक विभाजन है?", answers: [ { text: "जटिल", correct: true }, { text: "सरल", correct: false }, { text: "न के बराबर", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "9. सत्ता में साझेदारी सही है क्योंकि?", answers: [ { text: "यह विविधता को अपने में समेट लेती है", correct: false }, { text: "देश की एकता को कमजोर करती है", correct: false }, { text: "फैसले लेने में देरी करती है", correct: false }, { text: "विभिन्न समुदायों के बीच टकराव कम करती है", correct: true } ] },
+        { question: "10. 'इंडिका' पुस्तक के लेखक कौन हैं?", answers: [ { text: "मेगास्थनीज", correct: true }, { text: "कमल किशोर शर्मा", correct: false }, { text: "एस० एम० सिंह", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "11. श्रीलंका के बहुसंख्यक समुदाय की भाषा क्या है?", answers: [ { text: "हिन्दी", correct: false }, { text: "तमिल", correct: false }, { text: "सिंहली", correct: true }, { text: "मलयालम", correct: false } ] },
+        { question: "12. बेल्जियम में किस शहर के स्कूलों में फ्रेंच बोलने पर रोक लगा दी गई थी?", answers: [ { text: "ब्रूसेल्स", correct: false }, { text: "मर्चटेम", correct: true }, { text: "मोन्स", correct: false }, { text: "नामुर", correct: false } ] },
+        { question: "13. भारत की वित्तीय राजधानी कहलाती है?", answers: [ { text: "पटना", correct: false }, { text: "दिल्ली", correct: false }, { text: "मुंबई", correct: true }, { text: "चेन्नई", correct: false } ] },
+        { question: "14. श्रीलंका कब स्वतंत्र हुआ?", answers: [ { text: "1947", correct: false }, { text: "1948", correct: true }, { text: "1949", correct: false }, { text: "1950", correct: false } ] },
+        { question: "15. अलग-अलग भाषा बोलने वाले लोगों के आधार पर सामुदायिक सरकार का गठन करने का अधिकार किस देश के नागरिकों को दिया गया है?", answers: [ { text: "भारत", correct: false }, { text: "श्रीलंका", correct: false }, { text: "बेल्जियम", correct: true }, { text: "चिली", correct: false } ] },
+        { question: "16. भारत में कृषि क्षेत्र में महिलाओं की भागीदारी है?", answers: [ { text: "50%", correct: false }, { text: "40%", correct: true }, { text: "10%", correct: false }, { text: "20%", correct: false } ] },
+        { question: "17. 15वीं लोकसभा में महिलाओं की भागीदारी थी?", answers: [ { text: "10.86%", correct: true }, { text: "12.20%", correct: false }, { text: "13%", correct: false }, { text: "24%", correct: false } ] },
+        { question: "18. भारत में पंचायती राज संस्थाओं में महिलाओं के लिए कितनी सीटें आरक्षित हैं?", answers: [ { text: "50%", correct: true }, { text: "25%", correct: false }, { text: "33%", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "19. अधिकारों और अवसरों के मामले में महिला को विशेष प्रश्रय देने वाला व्यक्ति क्या कहलाता है?", answers: [ { text: "सांप्रदायिक", correct: false }, { text: "नारीवादी", correct: true }, { text: "धर्मनिरपेक्ष", correct: false }, { text: "उग्रवादी", correct: false } ] },
+        { question: "20. इनमें से कौन-सा देश है जहाँ धार्मिक और जातीय पहचान के आधार पर व्यापक विखंडन का परिणाम भुगतना पड़ा?", answers: [ { text: "भारत", correct: false }, { text: "नीदरलैंड", correct: false }, { text: "यूगोस्लाविया", correct: true }, { text: "बेल्जियम", correct: false } ] },
+        { question: "21. डरबन में नस्लभेदी विरोधी सम्मेलन हुआ?", answers: [ { text: "1980 में", correct: false }, { text: "1990 में", correct: false }, { text: "2001 में", correct: true }, { text: "2009 में", correct: false } ] },
+        { question: "22. भारत में किस तरह के लोकतंत्र की व्यवस्था की गई है?", answers: [ { text: "प्रत्यक्ष", correct: false }, { text: "अप्रत्यक्ष", correct: true }, { text: "दोनों", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "23. भारत एक राष्ट्र है?", answers: [ { text: "धार्मिक", correct: false }, { text: "धर्मनिरपेक्ष", correct: true }, { text: "विकसित", correct: false }, { text: "सांप्रदायिक", correct: false } ] },
+        { question: "24. अंतर्राष्ट्रीय महिला दिवस किस तिथि को मनाया जाता है?", answers: [ { text: "7 मार्च", correct: false }, { text: "8 मार्च", correct: true }, { text: "9 मार्च", correct: false }, { text: "10 मार्च", correct: false } ] },
+        { question: "25. 16वीं लोकसभा में महिला सदस्यों की संख्या कितनी थी?", answers: [ { text: "61", correct: false }, { text: "63", correct: false }, { text: "65", correct: true }, { text: "67", correct: false } ] },
+        { question: "26. असम में बिहारियों पर होने वाले अत्याचार का आधार क्या था?", answers: [ { text: "जातिवाद", correct: false }, { text: "संप्रदायवाद", correct: false }, { text: "क्षेत्रवाद", correct: true }, { text: "लिंग भेद", correct: false } ] },
+        { question: "27. दलित पैंथर्स के कार्यक्रम से निम्नलिखित में कौन संबंधित नहीं है?", answers: [ { text: "जाति प्रथा का उन्मूलन", correct: false }, { text: "दलित सेना का गठन", correct: false }, { text: "औद्योगिक मजदूरों का शोषण से मुक्ति", correct: true }, { text: "भूमिहीन किसानों की उन्नति", correct: false } ] },
+        { question: "28. भारत में संविधान सभा का गठन कब हुआ?", answers: [ { text: "1945", correct: false }, { text: "1946", correct: true }, { text: "1947", correct: false }, { text: "1948", correct: false } ] },
+        { question: "29. किस देश को सामाजिक विभेद के कारण विखंडन का सामना करना पड़ा?", answers: [ { text: "यूगोस्लाविया", correct: true }, { text: "भारत", correct: false }, { text: "बेल्जियम", correct: false }, { text: "श्रीलंका", correct: false } ] },
+        { question: "30. लोकतंत्र जनता का, जनता के द्वारा तथा जनता के लिए शासन है, यह कथन किसका है?", answers: [ { text: "अरस्तू", correct: false }, { text: "अब्राहम लिंकन", correct: true }, { text: "रूसो", correct: false }, { text: "ग्रीन", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "⚖️ शानदार! नागरिक शास्त्र की अच्छी समझ है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर आरक्षण और अनुच्छेदों को याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 इस चैप्टर को और पढ़ें।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

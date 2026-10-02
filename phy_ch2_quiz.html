@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Physics Ch-2 Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL GRADIENT THEME (PHYSICS - PURPLE) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #F3E5F5 0%, #E1BEE7 100%);
+            --header-gradient: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+            --card-bg: #ffffff;
+            --text-main: #2e1a47;
+            --text-sub: #6a4f8a;
+            --option-bg: #F3F0FF;
+            --correct-color: #00C853; /* Green */
+            --wrong-color: #FF1744;   /* Red */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .quiz-header {
+            background: var(--header-gradient); padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+        .close-btn { font-size: 24px; cursor: pointer; text-decoration: none; color: white; opacity: 0.8; }
+        .timer-badge {
+            background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-container { width: 100%; height: 6px; background: rgba(0,0,0,0.05); }
+        .progress-bar { height: 100%; background: #00E676; width: 0%; transition: width 0.3s; }
+
+        /* --- MAIN QUIZ CARD --- */
+        .quiz-container {
+            flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center;
+        }
+
+        .question-card {
+            background: var(--card-bg); width: 100%; max-width: 600px;
+            padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(74, 0, 224, 0.1);
+            animation: slideUp 0.4s ease-out; margin-bottom: 80px;
+        }
+
+        .q-count { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        .question-text { font-size: 18px; font-weight: 700; margin-bottom: 25px; line-height: 1.4; color: #2d3436; }
+
+        /* --- OPTIONS --- */
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .option-btn {
+            background: var(--option-bg); border: 2px solid transparent; padding: 16px 20px;
+            border-radius: 16px; font-size: 15px; color: #444; font-weight: 500; text-align: left;
+            cursor: pointer; transition: 0.2s; position: relative;
+        }
+
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background: #E8F5E9; border-color: var(--correct-color); color: var(--correct-color); font-weight: 700; }
+        .option-btn.wrong { background: #FFEBEE; border-color: var(--wrong-color); color: var(--wrong-color); font-weight: 700; }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* --- FOOTER (NEXT BUTTON) --- */
+        .quiz-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 15px 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            display: flex; justify-content: center;
+        }
+
+        .next-btn {
+            background: var(--header-gradient); color: white; border: none;
+            width: 100%; max-width: 600px; padding: 16px; border-radius: 18px;
+            font-size: 18px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 0, 224, 0.3); transition: 0.2s;
+            display: none;
+        }
+        .next-btn:active { transform: scale(0.98); }
+
+        /* --- RESULT SCREEN --- */
+        .result-screen {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; padding: 30px; animation: fadeIn 0.5s;
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: white; border: 8px solid #6200ea;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .score-num { font-size: 36px; font-weight: 800; color: #4A00E0; }
+        .score-total { font-size: 14px; color: #aaa; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-header" id="header">
+        <a href="physics_chapters.html" class="close-btn">✕</a>
+        <span>Ch-2: Human Eye</span>
+        <div class="timer-badge" id="question-tracker">1/45</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <div class="quiz-container" id="quiz-ui">
+        <div class="question-card">
+            <span class="q-count" id="q-number">Question 1</span>
+            <div class="question-text" id="question-text">Loading...</div>
+            <div class="options-list" id="options-container"></div>
+        </div>
+    </div>
+
+    <div class="result-screen" id="result-ui">
+        <div class="score-circle">
+            <span class="score-num" id="final-score">0</span>
+            <span class="score-total">OUT OF 45</span>
+        </div>
+        <h2 style="color: #4A00E0; margin-bottom: 10px;">Quiz Completed!</h2>
+        <p style="color: #666; margin-bottom: 20px;">You are now an expert on the Human Eye.</p>
+        <a href="physics_chapters.html" class="next-btn" style="display:block; text-align:center; text-decoration:none;">Back to Chapters</a>
+        <br>
+        <div style="cursor:pointer; color:#6200ea; font-weight:600;" onclick="location.reload()">↺ Restart Quiz</div>
+    </div>
+
+    <div class="quiz-footer" id="footer">
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <script>
+        // --- DATA: 45 QUESTIONS (Human Eye & Colourful World) ---
+        const questions = [
+            { q: "The human eye forms the image of an object at its:", o: ["Cornea", "Iris", "Pupil", "Retina"], a: 3 },
+            { q: "The change in focal length of an eye lens is caused by the action of the:", o: ["Pupil", "Retina", "Ciliary muscles", "Iris"], a: 2 },
+            { q: "The least distance of distinct vision for a young adult with normal vision is about:", o: ["25 m", "2.5 cm", "25 cm", "2.5 m"], a: 2 },
+            { q: "The part of the eye which controls the amount of light entering is:", o: ["Iris", "Pupil", "Cornea", "Eye lens"], a: 1 },
+            { q: "The eye lens is a:", o: ["Convex lens", "Concave lens", "Plano-convex lens", "Bifocal lens"], a: 0 },
+            { q: "The power of accommodation of the eye is the ability to adjust the:", o: ["Size of the pupil", "Focal length of the lens", "Size of the retina", "Position of the object"], a: 1 },
+            { q: "The near point of a normal human eye is:", o: ["25 cm", "Infinity", "50 cm", "10 cm"], a: 0 },
+            { q: "The far point of a normal human eye is:", o: ["25 cm", "Infinity", "50 cm", "100 cm"], a: 1 },
+            { q: "A person cannot see distant objects clearly. He is suffering from:", o: ["Hypermetropia", "Myopia", "Presbyopia", "Cataract"], a: 1 },
+            { q: "Myopia is also known as:", o: ["Far-sightedness", "Near-sightedness", "Old-age sight", "Colour blindness"], a: 1 },
+            { q: "Which lens is used to correct Myopia?", o: ["Convex lens", "Concave lens", "Cylindrical lens", "Bifocal lens"], a: 1 },
+            { q: "Hypermetropia is also known as:", o: ["Near-sightedness", "Far-sightedness", "Presbyopia", "Astigmatism"], a: 1 },
+            { q: "Which lens is used to correct Hypermetropia?", o: ["Concave lens", "Convex lens", "Bifocal lens", "Plane lens"], a: 1 },
+            { q: "Presbyopia is usually caused by:", o: ["Elongation of eyeball", "Weakening of ciliary muscles", "Shortening of eyeball", "Clouding of lens"], a: 1 },
+            { q: "A bifocal lens is used to correct:", o: ["Myopia", "Hypermetropia", "Presbyopia", "Astigmatism"], a: 2 },
+            { q: "Cataract is a condition where the eye lens becomes:", o: ["Clear", "Milky and cloudy", "Hard", "Transparent"], a: 1 },
+            { q: "When white light passes through a glass prism, it splits into its constituent colours. This phenomenon is called:", o: ["Reflection", "Refraction", "Dispersion", "Scattering"], a: 2 },
+            { q: "Which colour bends the least when passing through a prism?", o: ["Violet", "Blue", "Red", "Green"], a: 2 },
+            { q: "Which colour bends the most when passing through a prism?", o: ["Red", "Yellow", "Violet", "Blue"], a: 2 },
+            { q: "The band of seven colours obtained on a screen is called:", o: ["Dispersion", "Spectrum", "Rainbow", "Prism"], a: 1 },
+            { q: "The splitting of white light into seven colours occurs because:", o: ["Different colours have different speeds in glass", "Glass absorbs light", "Glass reflects light", "All colours have same speed in glass"], a: 0 },
+            { q: "A rainbow is formed due to:", o: ["Reflection only", "Refraction only", "Dispersion and internal reflection", "Scattering"], a: 2 },
+            { q: "A rainbow is always formed in a direction:", o: ["Opposite to the sun", "Towards the sun", "Vertical to the sun", "Any direction"], a: 0 },
+            { q: "Twinkling of stars is due to:", o: ["Reflection", "Dispersion", "Atmospheric Refraction", "Scattering"], a: 2 },
+            { q: "The stars appear higher in the sky than they actually are due to:", o: ["Scattering of light", "Atmospheric refraction", "Reflection of light", "Total internal reflection"], a: 1 },
+            { q: "The planets do not twinkle because:", o: ["They are far away", "They are point sources", "They are extended sources", "They emit their own light"], a: 2 },
+            { q: "Advance sunrise and delayed sunset is due to:", o: ["Scattering", "Atmospheric Refraction", "Dispersion", "Reflection"], a: 1 },
+            { q: "The time difference between actual sunset and apparent sunset is about:", o: ["2 minutes", "4 minutes", "5 minutes", "10 minutes"], a: 0 },
+            { q: "The path of a beam of light becomes visible in a colloidal solution. This is called:", o: ["Raman Effect", "Tyndall Effect", "Newton's Effect", "Joule's Effect"], a: 1 },
+            { q: "The colour of the clear sky is blue due to:", o: ["Reflection", "Refraction", "Scattering of light", "Dispersion"], a: 2 },
+            { q: "Which colour is scattered the most by fine particles in the atmosphere?", o: ["Red", "Yellow", "Blue", "Green"], a: 2 },
+            { q: "The sun appears red at sunrise and sunset due to:", o: ["Scattering of blue light", "Scattering of red light", "Refraction", "Dispersion"], a: 0 },
+            { q: "If the Earth had no atmosphere, the sky would appear:", o: ["Blue", "Red", "White", "Dark"], a: 3 },
+            { q: "Danger signals are red because:", o: ["Red light is scattered the most", "Red light is scattered the least", "Red light is absorbed by air", "Red is a bright colour"], a: 1 },
+            { q: "The colour of light that travels fastest in glass is:", o: ["Violet", "Red", "Green", "Blue"], a: 1 },
+            { q: "Which part of the eye acts as a photographic film?", o: ["Pupil", "Iris", "Retina", "Cornea"], a: 2 },
+            { q: "The defect of vision in which a person can see distant objects clearly but cannot see nearby objects clearly is:", o: ["Myopia", "Hypermetropia", "Presbyopia", "Astigmatism"], a: 1 },
+            { q: "The focal length of the eye lens increases when eye muscles are:", o: ["Relaxed", "Contracted", "Damaged", "None of these"], a: 0 },
+            { q: "The image formed on the retina is:", o: ["Virtual and erect", "Real and inverted", "Real and erect", "Virtual and inverted"], a: 1 },
+            { q: "The space between the cornea and the eye lens is filled with:", o: ["Aqueous humour", "Vitreous humour", "Air", "Water"], a: 0 },
+            { q: "The space between the eye lens and the retina is filled with:", o: ["Aqueous humour", "Vitreous humour", "Air", "Tears"], a: 1 },
+            { q: "Why do we have two eyes instead of one?", o: ["To look beautiful", "To increase field of view and depth perception", "To see colors", "To protect the brain"], a: 1 },
+            { q: "What is the angle of vision for a normal human being with both eyes?", o: ["90 degrees", "150 degrees", "180 degrees", "360 degrees"], a: 2 },
+            { q: "White light is a mixture of how many colours?", o: ["5", "6", "7", "8"], a: 2 },
+            { q: "During dispersion, the order of colours from bottom to top is:", o: ["VIBGYOR", "ROYGBIV", "RGB", "CMYK"], a: 0 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQuestion = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        const qNumber = document.getElementById('q-number');
+        const qText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const tracker = document.getElementById('question-tracker');
+        const quizUI = document.getElementById('quiz-ui');
+        const resultUI = document.getElementById('result-ui');
+        const footer = document.getElementById('footer');
+
+        loadQuestion();
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = "none";
+            const q = questions[currentQuestion];
+            qNumber.innerText = `Question ${currentQuestion + 1}`;
+            qText.innerText = q.q;
+            tracker.innerText = `${currentQuestion + 1}/${questions.length}`;
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            optionsContainer.innerHTML = "";
+            q.o.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if(isAnswered) return;
+            isAnswered = true;
+            const correctIndex = questions[currentQuestion].a;
+            const allOptions = optionsContainer.children;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allOptions[correctIndex].classList.add('correct');
+            }
+
+            for (let i = 0; i < allOptions.length; i++) {
+                allOptions[i].classList.add('disabled');
+            }
+
+            nextBtn.style.display = "block";
+            footer.scrollIntoView({behavior: "smooth"});
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+                quizUI.scrollTop = 0;
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            quizUI.style.display = 'none';
+            footer.style.display = 'none';
+            document.getElementById('header').style.display = 'none';
+            document.querySelector('.progress-container').style.display = 'none';
+            resultUI.style.display = 'flex';
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>

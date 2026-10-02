@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Predicted Questions 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF4B2B; /* Changed to Orange/Red for "Hot/VVI" feel */
+            --secondary: #FF416C;
+            --correct: #00e676;
+            --wrong: #ff1744;
+            --text: #1B2559;
+            --card: #ffffff;
+            --bg: #FFF5F5; /* Light reddish bg */
+        }
+
+        .dark-mode {
+            --primary: #FF416C;
+            --secondary: #FF4B2B;
+            --text: #ffffff;
+            --card: #1A1A2E;
+            --bg: #0F0F1A;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; transition: 0.3s; }
+
+        .quiz-container { max-width: 600px; margin: 0 auto; padding-bottom: 50px; }
+
+        /* Header */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; }
+        .back-btn { font-size: 24px; text-decoration: none; color: var(--text); cursor: pointer; background: var(--card); width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .timer-box { 
+            background: var(--card); padding: 8px 15px; border-radius: 20px; 
+            font-weight: 700; color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Progress Bar */
+        .progress-container { width: 100%; height: 8px; background: rgba(0,0,0,0.1); border-radius: 10px; margin-bottom: 30px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--secondary), var(--primary)); transition: width 0.3s ease; }
+
+        /* Question Card */
+        .question-card {
+            background: var(--card); border-radius: 24px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(255, 75, 43, 0.15); margin-bottom: 20px;
+            animation: slideIn 0.4s ease; border: 1px solid rgba(0,0,0,0.05);
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .q-tag { 
+            display: inline-block; background: rgba(255, 65, 108, 0.1); color: var(--primary); 
+            padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; margin-bottom: 15px;
+        }
+        .question-text { font-size: 16px; font-weight: 600; line-height: 1.5; margin-bottom: 25px; }
+
+        /* Options */
+        .options-grid { display: grid; gap: 12px; }
+        .option-btn {
+            width: 100%; padding: 16px; border: 2px solid rgba(0,0,0,0.05); border-radius: 16px;
+            background: var(--bg); text-align: left; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; position: relative; color: var(--text);
+        }
+        .option-btn:hover { border-color: var(--primary); }
+        
+        /* Answer States */
+        .option-btn.correct { background: rgba(0, 230, 118, 0.2); border-color: var(--correct); color: var(--correct); font-weight: 700; }
+        .option-btn.wrong { background: rgba(255, 23, 68, 0.2); border-color: var(--wrong); color: var(--wrong); }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* Next Button */
+        .next-btn {
+            width: 100%; padding: 18px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; border: none; border-radius: 18px; font-size: 16px; font-weight: 700;
+            margin-top: 25px; cursor: pointer; box-shadow: 0 10px 20px rgba(255, 75, 43, 0.3);
+            display: none;
+        }
+
+        /* Result Screen */
+        .result-box {
+            text-align: center; display: none; padding: 40px 20px;
+            background: var(--card); border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .score-circle {
+            width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; display: flex; justify-content: center; align-items: center;
+            font-size: 36px; font-weight: 800; margin: 0 auto 20px auto;
+            box-shadow: 0 10px 25px rgba(255, 75, 43, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quizPanel">
+        <div class="header">
+            <a href="most_expected_questions.html" class="back-btn">❮</a>
+            <h3 style="font-weight:700;">Predicted Questions</h3>
+            <div class="timer-box">⏱ <span id="timer">00:00</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="question-card" id="questionCard">
+            <span class="q-tag">Question <span id="qNum">1</span> / 80</span>
+            <h2 class="question-text" id="questionText">Loading...</h2>
+            
+            <div class="options-grid" id="optionsContainer">
+                </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question ➜</button>
+        </div>
+    </div>
+
+    <div class="quiz-container" id="resultPanel" style="display: none;">
+        <div class="result-box">
+            <div class="score-circle">
+                <span id="finalScore">0</span>%
+            </div>
+            <h2 style="margin-bottom: 10px;">Analysis Complete!</h2>
+            <p style="color:#8F9BBA; margin-bottom: 30px;">These questions are highly likely to appear in 2026.</p>
+            <p id="rawScore" style="margin-bottom: 20px; font-weight:600; font-size: 18px;"></p>
+            
+            <button onclick="location.reload()" class="next-btn" style="display:block; margin-bottom:15px;">🔄 Replay Quiz</button>
+            <a href="index.html" class="next-btn" style="display:block; background:transparent; color:var(--text); border:2px solid rgba(0,0,0,0.1); box-shadow:none;">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Check Theme
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // --- 80 PREDICTED/RELATED QUESTIONS (Based on Model Paper Topics) ---
+        const questions = [
+            // --- PHYSICS (Light) ---
+            { q: "The image formed by a plane mirror is always:", options: ["Real and erect", "Real and inverted", "Virtual and erect", "Virtual and inverted"], correct: 2 },
+            { q: "Which mirror is used as a rear-view mirror in vehicles?", options: ["Concave mirror", "Convex mirror", "Plane mirror", "None of these"], correct: 1 },
+            { q: "Relation between Refractive Index (μ) and speed of light is:", options: ["μ = c/v", "μ = v/c", "μ = c × v", "None"], correct: 0 },
+            { q: "Twinkling of stars is caused by:", options: ["Reflection", "Dispersion", "Atmospheric Refraction", "Scattering"], correct: 2 },
+            { q: "The danger signal is red because red color has:", options: ["Minimum scattering", "Maximum scattering", "Minimum wavelength", "None"], correct: 0 },
+            { q: "Which lens forms only virtual images?", options: ["Convex lens", "Concave lens", "Bifocal lens", "None"], correct: 1 },
+            { q: "S.I. Unit of Power of a lens is:", options: ["Meter", "Diopter", "Watt", "Centimeter"], correct: 1 },
+            { q: "The human eye forms the image of an object at its:", options: ["Cornea", "Iris", "Pupil", "Retina"], correct: 3 },
+            { q: "Least distance of distinct vision for a normal eye is:", options: ["25 m", "2.5 cm", "25 cm", "2.5 m"], correct: 2 },
+            { q: "The color of the sky appears blue due to:", options: ["Reflection", "Refraction", "Scattering", "Dispersion"], correct: 2 },
+            
+            // --- PHYSICS (Electricity & Magnetism) ---
+            { q: "S.I. unit of Electric Current is:", options: ["Volt", "Coulomb", "Ampere", "Ohm"], correct: 2 },
+            { q: "Instrument used to measure electric current is:", options: ["Voltmeter", "Ammeter", "Galvanometer", "Potentiometer"], correct: 1 },
+            { q: "Fuse wire is made of an alloy of:", options: ["Cu and Zn", "Pb and Sn", "Cu and Sn", "Pb and Zn"], correct: 1 },
+            { q: "1 kWh (Kilowatt-hour) is equal to:", options: ["3.6 × 10^6 J", "3.6 × 10^5 J", "3.6 J", "3600 J"], correct: 0 },
+            { q: "Filament of an electric bulb is made of:", options: ["Copper", "Tungsten", "Nichrome", "Aluminum"], correct: 1 },
+            { q: "Who gave the Right Hand Thumb Rule?", options: ["Oersted", "Maxwell", "Fleming", "Faraday"], correct: 1 },
+            { q: "Which device converts Electrical energy into Mechanical energy?", options: ["Generator", "Motor", "Dynamo", "Battery"], correct: 1 },
+            { q: "Frequency of AC supply in India is:", options: ["45 Hz", "50 Hz", "60 Hz", "100 Hz"], correct: 1 },
+            { q: "Which of the following is not a biomass energy source?", options: ["Wood", "Nuclear energy", "Gobar gas", "Coal"], correct: 1 },
+            { q: "The ultimate source of energy for us is:", options: ["Sun", "Water", "Fossil fuels", "Uranium"], correct: 0 },
+            
+            // --- CHEMISTRY (Reactions & Acids/Bases) ---
+            { q: "What happens when Magnesium ribbon is burnt in air?", options: ["MgO is formed", "MgCO3 is formed", "MgH2 is formed", "No reaction"], correct: 0 },
+            { q: "Reaction: Zn + CuSO4 → ZnSO4 + Cu is an example of:", options: ["Combination", "Displacement", "Decomposition", "Double Displacement"], correct: 1 },
+            { q: "The pH value of pure water is:", options: ["0", "14", "7", "1"], correct: 2 },
+            { q: "Acid found in Tomato is:", options: ["Acetic acid", "Citric acid", "Oxalic acid", "Tartaric acid"], correct: 2 },
+            { q: "Chemical formula of Washing Soda is:", options: ["Na2CO3.10H2O", "NaHCO3", "Na2CO3", "NaOH"], correct: 0 },
+            { q: "Chemical formula of Baking Soda is:", options: ["Na2CO3", "NaHCO3", "CaCO3", "NH4Cl"], correct: 1 },
+            { q: "Solution turning Blue Litmus Red is:", options: ["Acidic", "Basic", "Neutral", "None"], correct: 0 },
+            { q: "Gas released when metals react with acids:", options: ["Oxygen", "Nitrogen", "Hydrogen", "Carbon dioxide"], correct: 2 },
+            { q: "Tooth enamel is made of:", options: ["Calcium Carbonate", "Calcium Phosphate", "Calcium Oxide", "Calcium Carbide"], correct: 1 },
+            { q: "Common name of CaOCl2 is:", options: ["Baking Soda", "Washing Soda", "Bleaching Powder", "Gypsum"], correct: 2 },
+
+            // --- CHEMISTRY (Metals & Carbon) ---
+            { q: "Which metal is liquid at room temperature?", options: ["Sodium", "Mercury", "Zinc", "Aluminum"], correct: 1 },
+            { q: "Most ductile metal is:", options: ["Gold", "Silver", "Iron", "Copper"], correct: 0 },
+            { q: "Cinnabar is an ore of:", options: ["Copper", "Mercury", "Zinc", "Iron"], correct: 1 },
+            { q: "Bronze is an alloy of:", options: ["Cu + Zn", "Cu + Sn", "Pb + Sn", "Fe + C"], correct: 1 },
+            { q: "Functional group -CHO represents:", options: ["Alcohol", "Aldehyde", "Ketone", "Carboxylic Acid"], correct: 1 },
+            { q: "Functional group -COOH represents:", options: ["Ketone", "Aldehyde", "Carboxylic Acid", "Ether"], correct: 2 },
+            { q: "General formula of Alkanes is:", options: ["CnH2n", "CnH2n+2", "CnH2n-2", "CnH2n+1"], correct: 1 },
+            { q: "Main component of CNG is:", options: ["Butane", "Methane", "Propane", "Ethane"], correct: 1 },
+            { q: "Atomic number of Carbon is:", options: ["4", "6", "8", "12"], correct: 1 },
+            { q: "Which form of Carbon is a good conductor of electricity?", options: ["Diamond", "Graphite", "Buckminsterfullerene", "Coal"], correct: 1 },
+
+            // --- CHEMISTRY (Periodic Table) ---
+            { q: "Modern Periodic Table is based on:", options: ["Atomic Mass", "Atomic Number", "Neutron Number", "None"], correct: 1 },
+            { q: "Number of Groups in Modern Periodic Table:", options: ["7", "9", "18", "8"], correct: 2 },
+            { q: "Halogens belong to which Group?", options: ["Group 1", "Group 2", "Group 17", "Group 18"], correct: 2 },
+            { q: "Which is the most electronegative element?", options: ["Chlorine", "Fluorine", "Oxygen", "Nitrogen"], correct: 1 },
+            { q: "Valency of Inert Gases is:", options: ["1", "2", "8", "0"], correct: 3 },
+
+            // --- BIOLOGY (Life Processes) ---
+            { q: "Site of Photosynthesis in plant cells:", options: ["Mitochondria", "Chloroplast", "Ribosome", "Nucleus"], correct: 1 },
+            { q: "Green color of leaves is due to:", options: ["Haemoglobin", "Xanthophyll", "Chlorophyll", "Carotene"], correct: 2 },
+            { q: "Breakdown of Glucose into Pyruvate occurs in:", options: ["Mitochondria", "Cytoplasm", "Nucleus", "Lungs"], correct: 1 },
+            { q: "In humans, kidney is a part of:", options: ["Nutrition", "Respiration", "Excretion", "Transportation"], correct: 2 },
+            { q: "Xylem in plants is responsible for:", options: ["Transport of water", "Transport of food", "Transport of amino acids", "Transport of oxygen"], correct: 0 },
+            { q: "Phloem is responsible for:", options: ["Transport of water", "Transport of food", "Transport of minerals", "None"], correct: 1 },
+            { q: "The structural and functional unit of Kidney is:", options: ["Neuron", "Nephron", "Alveoli", "Villi"], correct: 1 },
+            { q: "Exchange of gases in lungs occurs in:", options: ["Trachea", "Bronchi", "Alveoli", "Diaphragm"], correct: 2 },
+            { q: "Which blood cell fights against infection?", options: ["RBC", "WBC", "Platelets", "Plasma"], correct: 1 },
+            { q: "Normal blood pressure of a healthy human is:", options: ["120/80 mm Hg", "80/120 mm Hg", "100/60 mm Hg", "140/90 mm Hg"], correct: 0 },
+
+            // --- BIOLOGY (Control & Coordination) ---
+            { q: "The gap between two neurons is called:", options: ["Dendrite", "Synapse", "Axon", "Impulse"], correct: 1 },
+            { q: "Master gland of the human body is:", options: ["Thyroid", "Adrenal", "Pituitary", "Pancreas"], correct: 2 },
+            { q: "Insulin is secreted by:", options: ["Liver", "Pancreas", "Stomach", "Gall bladder"], correct: 1 },
+            { q: "Deficiency of Iodine causes:", options: ["Diabetes", "Goitre", "Scurvy", "Rickets"], correct: 1 },
+            { q: "Which hormone is responsible for fight or flight?", options: ["Adrenaline", "Thyroxin", "Insulin", "Growth Hormone"], correct: 0 },
+            { q: "Center of intelligence and memory in brain is:", options: ["Cerebellum", "Medulla", "Cerebrum", "Pons"], correct: 2 },
+            { q: "Which plant hormone inhibits growth?", options: ["Auxin", "Gibberellin", "Cytokinin", "Abscisic Acid"], correct: 3 },
+            { q: "Movement of plant towards light is called:", options: ["Geotropism", "Phototropism", "Hydrotropism", "Chemotropism"], correct: 1 },
+            
+            // --- BIOLOGY (Reproduction & Heredity) ---
+            { q: "Asexual reproduction in Amoeba takes place by:", options: ["Budding", "Binary Fission", "Spore Formation", "Regeneration"], correct: 1 },
+            { q: "The site of fertilization in humans is:", options: ["Uterus", "Ovary", "Fallopian Tube", "Vagina"], correct: 2 },
+            { q: "The number of chromosomes in human body cells is:", options: ["23", "46", "22", "44"], correct: 1 },
+            { q: "Who is known as the Father of Genetics?", options: ["Darwin", "Lamarck", "Mendel", "Khorana"], correct: 2 },
+            { q: "Genotypic ratio of a Monohybrid cross is:", options: ["3:1", "1:2:1", "9:3:3:1", "1:1"], correct: 1 },
+            { q: "Sex of a child depends on:", options: ["Mother", "Father", "Both", "None"], correct: 1 },
+            { q: "Which part of the flower becomes the fruit?", options: ["Ovule", "Ovary", "Stamen", "Petal"], correct: 1 },
+            { q: "Which part of the flower becomes the seed?", options: ["Ovule", "Ovary", "Stigma", "Style"], correct: 0 },
+            
+            // --- BIOLOGY (Environment) ---
+            { q: "Which gas is responsible for Global Warming?", options: ["O2", "N2", "CO2", "H2"], correct: 2 },
+            { q: "Ozone layer protects us from:", options: ["Infrared rays", "Ultraviolet rays", "X-rays", "Gamma rays"], correct: 1 },
+            { q: "Energy flow in an ecosystem is:", options: ["Unidirectional", "Bidirectional", "Multidirectional", "Cyclic"], correct: 0 },
+            { q: "In a food chain, plants are:", options: ["Producers", "Consumers", "Decomposers", "None"], correct: 0 },
+            { q: "Which of the following is biodegradable?", options: ["Plastic", "Glass", "Vegetable Peels", "DDT"], correct: 2 },
+            { q: "The 10% law of energy transfer was given by:", options: ["Mendel", "Lindeman", "Darwin", "Tansley"], correct: 1 },
+            { q: "Depletion of Ozone layer is mainly due to:", options: ["CFCs", "Methane", "CO2", "SO2"], correct: 0 }
+        ];
+
+        // --- LOGIC ---
+        let currentQ = 0;
+        let score = 0;
+        let timerSeconds = 0;
+        let timerInterval;
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                let mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+                let secs = (timerSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('qNum').innerText = currentQ + 1;
+            document.getElementById('questionText').innerText = q.q;
+            
+            // Update Progress Bar
+            let progress = ((currentQ) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = ''; 
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(btn => btn.classList.add('disabled'));
+
+            const correctIndex = questions[currentQ].correct;
+
+            if (selectedIndex === correctIndex) {
+                btnElement.classList.add('correct');
+                score++;
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns[correctIndex].classList.add('correct');
+            }
+
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            clearInterval(timerInterval);
+            document.getElementById('quizPanel').style.display = 'none';
+            document.getElementById('resultPanel').style.display = 'block';
+            
+            let percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('finalScore').innerText = percentage;
+            document.getElementById('rawScore').innerText = `You scored ${score} out of ${questions.length}`;
+        }
+
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+
+    </script>
+</body>
+</html>

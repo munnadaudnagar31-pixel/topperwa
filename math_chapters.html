@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+    <title>Math Chapters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROFESSIONAL MATH THEME (BLUE) --- */
+        :root {
+            --bg-gradient: linear-gradient(180deg, #F0F4F8 0%, #E1E8EE 100%);
+            --header-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --text-main: #1e3c72;
+            --text-sub: #546e7a;
+            --card-bg: #ffffff;
+            --card-shadow: 0 10px 20px rgba(30, 60, 114, 0.1);
+            --num-gradient: linear-gradient(135deg, #00C6FF 0%, #0072FF 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        .dark-mode {
+            --bg-gradient: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            --header-gradient: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+            --text-main: #e2e8f0;
+            --text-sub: #90caf9;
+            --card-bg: #1e293b;
+            --card-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            --num-gradient: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-gradient); color: var(--text-main); min-height: 100vh;
+            overflow-y: scroll; transition: 0.3s;
+        }
+
+        /* --- HEADER --- */
+        .app-header {
+            background: var(--header-gradient); padding: 25px 25px 45px 25px;
+            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            box-shadow: 0 15px 30px rgba(30, 60, 114, 0.25); 
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; gap: 15px; color: white;
+        }
+
+        .back-btn {
+            width: 42px; height: 42px; background: var(--glass-bg); border-radius: 14px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            border: 1px solid var(--glass-border); backdrop-filter: blur(10px); font-size: 20px;
+            text-decoration: none; color: white; transition: transform 0.2s;
+        }
+        .back-btn:active { transform: scale(0.9); }
+
+        .header-title h1 { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: 0.5px; }
+        .header-title p { font-size: 13px; opacity: 0.9; margin: 0; font-weight: 500; }
+
+        .theme-toggle {
+            margin-left: auto; width: 42px; height: 42px; background: var(--glass-bg);
+            border-radius: 14px; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
+        }
+
+        /* --- CHAPTER LIST --- */
+        .container { padding: 20px; margin-top: -30px; padding-bottom: 40px; }
+
+        .chapter-card {
+            background: var(--card-bg); border-radius: 24px; padding: 15px 20px;
+            margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--card-shadow); text-decoration: none; color: var(--text-main);
+            animation: slideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px);
+            border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        /* Staggered Animation for 15 items */
+        .chapter-card:nth-child(1) { animation-delay: 0.05s; }
+        .chapter-card:nth-child(2) { animation-delay: 0.1s; }
+        .chapter-card:nth-child(3) { animation-delay: 0.15s; }
+        .chapter-card:nth-child(4) { animation-delay: 0.2s; }
+        .chapter-card:nth-child(5) { animation-delay: 0.25s; }
+        .chapter-card:nth-child(6) { animation-delay: 0.3s; }
+        .chapter-card:nth-child(7) { animation-delay: 0.35s; }
+        .chapter-card:nth-child(8) { animation-delay: 0.4s; }
+        .chapter-card:nth-child(9) { animation-delay: 0.45s; }
+        .chapter-card:nth-child(10) { animation-delay: 0.5s; }
+        .chapter-card:nth-child(11) { animation-delay: 0.55s; }
+        .chapter-card:nth-child(12) { animation-delay: 0.6s; }
+        .chapter-card:nth-child(13) { animation-delay: 0.65s; }
+        .chapter-card:nth-child(14) { animation-delay: 0.7s; }
+        .chapter-card:nth-child(15) { animation-delay: 0.75s; }
+
+        .chapter-card:active { transform: scale(0.97); }
+
+        .ch-left { display: flex; align-items: center; gap: 18px; }
+        
+        .ch-num {
+            background: var(--num-gradient); color: white; width: 50px; height: 50px;
+            border-radius: 16px; display: flex; justify-content: center; align-items: center;
+            font-weight: 700; font-size: 18px; flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0, 198, 255, 0.3);
+        }
+
+        .ch-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+        .ch-info span { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+
+        .play-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; 
+            color: #ccc; font-size: 14px; border: 2px solid #eee;
+            transition: 0.3s;
+        }
+        .chapter-card:active .play-icon {
+            background: #0072FF; color: white; border-color: #0072FF;
+        }
+
+        @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <a href="index.html" class="back-btn">←</a>
+        <div class="header-title">
+            <h1>Mathematics</h1>
+            <p>Class 10 • 15 Chapters</p>
+        </div>
+        <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+    </div>
+
+    <div class="container">
+        
+        <a href="math_ch1_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">01</div>
+                <div class="ch-info">
+                    <span>Chapter 1</span>
+                    <h3>Real Numbers</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch2_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">02</div>
+                <div class="ch-info">
+                    <span>Chapter 2</span>
+                    <h3>Polynomials</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch3_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">03</div>
+                <div class="ch-info">
+                    <span>Chapter 3</span>
+                    <h3>Linear Equations</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch4_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">04</div>
+                <div class="ch-info">
+                    <span>Chapter 4</span>
+                    <h3>Quadratic Equations</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch5_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">05</div>
+                <div class="ch-info">
+                    <span>Chapter 5</span>
+                    <h3>Arithmetic Progressions</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch6_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">06</div>
+                <div class="ch-info">
+                    <span>Chapter 6</span>
+                    <h3>Triangles</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch7_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">07</div>
+                <div class="ch-info">
+                    <span>Chapter 7</span>
+                    <h3>Coordinate Geometry</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch8_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">08</div>
+                <div class="ch-info">
+                    <span>Chapter 8</span>
+                    <h3>Intro to Trigonometry</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch9_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">09</div>
+                <div class="ch-info">
+                    <span>Chapter 9</span>
+                    <h3>Applications of Trig.</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch10_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">10</div>
+                <div class="ch-info">
+                    <span>Chapter 10</span>
+                    <h3>Circles</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch11_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">11</div>
+                <div class="ch-info">
+                    <span>Chapter 11</span>
+                    <h3>Constructions</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch12_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">12</div>
+                <div class="ch-info">
+                    <span>Chapter 12</span>
+                    <h3>Areas Related to Circles</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch13_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">13</div>
+                <div class="ch-info">
+                    <span>Chapter 13</span>
+                    <h3>Surface Areas & Volumes</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch14_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">14</div>
+                <div class="ch-info">
+                    <span>Chapter 14</span>
+                    <h3>Statistics</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+        <a href="math_ch15_quiz.html" class="chapter-card">
+            <div class="ch-left">
+                <div class="ch-num">15</div>
+                <div class="ch-info">
+                    <span>Chapter 15</span>
+                    <h3>Probability</h3>
+                </div>
+            </div>
+            <div class="play-icon">▶</div>
+        </a>
+
+    </div>
+
+    <script>
+        // Check theme on load
+        if(localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle').textContent = "☀️";
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.querySelector('.theme-toggle').textContent = isDark ? "☀️" : "🌙";
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+    </script>
+
+</body>
+</html>

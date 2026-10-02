@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Chapter 2 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Harvest Gold & Green) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #f09819 0%, #edde5d 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #fffde7; color: #fbc02d; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #fbc02d; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #fff9c4; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #fbc02d; color: black; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #f9a825; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #fbc02d; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(251, 192, 45, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #fbc02d; color: black; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">15:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="geography_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="geography_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 15;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ GEOGRAPHY CHAPTER 2 QUESTIONS (कृषि) ▼▼▼
+    const questions = [
+        { question: "1. इनमें से कौन-सी रबी की फसल है?", answers: [ { text: "चावल", correct: false }, { text: "कपास", correct: false }, { text: "मोटे अनाज", correct: false }, { text: "चना", correct: true } ] },
+        { question: "2. किस फसल को 'उजला सोना' कहा जाता है?", answers: [ { text: "गन्ना", correct: false }, { text: "कपास", correct: true }, { text: "जूट", correct: false }, { text: "चाय", correct: false } ] },
+        { question: "3. किस फसल को 'सुनहरा रेशा' कहा जाता है?", answers: [ { text: "जूट", correct: true }, { text: "तंबाकू", correct: false }, { text: "कपास", correct: false }, { text: "रबर", correct: false } ] },
+        { question: "4. निम्नलिखित में कौन-सी खरीफ फसल है?", answers: [ { text: "गेहूँ", correct: false }, { text: "सरसों", correct: false }, { text: "चावल", correct: true }, { text: "मटर", correct: false } ] },
+        { question: "5. भारत का नारियल प्रदेश किसे कहा जाता है?", answers: [ { text: "केरल", correct: true }, { text: "कर्नाटक", correct: false }, { text: "ओडिशा", correct: false }, { text: "पश्चिम बंगाल", correct: false } ] },
+        { question: "6. इनमें से कौन रोपण फसल नहीं है?", answers: [ { text: "गेहूँ", correct: true }, { text: "गन्ना", correct: false }, { text: "चाय", correct: false }, { text: "रबर", correct: false } ] },
+        { question: "7. भारत की प्रमुख खाद्य फसल कौन-सी है?", answers: [ { text: "गेहूँ", correct: false }, { text: "मक्का", correct: false }, { text: "जौ", correct: false }, { text: "धान (चावल)", correct: true } ] },
+        { question: "8. बिहार में कितना प्रतिशत क्षेत्र में खेती की जाती है?", answers: [ { text: "50%", correct: false }, { text: "60%", correct: true }, { text: "80%", correct: false }, { text: "36.5%", correct: false } ] },
+        { question: "9. भारत में सबसे अधिक चाय का निर्यात किस पत्तन से किया जाता है?", answers: [ { text: "कोच्चि", correct: false }, { text: "पारादीप", correct: false }, { text: "चेन्नई", correct: false }, { text: "कोलकाता", correct: true } ] },
+        { question: "10. भारत में सबसे अधिक गेहूँ उत्पादन करने वाला राज्य कौन है?", answers: [ { text: "उत्तर प्रदेश", correct: true }, { text: "पंजाब", correct: false }, { text: "हरियाणा", correct: false }, { text: "मध्य प्रदेश", correct: false } ] },
+        { question: "11. जूट के उत्पादन में कौन राज्य सबसे आगे है?", answers: [ { text: "बिहार", correct: false }, { text: "असम", correct: false }, { text: "ओडिशा", correct: false }, { text: "पश्चिम बंगाल", correct: true } ] },
+        { question: "12. दाल किस पौष्टिक अंश का स्रोत है?", answers: [ { text: "कार्बोहाइड्रेट", correct: false }, { text: "प्रोटीन", correct: true }, { text: "विटामिन-डी", correct: false }, { text: "वसा", correct: false } ] },
+        { question: "13. दक्षिण भारत में सबसे अधिक गन्ना उत्पन्न करने वाला राज्य कौन है?", answers: [ { text: "आंध्र प्रदेश", correct: false }, { text: "ओडिशा", correct: false }, { text: "महाराष्ट्र", correct: true }, { text: "तमिलनाडु", correct: false } ] },
+        { question: "14. मूंगफली का सबसे बड़ा उत्पादक राज्य कौन है?", answers: [ { text: "बिहार", correct: false }, { text: "महाराष्ट्र", correct: false }, { text: "गुजरात", correct: true }, { text: "कर्नाटक", correct: false } ] },
+        { question: "15. भारत में कितना प्रतिशत आय कृषि से प्राप्त होती है?", answers: [ { text: "20%", correct: false }, { text: "24%", correct: true }, { text: "30%", correct: false }, { text: "35%", correct: false } ] },
+        { question: "16. ऑपरेशन फ्लड (Operation Flood) का संबंध किससे है?", answers: [ { text: "बाढ़ नियंत्रण", correct: false }, { text: "दुग्ध उत्पादन", correct: true }, { text: "गेहूँ उत्पादन", correct: false }, { text: "जल संरक्षण", correct: false } ] },
+        { question: "17. 'हरित क्रांति' का सबसे अधिक प्रभाव किस फसल पर पड़ा?", answers: [ { text: "धान", correct: false }, { text: "तिलहन", correct: false }, { text: "गेहूँ", correct: true }, { text: "ज्वार", correct: false } ] },
+        { question: "18. धान की खेती के लिए वर्षा की मात्रा कितनी होनी चाहिए?", answers: [ { text: "75 सेमी", correct: false }, { text: "100-200 सेमी", correct: true }, { text: "50 सेमी", correct: false }, { text: "200 सेमी से अधिक", correct: false } ] },
+        { question: "19. कपास की खेती के लिए सबसे उपयुक्त मिट्टी कौन-सी है?", answers: [ { text: "जलोढ़", correct: false }, { text: "लाल", correct: false }, { text: "काली", correct: true }, { text: "पर्वतीय", correct: false } ] },
+        { question: "20. भारत में कहवा (Coffee) का सबसे बड़ा उत्पादक राज्य है?", answers: [ { text: "कर्नाटक", correct: true }, { text: "तमिलनाडु", correct: false }, { text: "केरल", correct: false }, { text: "आंध्र प्रदेश", correct: false } ] },
+        { question: "21. निम्नलिखित में कौन पेय फसल है?", answers: [ { text: "तंबाकू", correct: false }, { text: "कॉफी", correct: true }, { text: "चना", correct: false }, { text: "मूंगफली", correct: false } ] },
+        { question: "22. दूध के उत्पादन में भारत का विश्व में कौन-सा स्थान है?", answers: [ { text: "प्रथम", correct: true }, { text: "द्वितीय", correct: false }, { text: "तृतीय", correct: false }, { text: "चतुर्थ", correct: false } ] },
+        { question: "23. जायद फसल का उत्पादन किस मौसम में होता है?", answers: [ { text: "गर्मी", correct: true }, { text: "बरसात", correct: false }, { text: "जाड़ा", correct: false }, { text: "वसंत", correct: false } ] },
+        { question: "24. इनमें कौन भारतीय उपमहाद्वीप का 'सुनहरा रेशा' कहलाता है?", answers: [ { text: "चावल", correct: false }, { text: "गेहूँ", correct: false }, { text: "जूट", correct: true }, { text: "कपास", correct: false } ] },
+        { question: "25. अंगूर की खेती मुख्य रूप से कहाँ होती है?", answers: [ { text: "बिहार", correct: false }, { text: "महाराष्ट्र", correct: true }, { text: "केरल", correct: false }, { text: "पंजाब", correct: false } ] },
+        { question: "26. निम्न में से कौन-सी एक खरीफ की फसल है?", answers: [ { text: "जौ", correct: false }, { text: "चना", correct: false }, { text: "चावल", correct: true }, { text: "गेहूँ", correct: false } ] },
+        { question: "27. स्थानांतरी कृषि को पूर्वोत्तर भारत में किस नाम से जाना जाता है?", answers: [ { text: "झूम", correct: true }, { text: "दहिया", correct: false }, { text: "दीपा", correct: false }, { text: "खिल", correct: false } ] },
+        { question: "28. सरकार निम्नलिखित में से कौन-सी घोषणा फसलों को सहायता देने के लिए करती है?", answers: [ { text: "अधिकतम सहायता मूल्य", correct: false }, { text: "मध्यम सहायता मूल्य", correct: false }, { text: "न्यूनतम समर्थन मूल्य (MSP)", correct: true }, { text: "प्रभावी सहायता मूल्य", correct: false } ] },
+        { question: "29. चाय के उत्पादन में भारत का विश्व में स्थान है?", answers: [ { text: "प्रथम", correct: false }, { text: "द्वितीय", correct: true }, { text: "तृतीय", correct: false }, { text: "चतुर्थ", correct: false } ] },
+        { question: "30. रेशम के कीड़े पालने को क्या कहते हैं?", answers: [ { text: "सेरीकल्चर", correct: true }, { text: "पीसीकल्चर", correct: false }, { text: "विटीकल्चर", correct: false }, { text: "हॉर्टिकल्चर", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "🌾 बहुत बढ़िया! कृषि चैप्टर पर आपकी अच्छी पकड़ है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, रबी और खरीफ फसलों में अंतर याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 इस चैप्टर को और पढ़ने की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civics Chapter 2 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Constitution Blue) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e3f2fd; color: #0d47a1; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #1A2980; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #bbdefb; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #1A2980; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #0d47a1; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #1A2980; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(26, 41, 128, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #1A2980; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">12:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="civics_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="civics_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 12;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CIVICS CHAPTER 2 QUESTIONS (सत्ता में साझेदारी की कार्यप्रणाली) ▼▼▼
+    const questions = [
+        { question: "1. संघ राज्य की विशेषता नहीं है?", answers: [ { text: "लिखित संविधान", correct: false }, { text: "शक्तियों का विभाजन", correct: false }, { text: "इकहरी शासन व्यवस्था", correct: true }, { text: "सर्वोच्च न्यायपालिका", correct: false } ] },
+        { question: "2. संघ सरकार का उदाहरण है?", answers: [ { text: "अमेरिका", correct: true }, { text: "चीन", correct: false }, { text: "ब्रिटेन", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "3. भारत में संघ एवं राज्यों के बीच अधिकारों का विभाजन कितनी सूचियों में हुआ है?", answers: [ { text: "3", correct: true }, { text: "2", correct: false }, { text: "1", correct: false }, { text: "4", correct: false } ] },
+        { question: "4. सत्ता में साझेदारी सही है क्योंकि...", answers: [ { text: "यह विविधता को अपने में समेट लेती है", correct: false }, { text: "देश की एकता को कमजोर करती है", correct: false }, { text: "विभिन्न समुदायों के बीच टकराव कम करती है", correct: true }, { text: "फैसले लेने में देरी करती है", correct: false } ] },
+        { question: "5. समवर्ती सूची में रखा जाता है?", answers: [ { text: "राज्य", correct: false }, { text: "केन्द्र", correct: false }, { text: "केन्द्र एवं राज्य दोनों", correct: true }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "6. भारत में संविधान सभा का गठन कब हुआ?", answers: [ { text: "1945", correct: false }, { text: "1946", correct: true }, { text: "1947", correct: false }, { text: "1948", correct: false } ] },
+        { question: "7. पंचायत समिति का प्रधान कौन होता है?", answers: [ { text: "मुखिया", correct: false }, { text: "प्रमुख", correct: true }, { text: "सरपंच", correct: false }, { text: "बीडीओ", correct: false } ] },
+        { question: "8. ग्राम कचहरी का प्रधान कौन होता है?", answers: [ { text: "पंच", correct: false }, { text: "सरपंच", correct: true }, { text: "प्रमुख", correct: false }, { text: "न्यायमित्र", correct: false } ] },
+        { question: "9. बिहार में पंचायती राज व्यवस्था का कार्यकाल है?", answers: [ { text: "4 वर्ष", correct: false }, { text: "5 वर्ष", correct: true }, { text: "6 वर्ष", correct: false }, { text: "7 वर्ष", correct: false } ] },
+        { question: "10. पटना नगर निगम के प्रधान को क्या कहा जाता है?", answers: [ { text: "महापौर (Mayor)", correct: true }, { text: "नगर प्रधान", correct: false }, { text: "नगर सचिव", correct: false }, { text: "इनमें से कोई नहीं", correct: false } ] },
+        { question: "11. पंचायती राज व्यवस्था सर्वप्रथम किस राज्य में लागू किया गया?", answers: [ { text: "राजस्थान", correct: true }, { text: "बिहार", correct: false }, { text: "उत्तराखंड", correct: false }, { text: "मध्य प्रदेश", correct: false } ] },
+        { question: "12. बिहार में पंचायती राज संस्थाओं में महिलाओं के लिए कितनी सीटें आरक्षित हैं?", answers: [ { text: "50%", correct: true }, { text: "25%", correct: false }, { text: "33%", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "13. भारत में कहाँ औरतों के लिए आरक्षण की व्यवस्था है?", answers: [ { text: "लोकसभा", correct: false }, { text: "विधानसभा", correct: false }, { text: "मंत्रिमंडल", correct: false }, { text: "पंचायती राज संस्थाएं", correct: true } ] },
+        { question: "14. भारत में किस प्रकार की शासन प्रणाली है?", answers: [ { text: "संघीय और अध्यक्षीय", correct: false }, { text: "संघीय और संसदीय", correct: true }, { text: "एकात्मक और अध्यक्षीय", correct: false }, { text: "एकात्मक और संसदीय", correct: false } ] },
+        { question: "15. बिहार में नगर निगम में वार्डों की न्यूनतम संख्या क्या है?", answers: [ { text: "37", correct: false }, { text: "40", correct: false }, { text: "42", correct: true }, { text: "45", correct: false } ] },
+        { question: "16. भारत में मतदाता होने की न्यूनतम आयु क्या है?", answers: [ { text: "16 वर्ष", correct: false }, { text: "17 वर्ष", correct: false }, { text: "18 वर्ष", correct: true }, { text: "21 वर्ष", correct: false } ] },
+        { question: "17. भारत में गणतांत्रिक संविधान को कब अंगीकार किया गया?", answers: [ { text: "15 अगस्त 1947", correct: false }, { text: "15 जनवरी 1950", correct: false }, { text: "26 जनवरी 1950", correct: true }, { text: "26 अगस्त 1950", correct: false } ] },
+        { question: "18. ग्राम पंचायत का सचिव कौन होता है?", answers: [ { text: "उप-मुखिया", correct: false }, { text: "सरपंच", correct: false }, { text: "पंचायत सचिव", correct: true }, { text: "दलपति", correct: false } ] },
+        { question: "19. सोवियत संघ का विघटन किस वर्ष हुआ?", answers: [ { text: "1969", correct: false }, { text: "1980", correct: false }, { text: "1989", correct: false }, { text: "1991", correct: true } ] },
+        { question: "20. निम्नलिखित में कौन केन्द्र शासित प्रदेश है?", answers: [ { text: "उत्तराखंड", correct: false }, { text: "छत्तीसगढ़", correct: false }, { text: "चंडीगढ़", correct: true }, { text: "केरल", correct: false } ] },
+        { question: "21. बिहार में पंचायती राज अधिनियम किस वर्ष बना?", answers: [ { text: "2000", correct: false }, { text: "2006", correct: true }, { text: "2010", correct: false }, { text: "2004", correct: false } ] },
+        { question: "22. नगर परिषद के मुख्य कार्यपालक पदाधिकारी को क्या कहते हैं?", answers: [ { text: "कार्यपालक पदाधिकारी", correct: true }, { text: "महापौर", correct: false }, { text: "नगर सचिव", correct: false }, { text: "आयुक्त", correct: false } ] },
+        { question: "23. जिला परिषद का कार्यकाल कितने वर्षों का होता है?", answers: [ { text: "2 वर्ष", correct: false }, { text: "4 वर्ष", correct: false }, { text: "5 वर्ष", correct: true }, { text: "6 वर्ष", correct: false } ] },
+        { question: "24. सरपंच का निर्वाचन कौन करता है?", answers: [ { text: "मुखिया", correct: false }, { text: "पंच", correct: false }, { text: "ग्राम कचहरी के सदस्य", correct: false }, { text: "ग्राम सभा के सदस्य (जनता)", correct: true } ] },
+        { question: "25. भारत में राष्ट्रीय स्तर पर पंचायती राज की स्थापना कब हुई?", answers: [ { text: "1959", correct: true }, { text: "1969", correct: false }, { text: "1979", correct: false }, { text: "1989", correct: false } ] },
+        { question: "26. भारत में योजना आयोग का गठन कब किया गया?", answers: [ { text: "15 अक्टूबर 1951", correct: false }, { text: "15 मार्च 1950", correct: true }, { text: "15 सितंबर 1950", correct: false }, { text: "इनमें कोई नहीं", correct: false } ] },
+        { question: "27. भारतीय संविधान की 8वीं अनुसूची में कितनी भाषाओं को स्थान दिया गया है?", answers: [ { text: "20", correct: false }, { text: "21", correct: false }, { text: "22", correct: true }, { text: "25", correct: false } ] },
+        { question: "28. भारत में पहला नगर निगम कहाँ बना?", answers: [ { text: "पटना में", correct: false }, { text: "मद्रास (चेन्नई) में", correct: true }, { text: "नागपुर में", correct: false }, { text: "मुंबई में", correct: false } ] },
+        { question: "29. किस राज्य में पंचायती राज व्यवस्था नहीं है?", answers: [ { text: "बिहार", correct: false }, { text: "नागालैंड", correct: true }, { text: "राजस्थान", correct: false }, { text: "केरल", correct: false } ] },
+        { question: "30. बिहार में वार्ड पार्षदों की अधिकतम संख्या कितनी हो सकती है?", answers: [ { text: "37", correct: false }, { text: "55", correct: false }, { text: "75", correct: true }, { text: "80", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "⚖️ बहुत बढ़िया! पंचायती राज व्यवस्था आपको अच्छे से आती है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर मुखिया और सरपंच के कार्य फिर से पढ़ें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 रिवीजन की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>

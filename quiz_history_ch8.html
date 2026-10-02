@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Chapter 8 - Live Test</title>
+    <style>
+        /* --- MODERN UI STYLE (Theme: Ink Blue & Paper) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 15px; 
+        }
+
+        .quiz-container { background: #fff; width: 100%; max-width: 550px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; position: relative; }
+        .quiz-header { background: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        
+        .timer-box { background: #e8eaf6; color: #1a237e; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .question-count { font-size: 14px; color: #666; font-weight: 500; }
+        
+        .progress-bar { height: 6px; width: 100%; background: #f1f1f1; }
+        .progress-fill { height: 100%; background: #1e3c72; width: 0%; transition: width 0.3s ease; }
+        
+        .quiz-body { padding: 25px 20px; }
+        h2#question-text { font-size: 18px; color: #333; margin-bottom: 20px; line-height: 1.5; font-weight: 600; }
+        
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: #f8f9fa; border: 2px solid #e9ecef; padding: 14px; border-radius: 10px; font-size: 15px; color: #444; cursor: pointer; text-align: left; transition: all 0.2s; position: relative; }
+        .option-btn:hover { background: #c5cae9; }
+        
+        .option-btn.correct { background: #d4edda; border-color: #28a745; color: #155724; }
+        .option-btn.wrong { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        
+        .quiz-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        #next-btn { background: #1e3c72; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; display: none; }
+        #next-btn:hover { background: #142850; }
+        .home-link { text-decoration: none; color: #666; font-size: 14px; font-weight: 500; }
+        
+        .result-box { text-align: center; padding: 40px 20px; display: none; }
+        .score-circle { width: 120px; height: 120px; background: #1e3c72; color: white; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0 auto 20px; box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4); }
+        .score-big { font-size: 32px; font-weight: bold; }
+        .score-label { font-size: 12px; opacity: 0.9; }
+        .accuracy-text { font-size: 18px; color: #333; margin-bottom: 20px; font-weight: 600; }
+        .remarks { color: #666; font-size: 14px; margin-bottom: 30px; }
+        .action-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-restart, .btn-home { padding: 10px 20px; border-radius: 8px; cursor: pointer; border: none; font-weight: 500; text-decoration: none; }
+        .btn-restart { background: #1e3c72; color: white; }
+        .btn-home { background: #eee; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="quiz-header">
+            <div class="question-count">Question: <span id="q-index">1</span>/<span id="total-q">5</span></div>
+            <div class="timer-box">⏳ <span id="time-left">10:00</span></div>
+        </div>
+        <div class="quiz-body">
+            <h2 id="question-text">प्रश्न लोड हो रहा है...</h2>
+            <div class="options-list" id="options-container"></div>
+        </div>
+        <div class="quiz-footer">
+            <a href="history_chapters.html" class="home-link">Quit Quiz</a>
+            <button id="next-btn" onclick="nextQuestion()">Next Question ➡</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="result-box">
+        <div class="score-circle">
+            <span class="score-big" id="final-score">0</span>
+            <span class="score-label">Score</span>
+        </div>
+        <div class="accuracy-text" id="accuracy-text">Accuracy: 0%</div>
+        <p class="remarks" id="remarks">Well Done!</p>
+        <div class="action-btns">
+            <button class="btn-restart" onclick="location.reload()">🔄 Retry</button>
+            <a href="history_chapters.html" class="btn-home">📂 Chapter List</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const TOTAL_TIME_MINUTES = 10;
+    let timeInSeconds = TOTAL_TIME_MINUTES * 60;
+    let timerInterval;
+
+    // ▼▼▼ CHAPTER 8 QUESTIONS (प्रेस संस्कृति एवं राष्ट्रवाद) ▼▼▼
+    const questions = [
+        { question: "1. किसने कहा, 'मुद्रण ईश्वर की दी हुई महानतम देन है, सबसे बड़ा तोहफा'?", answers: [ { text: "महात्मा गाँधी", correct: false }, { text: "मार्टिन लूथर", correct: true }, { text: "पैगंबर मोहम्मद", correct: false }, { text: "ईसा मसीह", correct: false } ] },
+        { question: "2. गुटेनबर्ग का जन्म किस देश में हुआ था?", answers: [ { text: "अमेरिका", correct: false }, { text: "जर्मनी", correct: true }, { text: "जापान", correct: false }, { text: "इंग्लैंड", correct: false } ] },
+        { question: "3. गुटेनबर्ग ने सर्वप्रथम किस पुस्तक की छपाई की?", answers: [ { text: "कुरान", correct: false }, { text: "गीता", correct: false }, { text: "हदीस", correct: false }, { text: "बाइबिल", correct: true } ] },
+        { question: "4. इंग्लैंड में मुद्रण कला को पहुँचाने वाला कौन था?", answers: [ { text: "हैमिल्टन", correct: false }, { text: "कैक्सटन", correct: true }, { text: "एडिसन", correct: false }, { text: "स्मिथ", correct: false } ] },
+        { question: "5. 'वर्नाक्यूलर प्रेस एक्ट' किस वायसराय के समय में पारित हुआ?", answers: [ { text: "लॉर्ड रिपन", correct: false }, { text: "लॉर्ड लिटन", correct: true }, { text: "लॉर्ड कर्जन", correct: false }, { text: "लॉर्ड इरविन", correct: false } ] },
+        { question: "6. किस पत्र ने रातों-रात वर्नाक्यूलर प्रेस एक्ट से बचने के लिए अपनी भाषा बदल दी?", answers: [ { text: "हरिजन", correct: false }, { text: "भारत मित्र", correct: false }, { text: "अमृत बाजार पत्रिका", correct: true }, { text: "हिन्दुस्तान रिव्यू", correct: false } ] },
+        { question: "7. विश्व में सर्वप्रथम मुद्रण की शुरुआत कहाँ हुई?", answers: [ { text: "भारत", correct: false }, { text: "जापान", correct: false }, { text: "चीन", correct: true }, { text: "अमेरिका", correct: false } ] },
+        { question: "8. महात्मा गाँधी ने किस पत्र का संपादन किया?", answers: [ { text: "कॉमनविल", correct: false }, { text: "यंग इंडिया", correct: true }, { text: "बंगाली", correct: false }, { text: "बिहारी", correct: false } ] },
+        { question: "9. 'मराठा' समाचार पत्र किस भाषा में प्रकाशित हुआ था?", answers: [ { text: "अंग्रेजी", correct: true }, { text: "हिंदी", correct: false }, { text: "मराठी", correct: false }, { text: "बांग्ला", correct: false } ] },
+        { question: "10. 'केसरी' समाचार पत्र का प्रकाशन किसने किया?", answers: [ { text: "जवाहरलाल नेहरू", correct: false }, { text: "बाल गंगाधर तिलक", correct: true }, { text: "विपिन चंद्र पाल", correct: false }, { text: "लाला लाजपत राय", correct: false } ] },
+        { question: "11. रूसो कहाँ का दार्शनिक था?", answers: [ { text: "फ्रांस", correct: true }, { text: "रूस", correct: false }, { text: "अमेरिका", correct: false }, { text: "इंग्लैंड", correct: false } ] },
+        { question: "12. 13वीं सदी में किसने ब्लॉक प्रिंटिंग के नमूने यूरोप में पहुँचाए?", answers: [ { text: "मार्को पोलो", correct: true }, { text: "निकितिन", correct: false }, { text: "इत्सिंग", correct: false }, { text: "मेगास्थनीज", correct: false } ] },
+        { question: "13. कागज का आविष्कार किस देश में हुआ?", answers: [ { text: "चीन", correct: true }, { text: "जापान", correct: false }, { text: "जर्मनी", correct: false }, { text: "रोम", correct: false } ] },
+        { question: "14. भारतीय समाचार पत्रों के 'मुक्तिदाता' के रूप में कौन गवर्नर जनरल विख्यात है?", answers: [ { text: "वारेन हेस्टिंग्स", correct: false }, { text: "लॉर्ड वेलेस्ली", correct: false }, { text: "चार्ल्स मेटकॉफ", correct: true }, { text: "लॉर्ड लिटन", correct: false } ] },
+        { question: "15. 'हिंदुस्तान रिव्यू' का प्रकाशन किसने आरंभ किया?", answers: [ { text: "रामकृष्ण वर्मा", correct: false }, { text: "सच्चिदानंद सिन्हा", correct: true }, { text: "मजहरुल हक", correct: false }, { text: "श्रीकृष्ण सिंह", correct: false } ] },
+        { question: "16. भारत में पहला छापाखाना किन लोगों ने लगाया?", answers: [ { text: "पुर्तगालियों ने", correct: true }, { text: "डचों ने", correct: false }, { text: "फ्रांसिसियों ने", correct: false }, { text: "अंग्रेजों ने", correct: false } ] },
+        { question: "17. 'हरिजन' पत्रिका का प्रकाशन किसने किया?", answers: [ { text: "राजा राममोहन राय", correct: false }, { text: "जयप्रकाश नारायण", correct: false }, { text: "महात्मा गाँधी", correct: true }, { text: "ज्योतिबा फुले", correct: false } ] },
+        { question: "18. 'अल-हिलाल' का संपादन किसने किया?", answers: [ { text: "मौलाना अबुल कलाम आजाद", correct: true }, { text: "सर सैयद अहमद खान", correct: false }, { text: "एनी बेसेंट", correct: false }, { text: "एपीजे अब्दुल कलाम", correct: false } ] },
+        { question: "19. राजा राममोहन राय ने किस पत्र का संपादन किया?", answers: [ { text: "संवाद कौमुदी", correct: true }, { text: "केसरी", correct: false }, { text: "बंगाली", correct: false }, { text: "इंडियन मिरर", correct: false } ] },
+        { question: "20. 'गदर' का प्रकाशन किसने किया?", answers: [ { text: "लाला हरदयाल", correct: true }, { text: "सुभाष चंद्र बोस", correct: false }, { text: "चंद्रशेखर आजाद", correct: false }, { text: "भगत सिंह", correct: false } ] },
+        { question: "21. यूरोप में कागज बनाने का पहला कारखाना कहाँ खोला गया?", answers: [ { text: "इंग्लैंड", correct: false }, { text: "रूस", correct: false }, { text: "जर्मनी", correct: true }, { text: "इटली", correct: false } ] },
+        { question: "22. छपाई सबसे पहले किस देश में आरंभ हुई?", answers: [ { text: "चीन", correct: true }, { text: "जापान", correct: false }, { text: "इटली", correct: false }, { text: "भारत", correct: false } ] },
+        { question: "23. एक पैसिया मैग्जीन किस देश में प्रकाशित हुई?", answers: [ { text: "फ्रांस", correct: false }, { text: "जर्मनी", correct: false }, { text: "इंग्लैंड", correct: true }, { text: "रूस", correct: false } ] },
+        { question: "24. 'जापान की सबसे पुरानी पुस्तक' कौन सी है?", answers: [ { text: "डायमंड सूत्र", correct: true }, { text: "बाइबिल", correct: false }, { text: "कुरान", correct: false }, { text: "त्रिपिटक", correct: false } ] },
+        { question: "25. वर्नाक्यूलर प्रेस एक्ट कब पास हुआ?", answers: [ { text: "1878", correct: true }, { text: "1879", correct: false }, { text: "1880", correct: false }, { text: "1881", correct: false } ] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+    
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const qText = document.getElementById("question-text");
+    const optContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const qIndexSpan = document.getElementById("q-index");
+    const totalQSpan = document.getElementById("total-q");
+    const timerDisplay = document.getElementById("time-left");
+    const progressFill = document.getElementById("progress-fill");
+    const finalScoreEl = document.getElementById("final-score");
+    const accuracyTextEl = document.getElementById("accuracy-text");
+    const remarksEl = document.getElementById("remarks");
+
+    function startQuiz() {
+        totalQSpan.innerText = questions.length;
+        startTimer();
+        showQuestion();
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeInSeconds--;
+            let minutes = Math.floor(timeInSeconds / 60);
+            let seconds = timeInSeconds % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            timerDisplay.innerText = `${minutes}:${seconds}`;
+            if (timeInSeconds <= 0) {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }, 1000);
+    }
+
+    function showQuestion() {
+        resetState();
+        let currentQ = questions[currentIdx];
+        qIndexSpan.innerText = currentIdx + 1;
+        qText.innerText = `Q${currentIdx + 1}. ${currentQ.question}`;
+        let progress = ((currentIdx) / questions.length) * 100;
+        progressFill.style.width = progress + "%";
+        
+        currentQ.answers.forEach(ans => {
+            const btn = document.createElement("button");
+            btn.innerText = ans.text;
+            btn.classList.add("option-btn");
+            if(ans.correct) btn.dataset.correct = ans.correct;
+            btn.addEventListener("click", selectAnswer);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function resetState() {
+        nextBtn.style.display = "none";
+        while(optContainer.firstChild) optContainer.removeChild(optContainer.firstChild);
+    }
+
+    function selectAnswer(e) {
+        const selectedBtn = e.target;
+        const isCorrect = selectedBtn.dataset.correct === "true";
+        if(isCorrect) {
+            selectedBtn.classList.add("correct");
+            score++;
+        } else {
+            selectedBtn.classList.add("wrong");
+        }
+        Array.from(optContainer.children).forEach(btn => {
+            if(btn.dataset.correct === "true") btn.classList.add("correct");
+            btn.disabled = true;
+        });
+        nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if(currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        clearInterval(timerInterval);
+        quizScreen.style.display = "none";
+        resultScreen.style.display = "block";
+        let accuracy = Math.round((score / questions.length) * 100);
+        finalScoreEl.innerText = `${score} / ${questions.length}`;
+        accuracyTextEl.innerText = `Accuracy: ${accuracy}%`;
+        
+        if(accuracy >= 80) {
+            remarksEl.innerText = "📰 शाबाश! प्रेस और संस्कृति का ज्ञान जबरदस्त है!";
+            remarksEl.style.color = "green";
+        } else if(accuracy >= 50) {
+            remarksEl.innerText = "👍 ठीक है, पर अखबारों और संपादकों के नाम याद करें।";
+            remarksEl.style.color = "orange";
+        } else {
+            remarksEl.innerText = "📚 आपको अभी और पढ़ने की जरूरत है।";
+            remarksEl.style.color = "red";
+        }
+    }
+
+    startQuiz();
+</script>
+
+</body>
+</html>
