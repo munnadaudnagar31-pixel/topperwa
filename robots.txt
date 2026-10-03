@@ -1,8 +1,8 @@
 # Robots.txt for Topperwa Educational Platform (Session 2026-27)
-# Domain: https://www.topperwa.com/
+# Domain: https://www.topperwa.online/
 
 User-agent: *
 Allow: /
 
 # Host & Sitemap Specification
-Sitemap: https://www.topperwa.com/sitemap.xml
+Sitemap: https://www.topperwa.online/sitemap.xml
