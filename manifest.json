@@ -1,28 +1,28 @@
 {
-  "name": "EduBzz: Bihar Board & CBSE Study App",
-  "short_name": "EduBzz",
-  "description": "India's No.1 study app for BSEB and CBSE. Get Class 9-12 handwritten notes, AI doubt solver, and live quizzes.",
-  "start_url": "/",
+  "name": "Topperwa – Bihar Board Study App",
+  "short_name": "Topperwa",
+  "description": "Bihar Board's #1 free learning app for BSEB Class 10, 11 & 12. Get free chapter quizzes, VVI questions, AI solver, model papers, and notes.",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#eaf6fc",
-  "theme_color": "#4196c8",
+  "background_color": "#F0F7FF",
+  "theme_color": "#3B82F6",
   "orientation": "portrait-primary",
   "dir": "ltr",
   "lang": "en-IN",
   "categories": [
     "education",
-    "productivity",
-    "utilities"
+    "productivity"
   ],
   "icons": [
     {
-      "src": "edubzz.png",
+      "src": "logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "edubzz.png",
+      "src": "logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -30,30 +30,25 @@
   ],
   "shortcuts": [
     {
-      "name": "AI Doubt Solver",
-      "short_name": "AI Solver",
-      "description": "Solve your study doubts instantly using AI",
-      "url": "/ai-solver.html",
-      "icons": [
-        {
-          "src": "edubzz.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+      "name": "Class 10th",
+      "short_name": "Class 10",
+      "description": "BSEB Class 10 study material",
+      "url": "/class10.html",
+      "icons": [{ "src": "logo.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "Live Science Battle",
-      "short_name": "Play Battle",
-      "description": "Challenge friends in live quizzes",
-      "url": "/battle.html",
-      "icons": [
-        {
-          "src": "edubzz.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+      "name": "Topperwa AI",
+      "short_name": "AI Solver",
+      "description": "Solve your study doubts instantly using AI",
+      "url": "/topperwa-ai.html",
+      "icons": [{ "src": "logo.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Class 12th",
+      "short_name": "Class 12",
+      "description": "BSEB Class 12 study material",
+      "url": "/class12.html",
+      "icons": [{ "src": "logo.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

@@ -3,7 +3,7 @@
 
 <head>
   <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1109901963732620"
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7566722243290201"
      crossorigin="anonymous"></script>
 
   <meta charset="UTF-8" />
@@ -24,6 +24,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="logo.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="logo.png" />
   <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- Canonical URL Tag -->
   <link rel="canonical" href="https://topperwa.online/" />
@@ -843,10 +844,30 @@
         class="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-blue-300">
         <p>© 2026-27 Topperwa. Made with <span class="text-orange-400">♥</span> for BSEB students under munna_r4w.
           Session 2026-27.</p>
-        <div class="flex gap-4"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div>
+        <div class="flex gap-4 flex-wrap"><a href="privacy-policy.html">Privacy Policy</a><a href="terms.html">Terms of Use</a><a href="disclaimer.html">Disclaimer</a><a href="contact.html">Contact Us</a></div>
       </div>
     </div>
   </footer>
+
+  <!-- Install App Banner -->
+  <div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;padding:0 1rem 1rem;pointer-events:none;">
+    <div style="max-width:480px;margin:0 auto;background:linear-gradient(135deg,#1D4ED8,#3B82F6);border-radius:20px;padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem;box-shadow:0 12px 40px rgba(29,78,216,.35);pointer-events:auto;animation:slideUpBanner .5s cubic-bezier(.22,.68,0,1.2) both;">
+      <img src="logo.png" alt="Topperwa" style="width:48px;height:48px;border-radius:12px;background:white;padding:3px;flex-shrink:0;"/>
+      <div style="flex:1;min-width:0;">
+        <p style="font-family:'Outfit',sans-serif;font-weight:700;font-size:.95rem;color:white;margin:0;">Install Topperwa App</p>
+        <p style="font-family:'Outfit',sans-serif;font-size:.75rem;color:#BFDBFE;margin:2px 0 0;">Free offline access · Fast & lightweight</p>
+      </div>
+      <button id="install-btn" style="background:white;color:#1D4ED8;border:none;padding:.55rem 1.1rem;border-radius:999px;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .2s,box-shadow .2s;flex-shrink:0;" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 4px 15px rgba(0,0,0,.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <i class="fas fa-download" style="margin-right:4px;"></i> Install
+      </button>
+      <button id="install-close" style="background:rgba(255,255,255,.15);border:none;width:28px;height:28px;border-radius:50%;color:white;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <style>
+    @keyframes slideUpBanner{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
+  </style>
 
   <!-- Toast -->
   <div id="toast"><i class="fas fa-info-circle"></i><span id="toast-msg"></span></div>
@@ -893,6 +914,63 @@
     // Toast
     let tTimer;
     function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; t.classList.add('show'); clearTimeout(tTimer); tTimer = setTimeout(() => t.classList.remove('show'), 3000); }
+
+    // ── PWA Install Logic ──
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+    const installBtn = document.getElementById('install-btn');
+    const installClose = document.getElementById('install-close');
+
+    // Check if already installed or dismissed
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isDismissed = localStorage.getItem('topperwa-install-dismissed');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Show banner only if not installed and not recently dismissed
+      if (!isInstalled && !isDismissed) {
+        setTimeout(() => { installBanner.style.display = 'block'; }, 2000);
+      }
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          if (outcome === 'accepted') {
+            showToast('🎉 Topperwa App Install ho raha hai!');
+          }
+          deferredPrompt = null;
+          installBanner.style.display = 'none';
+        }
+      });
+    }
+
+    if (installClose) {
+      installClose.addEventListener('click', () => {
+        installBanner.style.display = 'none';
+        localStorage.setItem('topperwa-install-dismissed', Date.now());
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      installBanner.style.display = 'none';
+      deferredPrompt = null;
+      showToast('✅ Topperwa App successfully install ho gaya!');
+    });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('SW registered:', reg.scope);
+        }).catch(err => {
+          console.log('SW registration failed:', err);
+        });
+      });
+    }
   </script>
 </body>
 
