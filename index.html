@@ -11,8 +11,7 @@
 
   <!-- Primary Title & Technical SEO Meta Tags -->
   <title>Topperwa – #1 BSEB Class 10, 11 & 12 Study App | Session 2026-27</title>
-  <meta name="description"
-    content="Topperwa is Bihar Board's #1 free learning app for BSEB Class 10th (Matric), 11th & 12th (Inter) 2026-27. Get free chapter quizzes, VVI objective & subjective questions, AI solver, model papers, and notes." />
+  <meta name="description" content="Topperwa is Bihar Board's #1 free learning app for BSEB Class 10th, 11th & 12th 2026-27. Free chapter quizzes, VVI questions, AI solver, model papers & notes." />
   <meta name="keywords"
     content="Topperwa, Topperwa App, Bihar Board Class 10, BSEB Class 10 VVI Questions, Bihar Board Class 11, Bihar Board Class 12, BSEB 2026-27 Syllabus, Bihar Board Model Paper 2026, BSEB Matric Quizzes, Topperwa AI Solver, Bihar Board Study App, BSEB Objective Questions, Bihar Board Free Notes" />
   <meta name="author" content="Topperwa Team" />
@@ -488,6 +487,159 @@
       border-radius: 999px;
     }
 
+    /* ── Student Community Banner ── */
+    .community-banner {
+      background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 50%, #1D4ED8 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .community-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,127,80,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .community-banner img {
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transition: transform 0.5s cubic-bezier(.22,.68,0,1.2);
+    }
+    .community-banner img:hover {
+      transform: scale(1.03) rotate(-1deg);
+    }
+
+    /* ── Legacy Section ── */
+    .legacy-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 8px 30px rgba(59,130,246,0.08);
+      transition: transform 0.35s, box-shadow 0.35s;
+      border: 1px solid #E0E7FF;
+    }
+    .legacy-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(59,130,246,0.15);
+    }
+    .legacy-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .legacy-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3B82F6, #FF7F50);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+    }
+
+    /* ── Student Testimonials ── */
+    .testimonial-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.8rem;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+      border: 1px solid #E0E7FF;
+      transition: transform 0.35s, box-shadow 0.35s, border-color 0.35s;
+      position: relative;
+      overflow: hidden;
+    }
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      right: 20px;
+      font-size: 100px;
+      font-family: Georgia, serif;
+      color: #EFF6FF;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 45px rgba(59,130,246,0.12);
+      border-color: #FF7F50;
+    }
+    .testimonial-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #DBEAFE;
+      box-shadow: 0 4px 12px rgba(59,130,246,0.15);
+    }
+    .testimonial-stars {
+      color: #F59E0B;
+      font-size: 0.85rem;
+      letter-spacing: 2px;
+    }
+
+    /* ── Journey Section ── */
+    .journey-section {
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #F0F9FF 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .journey-section::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to top, white, transparent);
+    }
+    .journey-img {
+      border-radius: 24px;
+      box-shadow: 0 25px 60px rgba(29,78,216,0.15);
+      transition: transform 0.5s;
+    }
+    .journey-img:hover {
+      transform: scale(1.02);
+    }
+    .step-card {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(59,130,246,0.1);
+      border-radius: 16px;
+      padding: 1.2rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(59,130,246,0.12);
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Counter Animation ── */
+    .counter-animate {
+      display: inline-block;
+    }
+
     @media(max-width:640px) {
       .hero-title {
         font-size: 2rem !important;
@@ -704,6 +856,332 @@
           <span class="badge bg-yellow-400 text-white">Coming Soon</span>
         </a>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ STUDENT COMMUNITY BANNER ═══════════════════════════ -->
+  <section class="community-banner py-16 md:py-20 px-4">
+    <div class="max-w-6xl mx-auto relative z-10 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-semibold text-blue-100 mb-5">
+          <i class="fas fa-users text-orange-300"></i> Our Student Community
+        </div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-4 animate-fade-in-up">
+          Thousands of Students<br/><span class="text-orange-300">Trust Topperwa</span>
+        </h2>
+        <p class="text-blue-200 text-base leading-relaxed mb-6 max-w-md animate-fade-in-up d1">
+          Join the growing family of Bihar Board students who are preparing smarter with Topperwa. From chapter quizzes to AI-powered study help — we've got every BSEB student covered.
+        </p>
+        <div class="flex flex-wrap gap-6 animate-fade-in-up d2">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+              <i class="fas fa-graduation-cap text-orange-300 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-white font-bold text-lg">BSEB Focused</p>
+              <p class="text-blue-300 text-xs">Session 2026-27</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+              <i class="fas fa-heart text-red-300 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-white font-bold text-lg">Made with Love</p>
+              <p class="text-blue-300 text-xs">For Bihar Students</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center animate-scale-in d3">
+        <img src="students_studying.jpg" alt="Topperwa Student Community - Bihar Board students studying together" class="w-full max-w-md" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ CHOOSE YOUR CLASS ═══════════════════════════ -->
+  <section id="classes" class="py-16 md:py-20 px-4 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-10">
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">Get Started</p>
+        <h2 class="sec-title">Choose Your Class</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Class 10 -->
+        <a href="class10.html"
+          class="class-card relative bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-7 text-white shadow-lg overflow-hidden block">
+          <div class="absolute inset-0 opacity-10"
+            style="background:url('https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=70') center/cover">
+          </div>
+          <div class="relative z-10">
+            <div
+              class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-5 text-3xl font-extrabold">10
+            </div>
+            <h3 class="text-2xl font-extrabold mb-1">Class 10th</h3>
+            <p class="text-blue-100 text-sm mb-5">Matric Board — Complete BSEB prep: all subjects, VVI, model papers.
+            </p>
+            <div class="flex items-center gap-2 text-sm font-bold">Explore <i class="fas fa-arrow-right"></i></div>
+          </div>
+          <span class="badge bg-orange-400 text-white">Most Popular</span>
+        </a>
+
+        <!-- Class 11 -->
+        <a href="class11.html"
+          class="class-card relative bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-7 text-white shadow-lg overflow-hidden block">
+          <div class="absolute inset-0 opacity-10"
+            style="background:url('https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=70') center/cover">
+          </div>
+          <div class="relative z-10">
+            <div
+              class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-5 text-3xl font-extrabold">11
+            </div>
+            <h3 class="text-2xl font-extrabold mb-1">Class 11th</h3>
+            <p class="text-indigo-100 text-sm mb-5">Inter Part 1 — Science, Arts & Commerce streams coming soon.</p>
+            <div class="flex items-center gap-2 text-sm font-bold">Explore <i class="fas fa-arrow-right"></i></div>
+          </div>
+          <span class="badge bg-yellow-400 text-white">Coming Soon</span>
+        </a>
+
+        <!-- Class 12 -->
+        <a href="class12.html"
+          class="class-card relative bg-gradient-to-br from-violet-500 to-violet-700 rounded-2xl p-7 text-white shadow-lg overflow-hidden block">
+          <div class="absolute inset-0 opacity-10"
+            style="background:url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=70') center/cover">
+          </div>
+          <div class="relative z-10">
+            <div
+              class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-5 text-3xl font-extrabold">12
+            </div>
+            <h3 class="text-2xl font-extrabold mb-1">Class 12th</h3>
+            <p class="text-violet-100 text-sm mb-5">Inter Part 2 — High-stakes board exam resources in progress.</p>
+            <div class="flex items-center gap-2 text-sm font-bold">Explore <i class="fas fa-arrow-right"></i></div>
+          </div>
+          <span class="badge bg-yellow-400 text-white">Coming Soon</span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ OUR LEGACY ═══════════════════════════ -->
+  <section class="py-16 md:py-20 px-4 bg-gradient-to-b from-white to-blue-50">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">Why Students Trust Us</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-blue-800 mb-3">Our Legacy</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Built by a Bihar Board student, for Bihar Board students. Every feature is designed to help you score higher in BSEB exams.</p>
+      </div>
+
+      <!-- Legacy Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-14">
+        <div class="legacy-card text-center">
+          <div class="legacy-icon mx-auto" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE)">
+            <i class="fas fa-book-open text-blue-600"></i>
+          </div>
+          <p class="legacy-number counter-animate" data-target="500">0</p>
+          <p class="text-sm font-semibold text-slate-600 mt-1">Chapter Quizzes</p>
+        </div>
+        <div class="legacy-card text-center">
+          <div class="legacy-icon mx-auto" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A)">
+            <i class="fas fa-question-circle text-yellow-600"></i>
+          </div>
+          <p class="legacy-number counter-animate" data-target="5000">0</p>
+          <p class="text-sm font-semibold text-slate-600 mt-1">MCQ Questions</p>
+        </div>
+        <div class="legacy-card text-center">
+          <div class="legacy-icon mx-auto" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0)">
+            <i class="fas fa-chalkboard-teacher text-green-600"></i>
+          </div>
+          <p class="legacy-number counter-animate" data-target="6">0</p>
+          <p class="text-sm font-semibold text-slate-600 mt-1">Subjects Covered</p>
+        </div>
+        <div class="legacy-card text-center">
+          <div class="legacy-icon mx-auto" style="background: linear-gradient(135deg, #FFE4E6, #FECDD3)">
+            <i class="fas fa-heart text-red-500"></i>
+          </div>
+          <p class="legacy-number counter-animate" data-target="100">0</p>
+          <p class="text-sm font-semibold text-slate-600 mt-1">% Free Forever</p>
+        </div>
+      </div>
+
+      <!-- Legacy Image + Content -->
+      <div class="grid md:grid-cols-2 gap-10 items-center">
+        <div class="flex justify-center">
+          <img src="student_success.jpg" alt="Topperwa student celebrating success in Bihar Board exam" class="w-64 md:w-80 rounded-3xl shadow-2xl animate-scale-in" loading="lazy" />
+        </div>
+        <div>
+          <h3 class="text-2xl font-extrabold text-blue-800 mb-4 animate-fade-in-up">
+            From a Student's Dream<br/>to <span class="text-orange-400">Bihar's Favorite Study App</span>
+          </h3>
+          <div class="space-y-4 animate-fade-in-up d1">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="fas fa-check text-blue-600 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-700">100% BSEB Syllabus Aligned</p>
+                <p class="text-sm text-slate-500">Every question is mapped to the official Bihar Board syllabus for 2026-27.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="fas fa-check text-green-600 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-700">Built by a Bihar Board Topper</p>
+                <p class="text-sm text-slate-500">Created by someone who understands the exact challenges BSEB students face.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="fas fa-check text-orange-500 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-700">AI-Powered Study Assistance</p>
+                <p class="text-sm text-slate-500">Topperwa AI resolves doubts instantly, trained on BSEB exam patterns.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="fas fa-check text-violet-600 text-sm"></i>
+              </div>
+              <div>
+                <p class="font-semibold text-slate-700">Completely Free & Ad-Supported</p>
+                <p class="text-sm text-slate-500">No hidden charges. Quality education should be accessible to every student.</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 animate-fade-in-up d2">
+            <a href="class10.html" class="btn-coral text-base px-7 py-3"><i class="fas fa-rocket"></i> Start Studying Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ STUDENT JOURNEY ═══════════════════════════ -->
+  <section class="journey-section py-16 md:py-20 px-4">
+    <div class="max-w-6xl mx-auto relative z-10">
+      <div class="text-center mb-12">
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">Your Success Roadmap</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-blue-800 mb-3">From Preparation to Podium</h2>
+        <p class="text-slate-500 max-w-xl mx-auto">Follow the Topperwa way — study, practice, and ace your Bihar Board exams.</p>
+      </div>
+
+      <div class="flex justify-center mb-10">
+        <img src="student_journey.jpg" alt="Student journey from studying to exam success on Topperwa" class="journey-img w-full max-w-3xl" loading="lazy" />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="step-card flex items-start gap-3 animate-fade-in-up d1">
+          <div class="step-num">1</div>
+          <div>
+            <p class="font-bold text-blue-800 mb-1">Study with Smart Content</p>
+            <p class="text-sm text-slate-500">Access chapter-wise quizzes, VVI questions, and AI-powered notes designed for BSEB syllabus.</p>
+          </div>
+        </div>
+        <div class="step-card flex items-start gap-3 animate-fade-in-up d2">
+          <div class="step-num">2</div>
+          <div>
+            <p class="font-bold text-blue-800 mb-1">Practice Model Papers</p>
+            <p class="text-sm text-slate-500">Attempt full model papers with timers to simulate real exam conditions.</p>
+          </div>
+        </div>
+        <div class="step-card flex items-start gap-3 animate-fade-in-up d3">
+          <div class="step-num">3</div>
+          <div>
+            <p class="font-bold text-blue-800 mb-1">Top Your Board Exam</p>
+            <p class="text-sm text-slate-500">Walk into your exam hall with confidence and score your best marks ever!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ STUDENT TESTIMONIALS ═══════════════════════════ -->
+  <section class="py-16 md:py-20 px-4 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-12">
+        <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-2">What Students Say</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-blue-800 mb-3">Student Voices</h2>
+        <p class="text-slate-500 max-w-lg mx-auto">Real feedback from Bihar Board students who are using Topperwa to prepare for their exams.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Testimonial 1 -->
+        <div class="testimonial-card animate-fade-in-up d1">
+          <div class="testimonial-stars mb-3">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed mb-5">
+            "Topperwa ne mera preparation completely change kar diya! Chapter quizzes se revision bahut easy ho gaya. Math aur Science ke VVI questions exam mein aa gaye!"
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="student_boy.jpg" alt="Rahul Kumar - Topperwa student from Patna" class="testimonial-avatar" loading="lazy" />
+            <div>
+              <p class="font-bold text-blue-800 text-sm">Rahul Kumar</p>
+              <p class="text-xs text-slate-500">Class 10, Patna</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="testimonial-card animate-fade-in-up d2">
+          <div class="testimonial-stars mb-3">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed mb-5">
+            "Mujhe Hindi aur Sanskrit mein bahut problem hota tha. Topperwa ke Gadya aur Kavya questions se meri preparation strong ho gayi. Best free app for Bihar Board!"
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="student_girl.jpg" alt="Priya Kumari - Topperwa student from Muzaffarpur" class="testimonial-avatar" loading="lazy" />
+            <div>
+              <p class="font-bold text-blue-800 text-sm">Priya Kumari</p>
+              <p class="text-xs text-slate-500">Class 10, Muzaffarpur</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="testimonial-card animate-fade-in-up d3">
+          <div class="testimonial-stars mb-3">★★★★★</div>
+          <p class="text-slate-600 text-sm leading-relaxed mb-5">
+            "Topperwa AI is amazing! Jab bhi koi doubt hota hai, AI se turant answer mil jaata hai. Model papers se exam ka pattern samajh aaya. Highly recommended!"
+          </p>
+          <div class="flex items-center gap-3">
+            <img src="student_boy2.jpg" alt="Amit Raj - Topperwa student from Bhagalpur" class="testimonial-avatar" loading="lazy" />
+            <div>
+              <p class="font-bold text-blue-800 text-sm">Amit Raj</p>
+              <p class="text-xs text-slate-500">Class 10, Bhagalpur</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="mt-12 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+          <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            <i class="fas fa-shield-alt text-green-600"></i>
+          </div>
+          <span class="font-semibold">100% Safe & Secure</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <i class="fas fa-mobile-alt text-blue-600"></i>
+          </div>
+          <span class="font-semibold">Works Offline (PWA)</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+          <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+            <i class="fas fa-rupee-sign text-orange-500"></i>
+          </div>
+          <span class="font-semibold">100% Free Forever</span>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+          <div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+            <i class="fas fa-award text-violet-600"></i>
+          </div>
+          <span class="font-semibold">BSEB Syllabus Aligned</span>
+        </div>
       </div>
     </div>
   </section>
